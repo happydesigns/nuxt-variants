@@ -1,12 +1,24 @@
 <template>
   <div>
     <h2>Article body</h2>
-    <p>This page uses the <strong>article</strong> variant which extends <code>breadcrumbs</code>, <code>hero</code>, and <code>toc</code>.</p>
-    <p>The <code>tocMaxDepth</code> and <code>tocTitle</code> values are overridden at runtime via <code>app.config.ts</code>, demonstrating live config layering without a rebuild.</p>
-    <p>Because this variant extends <code>toc</code>, the Table of Contents panel is rendered by the shared layout. Because it does <em>not</em> extend <code>sidebar</code>, the sidebar panel is absent.</p>
+    <p>
+      This page calls <code>useVariant('article')</code> with a <strong>literal string</strong>.
+      TypeScript infers the return type as
+      <code>ComputedRef&lt;Partial&lt;BreadcrumbsConfig &amp; HeroConfig &amp; TocConfig&gt;&gt;</code>
+      — no cast needed.
+    </p>
+    <table>
+      <tr><td><code>tocTitle</code></td><td>{{ config.tocTitle }}</td></tr>
+      <tr><td><code>tocMaxDepth</code></td><td>{{ config.tocMaxDepth }}</td></tr>
+      <tr><td><code>heroHeight</code></td><td>{{ config.heroHeight }}</td></tr>
+      <tr><td><code>heroAlign</code></td><td>{{ config.heroAlign }}</td></tr>
+      <tr><td><code>breadcrumbSeparator</code></td><td>{{ config.breadcrumbSeparator }}</td></tr>
+    </table>
   </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ layout: 'content', variant: 'article' })
+
+const config = useVariant('article')
 </script>

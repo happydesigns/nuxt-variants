@@ -1,12 +1,24 @@
 <template>
   <div>
     <h2>Landing body</h2>
-    <p>This page uses the <strong>landing</strong> variant which extends <code>hero</code> and <code>sidebar</code>.</p>
-    <p>The sidebar is on the <strong>left</strong> (overriding the base <code>right</code> default) and is collapsible. The hero is the tallest (<code>heroHeight: xl</code>) with a dark overlay.</p>
-    <p>Because this variant does not extend <code>breadcrumbs</code> or <code>toc</code>, neither of those panels is rendered by the shared layout.</p>
+    <p>
+      This page calls <code>useVariant('landing')</code> with a <strong>literal string</strong>.
+      TypeScript infers the return type as
+      <code>ComputedRef&lt;Partial&lt;HeroConfig &amp; SidebarConfig&gt;&gt;</code>
+      — no cast needed.
+    </p>
+    <table>
+      <tr><td><code>heroHeight</code></td><td>{{ config.heroHeight }}</td></tr>
+      <tr><td><code>heroOverlay</code></td><td>{{ config.heroOverlay }}</td></tr>
+      <tr><td><code>sidebarPosition</code></td><td>{{ config.sidebarPosition }}</td></tr>
+      <tr><td><code>sidebarWidth</code></td><td>{{ config.sidebarWidth }}</td></tr>
+      <tr><td><code>sidebarCollapsible</code></td><td>{{ config.sidebarCollapsible }}</td></tr>
+    </table>
   </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ layout: 'content', variant: 'landing' })
+
+const config = useVariant('landing')
 </script>
