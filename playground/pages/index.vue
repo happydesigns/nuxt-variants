@@ -48,40 +48,21 @@
 </template>
 
 <script setup lang="ts">
-type Source = 'nuxt.config' | 'app.config' | 'both'
+const registry = useVariantRegistry()
 
-const runtimeConfig = useRuntimeConfig()
-const appConfig = useAppConfig()
+type RegistryEntry = ReturnType<typeof useVariantRegistry>[number]
+type VariantSource = RegistryEntry['source']
 
-const configKey = runtimeConfig.public.variantsConfigKey as string
-const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as Record<string, { extends?: string | string[], config?: Record<string, unknown> }>
-const appRegistry = ((appConfig as Record<string, unknown>)[configKey] ?? {}) as Record<string, { extends?: string | string[], config?: Record<string, unknown> }>
+const features = computed(() => registry.filter((v: RegistryEntry) => !v.extends.length))
+const layouts = computed(() => registry.filter((v: RegistryEntry) => v.extends.length > 0))
 
-const allEntries = computed(() => {
-  const keys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)])
-  return [...keys].map((name) => {
-    const base = baseRegistry[name]
-    const app = appRegistry[name]
-    const resolvedExtends = app?.extends ?? base?.extends
-    const extendsArr = resolvedExtends === undefined
-      ? []
-      : Array.isArray(resolvedExtends) ? resolvedExtends : [resolvedExtends]
-    const source: Source = base && app ? 'both' : app ? 'app.config' : 'nuxt.config'
-    const configKeys = Object.keys({ ...(base?.config ?? {}), ...(app?.config ?? {}) })
-    return { name, extends: extendsArr, source, configKeys, isLayout: extendsArr.length > 0 }
-  })
-})
-
-const features = computed(() => allEntries.value.filter(v => !v.isLayout))
-const layouts = computed(() => allEntries.value.filter(v => v.isLayout))
-
-const sourceColors: Record<Source, { bg: string, color: string, border: string }> = {
+const sourceColors = {
   'nuxt.config': { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
   'app.config': { bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' },
   'both': { bg: '#faf5ff', color: '#7e22ce', border: '#e9d5ff' },
-}
+} satisfies Record<VariantSource, { bg: string, color: string, border: string }>
 
-function sourceBadgeStyle(source: Source) {
+function sourceBadgeStyle(source: VariantSource) {
   const c = sourceColors[source]
   return { fontSize: '11px', fontWeight: '600', padding: '2px 8px', borderRadius: '10px', background: c.bg, color: c.color, border: `1px solid ${c.border}` }
 }

@@ -39,4 +39,11 @@ declare module 'vue-router' {
   }
 }
 
+declare function useVariantRegistry(): {
+  name: string
+  extends: string[]
+  source: 'nuxt.config' | 'app.config' | 'both'
+  configKeys: string[]
+}[]
+
 export {}
