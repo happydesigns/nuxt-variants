@@ -1,6 +1,9 @@
 import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from 'vue'
 import { useRuntimeConfig, useAppConfig } from '#app'
 import { defuReplaceArray } from '../utils/merge'
+import type { CustomVariantRegistry } from '#nuxt-variants'
+
+export type { CustomVariantRegistry }
 
 /**
  * Describes a single variant entry in the registry.
@@ -11,20 +14,6 @@ export interface VariantDefinition<T> {
   active?: boolean
   config: Partial<T>
 }
-
-/**
- * Augment this interface in your consuming project to register named variants
- * and their configuration shapes, enabling strict typing for `useVariant`.
- *
- * @example
- * declare module 'nuxt-variants' {
- *   interface CustomVariantRegistry {
- *     myButton: ButtonProps
- *   }
- * }
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface CustomVariantRegistry {}
 
 type VariantName = keyof CustomVariantRegistry extends never
   ? string
@@ -40,6 +29,14 @@ type VariantConfigOf<K extends VariantName> = K extends keyof CustomVariantRegis
  * when `app.config` changes (e.g. via Nuxt Studio), without a page reload.
  *
  * Accepts a plain string or any ref/getter so the name itself can be reactive.
+ *
+ * To enable typed variant resolution, augment `CustomVariantRegistry` in your project:
+ * @example
+ * declare module '#nuxt-variants' {
+ *   interface CustomVariantRegistry {
+ *     myButton: { size: 'sm' | 'lg', rounded: boolean }
+ *   }
+ * }
  *
  * @param name - The variant key to resolve, typed against `CustomVariantRegistry` when augmented.
  * @returns A computed ref of the fully merged configuration object, or an empty object if the variant is inactive or not found.

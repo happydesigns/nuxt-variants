@@ -1,12 +1,18 @@
 <template>
   <div :style="styles.page">
     <nav :style="styles.nav">
-      <NuxtLink to="/" :style="styles.navLink">← All variants</NuxtLink>
+      <NuxtLink
+        to="/"
+        :style="styles.navLink"
+      >← All variants</NuxtLink>
       <span :style="styles.badge">layout: content</span>
       <span :style="styles.badge">variant: {{ variantName }}</span>
     </nav>
 
-    <div v-if="hasBreadcrumbs" :style="styles.breadcrumbs">
+    <div
+      v-if="hasBreadcrumbs"
+      :style="styles.breadcrumbs"
+    >
       <span v-if="config.breadcrumbShowHome">🏠 Home</span>
       <span>{{ config.breadcrumbSeparator }}</span>
       <span>{{ variantName }}</span>
@@ -23,9 +29,13 @@
       }"
     >
       <div :style="styles.heroContent">
-        <p :style="styles.heroLabel">hero · height: {{ config.heroHeight }} · overlay: {{ config.heroOverlay }}</p>
+        <p :style="styles.heroLabel">
+          hero · height: {{ config.heroHeight }} · overlay: {{ config.heroOverlay }}
+        </p>
         <slot name="hero-title">
-          <h1 :style="styles.heroTitle">{{ pageTitle }}</h1>
+          <h1 :style="styles.heroTitle">
+            {{ pageTitle }}
+          </h1>
         </slot>
         <slot name="hero-subtitle" />
       </div>
@@ -41,10 +51,18 @@
         }"
       >
         <div :style="styles.sidebarInner">
-          <h3 :style="styles.sidebarTitle">Sidebar</h3>
-          <p :style="styles.sidebarMeta">position: {{ config.sidebarPosition }}</p>
-          <p :style="styles.sidebarMeta">width: {{ config.sidebarWidth }}px</p>
-          <p :style="styles.sidebarMeta">collapsible: {{ config.sidebarCollapsible }}</p>
+          <h3 :style="styles.sidebarTitle">
+            Sidebar
+          </h3>
+          <p :style="styles.sidebarMeta">
+            position: {{ config.sidebarPosition }}
+          </p>
+          <p :style="styles.sidebarMeta">
+            width: {{ config.sidebarWidth }}px
+          </p>
+          <p :style="styles.sidebarMeta">
+            collapsible: {{ config.sidebarCollapsible }}
+          </p>
           <slot name="sidebar" />
         </div>
       </aside>
@@ -60,14 +78,24 @@
           position: config.tocSticky ? 'sticky' : 'static',
         }"
       >
-        <h3 :style="styles.tocTitle">{{ config.tocTitle }}</h3>
-        <p :style="styles.tocMeta">maxDepth: {{ config.tocMaxDepth }}</p>
-        <p :style="styles.tocMeta">sticky: {{ config.tocSticky }}</p>
+        <h3 :style="styles.tocTitle">
+          {{ config.tocTitle }}
+        </h3>
+        <p :style="styles.tocMeta">
+          maxDepth: {{ config.tocMaxDepth }}
+        </p>
+        <p :style="styles.tocMeta">
+          sticky: {{ config.tocSticky }}
+        </p>
         <ul :style="styles.tocList">
           <li>Introduction</li>
           <li>Section 1</li>
-          <li v-if="(config.tocMaxDepth ?? 1) >= 2">→ Subsection 1.1</li>
-          <li v-if="(config.tocMaxDepth ?? 1) >= 3">→→ Deep section 1.1.1</li>
+          <li v-if="(config.tocMaxDepth ?? 1) >= 2">
+            → Subsection 1.1
+          </li>
+          <li v-if="(config.tocMaxDepth ?? 1) >= 3">
+            →→ Deep section 1.1.1
+          </li>
           <li>Section 2</li>
         </ul>
         <slot name="toc" />
@@ -75,14 +103,43 @@
     </div>
 
     <div :style="styles.debugPanel">
-      <h3 :style="styles.debugTitle">Resolved config</h3>
+      <h3 :style="styles.debugTitle">
+        Resolved config
+      </h3>
       <table :style="styles.debugTable">
-        <tr v-for="(value, key) in config" :key="key">
-          <td :style="styles.debugKey">{{ key }}</td>
-          <td :style="styles.debugValue">{{ value }}</td>
+        <tr
+          v-for="(value, key) in config"
+          :key="key"
+        >
+          <td :style="styles.debugKey">
+            {{ key }}
+          </td>
+          <td :style="styles.debugValue">
+            {{ value }}
+          </td>
         </tr>
       </table>
-      <h3 :style="{ ...styles.debugTitle, marginTop: '12px' }">Feature flags</h3>
+      <template v-if="hasToc">
+        <h3 :style="{ ...styles.debugTitle, marginTop: '12px' }">
+          toc feature defaults
+        </h3>
+        <table :style="styles.debugTable">
+          <tr
+            v-for="(value, key) in tocConfig"
+            :key="key"
+          >
+            <td :style="styles.debugKey">
+              {{ key }}
+            </td>
+            <td :style="styles.debugValue">
+              {{ value }}
+            </td>
+          </tr>
+        </table>
+      </template>
+      <h3 :style="{ ...styles.debugTitle, marginTop: '12px' }">
+        Feature flags
+      </h3>
       <div :style="styles.flags">
         <span :style="flagStyle(hasBreadcrumbs)">breadcrumbs {{ hasBreadcrumbs ? '✓' : '✗' }}</span>
         <span :style="flagStyle(hasHero)">hero {{ hasHero ? '✓' : '✗' }}</span>
@@ -116,6 +173,7 @@ const variantName = computed(() => route.meta.variant ?? 'unknown')
 const pageTitle = computed(() => String(variantName.value).charAt(0).toUpperCase() + String(variantName.value).slice(1))
 
 const config = useVariant(variantName) as ComputedRef<LayoutConfig>
+const tocConfig = useVariant('toc')
 
 const hasBreadcrumbs = useVariantExtends(variantName, 'breadcrumbs')
 const hasHero = useVariantExtends(variantName, 'hero')

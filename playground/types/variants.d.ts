@@ -1,27 +1,27 @@
-declare module 'nuxt-variants' {
-  interface BreadcrumbsConfig {
-    breadcrumbSeparator: string
-    breadcrumbShowHome: boolean
-  }
+interface BreadcrumbsConfig {
+  breadcrumbSeparator: string
+  breadcrumbShowHome: boolean
+}
 
-  interface HeroConfig {
-    heroHeight: 'sm' | 'md' | 'lg' | 'xl'
-    heroOverlay: boolean
-    heroAlign: 'left' | 'center' | 'right'
-  }
+interface HeroConfig {
+  heroHeight: 'sm' | 'md' | 'lg' | 'xl'
+  heroOverlay: boolean
+  heroAlign: 'left' | 'center' | 'right'
+}
 
-  interface TocConfig {
-    tocMaxDepth: number
-    tocSticky: boolean
-    tocTitle: string
-  }
+interface TocConfig {
+  tocMaxDepth: number
+  tocSticky: boolean
+  tocTitle: string
+}
 
-  interface SidebarConfig {
-    sidebarPosition: 'left' | 'right'
-    sidebarWidth: number
-    sidebarCollapsible: boolean
-  }
+interface SidebarConfig {
+  sidebarPosition: 'left' | 'right'
+  sidebarWidth: number
+  sidebarCollapsible: boolean
+}
 
+declare module '#nuxt-variants' {
   interface CustomVariantRegistry {
     breadcrumbs: BreadcrumbsConfig
     hero: HeroConfig
