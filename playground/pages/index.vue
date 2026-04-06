@@ -5,46 +5,104 @@
       <p :style="styles.subtitle">A centralized, deeply-merging configuration engine for Nuxt layouts.</p>
     </div>
 
-    <div :style="styles.grid">
-      <NuxtLink
-        v-for="v in variants"
-        :key="v.name"
-        :to="`/${v.name}`"
-        :style="styles.card"
-      >
-        <div :style="styles.cardName">{{ v.name }}</div>
-        <div :style="styles.cardExtends">extends: {{ v.extends.join(', ') }}</div>
-        <div :style="styles.cardFeatures">
-          <span v-for="f in v.features" :key="f" :style="styles.feature">{{ f }}</span>
+    <section :style="styles.section">
+      <h2 :style="styles.sectionTitle">Features</h2>
+      <p :style="styles.sectionDesc">Base building blocks — no <code>extends</code>, just config defaults.</p>
+      <div :style="styles.grid">
+        <div v-for="f in features" :key="f.name" :style="styles.featureCard">
+          <div :style="styles.cardRow">
+            <span :style="styles.cardName">{{ f.name }}</span>
+            <span :style="sourceBadgeStyle(f.source)">{{ f.source }}</span>
+          </div>
+          <div :style="styles.configKeys">
+            <code v-for="k in f.configKeys" :key="k" :style="styles.configKey">{{ k }}</code>
+          </div>
         </div>
-      </NuxtLink>
-    </div>
+      </div>
+    </section>
 
-    <div :style="styles.note">
-      <strong>app.config override active:</strong> <code>article.tocMaxDepth</code> is overridden from
-      <code>3 → 2</code> and <code>article.tocTitle</code> from <code>"On this page" → "Contents"</code>.
-    </div>
+    <section :style="styles.section">
+      <h2 :style="styles.sectionTitle">Layout variants</h2>
+      <p :style="styles.sectionDesc">Compose features and override config. Click to preview.</p>
+      <div :style="styles.grid">
+        <NuxtLink
+          v-for="v in layouts"
+          :key="v.name"
+          :to="`/${v.name}`"
+          :style="styles.layoutCard"
+        >
+          <div :style="styles.cardRow">
+            <span :style="styles.cardName">{{ v.name }}</span>
+            <span :style="sourceBadgeStyle(v.source)">{{ v.source }}</span>
+          </div>
+          <div :style="styles.extendsRow">
+            <span v-for="p in v.extends" :key="p" :style="styles.parentBadge">{{ p }}</span>
+          </div>
+          <div v-if="v.source === 'both'" :style="styles.overrideNote">
+            app.config extends the chain and overrides config
+          </div>
+        </NuxtLink>
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-const variants = [
-  { name: 'article', extends: ['breadcrumbs', 'hero', 'toc'], features: ['breadcrumbs ✓', 'hero ✓', 'toc ✓', 'sidebar ✗'] },
-  { name: 'event', extends: ['breadcrumbs', 'hero'], features: ['breadcrumbs ✓', 'hero ✓', 'toc ✗', 'sidebar ✗'] },
-  { name: 'landing', extends: ['hero', 'sidebar'], features: ['breadcrumbs ✗', 'hero ✓', 'toc ✗', 'sidebar ✓'] },
-]
+type Source = 'nuxt.config' | 'app.config' | 'both'
+
+const runtimeConfig = useRuntimeConfig()
+const appConfig = useAppConfig()
+
+const configKey = runtimeConfig.public.variantsConfigKey as string
+const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as Record<string, { extends?: string | string[], config?: Record<string, unknown> }>
+const appRegistry = ((appConfig as Record<string, unknown>)[configKey] ?? {}) as Record<string, { extends?: string | string[], config?: Record<string, unknown> }>
+
+const allEntries = computed(() => {
+  const keys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)])
+  return [...keys].map((name) => {
+    const base = baseRegistry[name]
+    const app = appRegistry[name]
+    const resolvedExtends = app?.extends ?? base?.extends
+    const extendsArr = resolvedExtends === undefined
+      ? []
+      : Array.isArray(resolvedExtends) ? resolvedExtends : [resolvedExtends]
+    const source: Source = base && app ? 'both' : app ? 'app.config' : 'nuxt.config'
+    const configKeys = Object.keys({ ...(base?.config ?? {}), ...(app?.config ?? {}) })
+    return { name, extends: extendsArr, source, configKeys, isLayout: extendsArr.length > 0 }
+  })
+})
+
+const features = computed(() => allEntries.value.filter(v => !v.isLayout))
+const layouts = computed(() => allEntries.value.filter(v => v.isLayout))
+
+const sourceColors: Record<Source, { bg: string, color: string, border: string }> = {
+  'nuxt.config': { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+  'app.config': { bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' },
+  'both': { bg: '#faf5ff', color: '#7e22ce', border: '#e9d5ff' },
+}
+
+function sourceBadgeStyle(source: Source) {
+  const c = sourceColors[source]
+  return { fontSize: '11px', fontWeight: '600', padding: '2px 8px', borderRadius: '10px', background: c.bg, color: c.color, border: `1px solid ${c.border}` }
+}
 
 const styles = {
   page: { fontFamily: 'system-ui, sans-serif', minHeight: '100vh', background: '#f8fafc', padding: '48px 32px' },
-  header: { maxWidth: '640px', marginBottom: '40px' },
+  header: { maxWidth: '640px', marginBottom: '48px' },
   title: { margin: '0 0 12px', fontSize: '32px', fontWeight: '800', color: '#0f172a' },
   subtitle: { margin: 0, color: '#64748b', fontSize: '16px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px', maxWidth: '900px' },
-  card: { display: 'block', padding: '24px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', textDecoration: 'none', transition: 'box-shadow 0.2s' },
-  cardName: { fontSize: '22px', fontWeight: '700', color: '#1e293b', marginBottom: '6px', textTransform: 'capitalize' as const },
-  cardExtends: { fontSize: '13px', color: '#94a3b8', marginBottom: '14px', fontFamily: 'monospace' },
-  cardFeatures: { display: 'flex', flexWrap: 'wrap' as const, gap: '6px' },
-  feature: { fontSize: '12px', padding: '2px 8px', background: '#f1f5f9', borderRadius: '10px', color: '#475569' },
-  note: { marginTop: '32px', maxWidth: '640px', padding: '16px 20px', background: '#fefce8', border: '1px solid #fde68a', borderRadius: '8px', fontSize: '14px', color: '#713f12' },
+  section: { marginBottom: '48px' },
+  sectionTitle: { margin: '0 0 4px', fontSize: '18px', fontWeight: '700', color: '#0f172a' },
+  sectionDesc: { margin: '0 0 20px', fontSize: '14px', color: '#64748b' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px', maxWidth: '960px' },
+  featureCard: { padding: '18px 20px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px' },
+  layoutCard: { display: 'block', padding: '18px 20px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', textDecoration: 'none' },
+  cardRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' },
+  cardName: { fontSize: '16px', fontWeight: '700', color: '#1e293b', textTransform: 'capitalize' as const },
+  configKeys: { display: 'flex', flexWrap: 'wrap' as const, gap: '4px' },
+  configKey: { fontSize: '11px', padding: '1px 6px', background: '#f1f5f9', borderRadius: '4px', color: '#475569', fontFamily: 'monospace' },
+  extendsRow: { display: 'flex', flexWrap: 'wrap' as const, gap: '4px', marginBottom: '8px' },
+  parentBadge: { fontSize: '12px', padding: '2px 8px', background: '#f1f5f9', borderRadius: '10px', color: '#475569' },
+  overrideNote: { fontSize: '11px', color: '#7e22ce', marginTop: '6px' },
 }
 </script>
