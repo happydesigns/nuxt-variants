@@ -1,3 +1,4 @@
+import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from 'vue'
 import { useRuntimeConfig, useAppConfig } from '#app'
 import { defuReplaceArray } from '../utils/merge'
 
@@ -34,60 +35,65 @@ type VariantConfigOf<K extends VariantName> = K extends keyof CustomVariantRegis
   : Record<string, unknown>
 
 /**
- * Resolves a named variant by merging its configuration with all inherited
- * parent variants, giving priority to `app.config` overrides over `nuxt.config`
- * base definitions.
+ * Reactively resolves a named variant by merging its configuration with all
+ * inherited parent variants. The returned computed ref updates automatically
+ * when `app.config` changes (e.g. via Nuxt Studio), without a page reload.
+ *
+ * Accepts a plain string or any ref/getter so the name itself can be reactive.
  *
  * @param name - The variant key to resolve, typed against `CustomVariantRegistry` when augmented.
- * @returns The fully merged configuration object for the variant, or an empty object if the variant is inactive or not found.
+ * @returns A computed ref of the fully merged configuration object, or an empty object if the variant is inactive or not found.
  */
-export function useVariant<K extends VariantName>(name: K): VariantConfigOf<K> {
+export function useVariant<K extends VariantName>(name: MaybeRefOrGetter<K>): ComputedRef<VariantConfigOf<K>> {
   const runtimeConfig = useRuntimeConfig()
   const appConfig = useAppConfig()
 
-  const configKey = runtimeConfig.public.variantsConfigKey as string
-  const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as Record<string, VariantDefinition<unknown>>
-  const overrideRegistry = ((appConfig as Record<string, unknown>)[configKey] ?? {}) as Record<string, VariantDefinition<unknown>>
+  return computed(() => {
+    const resolvedName = toValue(name) as string
+    const configKey = runtimeConfig.public.variantsConfigKey as string
+    const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as Record<string, VariantDefinition<unknown>>
+    const overrideRegistry = ((appConfig as Record<string, unknown>)[configKey] ?? {}) as Record<string, VariantDefinition<unknown>>
 
-  function resolve(variantName: string, visited: Set<string>): Record<string, unknown> {
-    if (visited.has(variantName)) {
-      return {}
+    function resolve(variantName: string, visited: Set<string>): Record<string, unknown> {
+      if (visited.has(variantName)) {
+        return {}
+      }
+
+      visited.add(variantName)
+
+      const baseEntry = baseRegistry[variantName] as VariantDefinition<unknown> | undefined
+      const overrideEntry = overrideRegistry[variantName] as VariantDefinition<unknown> | undefined
+
+      if (!baseEntry && !overrideEntry) {
+        return {}
+      }
+
+      const isActive = overrideEntry?.active ?? baseEntry?.active ?? true
+      if (isActive === false) {
+        return {}
+      }
+
+      const extendsFrom = overrideEntry?.extends ?? baseEntry?.extends
+      const parentNames = extendsFrom === undefined
+        ? []
+        : Array.isArray(extendsFrom)
+          ? extendsFrom
+          : [extendsFrom]
+
+      const resolvedParents = parentNames.reduceRight<Record<string, unknown>>(
+        (acc, parentName) => defuReplaceArray(acc, resolve(parentName, new Set(visited))),
+        {},
+      )
+
+      const mergedConfig = defuReplaceArray(
+        {},
+        (overrideEntry?.config ?? {}) as Record<string, unknown>,
+        (baseEntry?.config ?? {}) as Record<string, unknown>,
+      )
+
+      return defuReplaceArray({}, mergedConfig, resolvedParents)
     }
 
-    visited.add(variantName)
-
-    const baseEntry = baseRegistry[variantName] as VariantDefinition<unknown> | undefined
-    const overrideEntry = overrideRegistry[variantName] as VariantDefinition<unknown> | undefined
-
-    if (!baseEntry && !overrideEntry) {
-      return {}
-    }
-
-    const isActive = overrideEntry?.active ?? baseEntry?.active ?? true
-    if (isActive === false) {
-      return {}
-    }
-
-    const extendsFrom = overrideEntry?.extends ?? baseEntry?.extends
-    const parentNames = extendsFrom === undefined
-      ? []
-      : Array.isArray(extendsFrom)
-        ? extendsFrom
-        : [extendsFrom]
-
-    const resolvedParents = parentNames.reduceRight<Record<string, unknown>>(
-      (acc, parentName) => defuReplaceArray(acc, resolve(parentName, new Set(visited))),
-      {},
-    )
-
-    const mergedConfig = defuReplaceArray(
-      {},
-      (overrideEntry?.config ?? {}) as Record<string, unknown>,
-      (baseEntry?.config ?? {}) as Record<string, unknown>,
-    )
-
-    return defuReplaceArray({}, mergedConfig, resolvedParents)
-  }
-
-  return resolve(name as string, new Set()) as VariantConfigOf<K>
+    return resolve(resolvedName, new Set()) as VariantConfigOf<K>
+  })
 }

@@ -94,17 +94,33 @@
 </template>
 
 <script setup lang="ts">
+import type { ComputedRef } from 'vue'
+
+interface LayoutConfig {
+  breadcrumbSeparator?: string
+  breadcrumbShowHome?: boolean
+  heroHeight?: string
+  heroOverlay?: boolean
+  heroAlign?: string
+  tocMaxDepth?: number
+  tocSticky?: boolean
+  tocTitle?: string
+  sidebarPosition?: string
+  sidebarWidth?: number
+  sidebarCollapsible?: boolean
+}
+
 const route = useRoute()
 
 const variantName = computed(() => route.meta.variant ?? 'unknown')
 const pageTitle = computed(() => String(variantName.value).charAt(0).toUpperCase() + String(variantName.value).slice(1))
 
-const config = computed(() => useVariant(variantName.value))
+const config = useVariant(variantName) as ComputedRef<LayoutConfig>
 
-const hasBreadcrumbs = computed(() => useVariantExtends(variantName.value, 'breadcrumbs'))
-const hasHero = computed(() => useVariantExtends(variantName.value, 'hero'))
-const hasToc = computed(() => useVariantExtends(variantName.value, 'toc'))
-const hasSidebar = computed(() => useVariantExtends(variantName.value, 'sidebar'))
+const hasBreadcrumbs = useVariantExtends(variantName, 'breadcrumbs')
+const hasHero = useVariantExtends(variantName, 'hero')
+const hasToc = useVariantExtends(variantName, 'toc')
+const hasSidebar = useVariantExtends(variantName, 'sidebar')
 
 const heroHeights: Record<string, string> = {
   sm: '160px',

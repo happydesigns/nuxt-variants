@@ -1,3 +1,4 @@
+import { computed, type ComputedRef } from 'vue'
 import { useRuntimeConfig, useAppConfig } from '#app'
 import type { VariantDefinition } from './useVariant'
 
@@ -17,33 +18,36 @@ export interface RegistryEntry {
 }
 
 /**
- * Returns a flat list of all variants known to the registry, combining
+ * Reactively returns a flat list of all variants known to the registry, combining
  * entries from `nuxt.config` (build-time) and `app.config` (runtime).
+ * The returned computed ref updates automatically when `app.config` changes.
  */
-export function useVariantRegistry(): RegistryEntry[] {
+export function useVariantRegistry(): ComputedRef<RegistryEntry[]> {
   const runtimeConfig = useRuntimeConfig()
   const appConfig = useAppConfig()
 
-  const configKey = runtimeConfig.public.variantsConfigKey as string
-  const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as Record<string, VariantDefinition<unknown>>
-  const appRegistry = ((appConfig as Record<string, unknown>)[configKey] ?? {}) as Record<string, VariantDefinition<unknown>>
+  return computed(() => {
+    const configKey = runtimeConfig.public.variantsConfigKey as string
+    const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as Record<string, VariantDefinition<unknown>>
+    const appRegistry = ((appConfig as Record<string, unknown>)[configKey] ?? {}) as Record<string, VariantDefinition<unknown>>
 
-  const keys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)])
+    const keys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)])
 
-  return [...keys].map((name) => {
-    const base = baseRegistry[name]
-    const app = appRegistry[name]
+    return [...keys].map((name) => {
+      const base = baseRegistry[name]
+      const app = appRegistry[name]
 
-    const resolvedExtends = app?.extends ?? base?.extends
-    const extendsArr = resolvedExtends === undefined
-      ? []
-      : Array.isArray(resolvedExtends) ? resolvedExtends : [resolvedExtends]
+      const resolvedExtends = app?.extends ?? base?.extends
+      const extendsArr = resolvedExtends === undefined
+        ? []
+        : Array.isArray(resolvedExtends) ? resolvedExtends : [resolvedExtends]
 
-    const configKeys = Object.keys({
-      ...(base?.config as object ?? {}),
-      ...(app?.config as object ?? {}),
+      const configKeys = Object.keys({
+        ...(base?.config as object ?? {}),
+        ...(app?.config as object ?? {}),
+      })
+
+      return { name, extends: extendsArr, configKeys }
     })
-
-    return { name, extends: extendsArr, configKeys }
   })
 }
