@@ -41,10 +41,10 @@
 <script setup lang="ts">
 const registry = useVariantRegistry()
 
-type RegistryEntry = ReturnType<typeof useVariantRegistry>[number]
+type RegistryEntry = ReturnType<typeof useVariantRegistry>['value'][number]
 
-const features = computed(() => registry.filter((v: RegistryEntry) => !v.extends.length))
-const layouts = computed(() => registry.filter((v: RegistryEntry) => v.extends.length > 0))
+const features = computed(() => registry.value.filter((v: RegistryEntry) => !v.extends.length))
+const layouts = computed(() => registry.value.filter((v: RegistryEntry) => v.extends.length > 0))
 
 const styles = {
   page: { fontFamily: 'system-ui, sans-serif', minHeight: '100vh', background: '#f8fafc', padding: '48px 32px' },

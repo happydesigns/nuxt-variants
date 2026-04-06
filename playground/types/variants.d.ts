@@ -39,10 +39,10 @@ declare module 'vue-router' {
   }
 }
 
-declare function useVariantRegistry(): {
+declare function useVariantRegistry(): import('vue').ComputedRef<{
   name: string
   extends: string[]
   configKeys: string[]
-}[]
+}[]>
 
 export {}
