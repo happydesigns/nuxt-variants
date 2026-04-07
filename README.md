@@ -23,7 +23,7 @@ A centralized, deeply-merging configuration engine for Nuxt layouts. Define reus
 ## Quick Setup
 
 ```bash
-npx nuxt module add nuxt-variants
+npx nuxt module add @h4designs/nuxt-variants
 ```
 
 ## Basic Usage
@@ -300,14 +300,14 @@ Arrays in config are **replaced**, not concatenated, when a child overrides a pa
 
 
 <!-- Badges -->
-[npm-version-src]: https://img.shields.io/npm/v/nuxt-variants/latest.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-version-href]: https://npmjs.com/package/nuxt-variants
+[npm-version-src]: https://img.shields.io/npm/v/@h4designs/nuxt-variants/latest.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-version-href]: https://npmjs.com/package/@h4designs/nuxt-variants
 
-[npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npm.chart.dev/nuxt-variants
+[npm-downloads-src]: https://img.shields.io/npm/dm/@h4designs/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-downloads-href]: https://npm.chart.dev/@h4designs/nuxt-variants
 
-[license-src]: https://img.shields.io/npm/l/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
-[license-href]: https://npmjs.com/package/nuxt-variants
+[license-src]: https://img.shields.io/npm/l/@h4designs/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
+[license-href]: https://npmjs.com/package/@h4designs/nuxt-variants
 
 [nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt
 [nuxt-href]: https://nuxt.com

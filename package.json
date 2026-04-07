@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-variants",
+  "name": "@h4designs/nuxt-variants",
   "version": "0.0.0",
   "description": "A centralized, deeply-merging configuration engine for Nuxt layouts with build-time variant graph and Nuxt Content v3 schema merging.",
   "repository": {
