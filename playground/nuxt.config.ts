@@ -1,31 +1,21 @@
 export default defineNuxtConfig({
-  modules: ['nuxt-variants'],
+  modules: ['../src/module', '@nuxt/content'],
   devtools: { enabled: true },
   compatibilityDate: 'latest',
 
   variants: {
     configKey: 'variants',
     registry: {
-      breadcrumbs: {
+      seo: {
         config: {
-          breadcrumbSeparator: ' / ',
-          breadcrumbShowHome: true,
-        },
-      },
-
-      hero: {
-        config: {
-          heroHeight: 'md' as const,
-          heroOverlay: false,
-          heroAlign: 'left' as const,
+          titleTemplate: '%s - My Site',
         },
       },
 
       article: {
-        extends: ['breadcrumbs', 'hero'],
+        extends: ['seo'],
         config: {
-          heroHeight: 'sm' as const,
-          heroAlign: 'left' as const,
+          authorBox: true,
         },
       },
     },

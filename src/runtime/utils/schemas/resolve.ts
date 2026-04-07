@@ -1,4 +1,3 @@
-import { variantGraph } from '#variants-graph'
 import { detectAdapter } from './adapters/detect'
 import type { AnyObjectSchema } from './adapters/types'
 
@@ -41,15 +40,18 @@ function resolveExtendsGraph(variants: string[], graph: Record<string, string[]>
  *
  * @param activeVariants - The variant names that are currently active.
  * @param registry - A map of variant names to their object schemas.
+ * @param graph - The pre-computed variant inheritance graph. When omitted the
+ *   function treats every variant as having no parents (flat resolution).
  * @returns The merged object schema, or an empty object schema when no
  *   registered schema is found for any of the active variants.
  */
 export function mergeVariantSchemas(
   activeVariants: string[],
   registry: SchemaRegistry,
+  graph: Record<string, string[]> = {},
 ): AnyObjectSchema {
   const firstSchema = activeVariants
-    .flatMap(v => resolveExtendsGraph([v], variantGraph))
+    .flatMap(v => resolveExtendsGraph([v], graph))
     .map(name => registry[name])
     .find((s): s is AnyObjectSchema => s !== undefined)
 
@@ -60,7 +62,7 @@ export function mergeVariantSchemas(
   const adapter = detectAdapter(firstSchema)
   let base = adapter.emptyObject() as AnyObjectSchema
 
-  const flattened = resolveExtendsGraph(activeVariants, variantGraph)
+  const flattened = resolveExtendsGraph(activeVariants, graph)
 
   for (const name of flattened) {
     const extra = registry[name]

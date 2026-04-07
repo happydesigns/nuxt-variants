@@ -1,3 +1,5 @@
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { defineNuxtModule, addImportsDir, addTypeTemplate, addTemplate, createResolver } from '@nuxt/kit'
 
 /** A single variant entry as it appears in either the base registry or appConfig overrides. */
@@ -49,20 +51,27 @@ export interface CustomVariantRegistry {}
         : Array.isArray(extendsValue) ? extendsValue : [extendsValue]
     }
 
-    const graphTemplate = addTemplate({
+    const graphMjsPath = join(nuxt.options.buildDir, 'variants-graph.mjs')
+    const graphDtsPath = join(nuxt.options.buildDir, 'variants-graph.d.ts')
+
+    mkdirSync(nuxt.options.buildDir, { recursive: true })
+    writeFileSync(graphMjsPath, `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};\n`, 'utf-8')
+    writeFileSync(graphDtsPath, `export declare const variantGraph: Record<string, string[]>;\n`, 'utf-8')
+
+    addTemplate({
       filename: 'variants-graph.mjs',
       getContents: () => `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};\n`,
     })
 
-    const graphTypeTemplate = addTemplate({
+    addTemplate({
       filename: 'variants-graph.d.ts',
       getContents: () => `export declare const variantGraph: Record<string, string[]>;\n`,
     })
 
-    nuxt.options.alias['#variants-graph'] = graphTemplate.dst
+    nuxt.options.alias['#variants-graph'] = graphMjsPath
 
     nuxt.hook('prepare:types', ({ references }) => {
-      references.push({ path: graphTypeTemplate.dst })
+      references.push({ path: graphDtsPath })
     })
 
     addImportsDir(resolver.resolve('./runtime/composables'))
