@@ -9,6 +9,6 @@ export const zodAdapter: SchemaAdapter<ZodObj> = {
   },
 
   merge(base, extra) {
-    return base.merge(extra)
+    return base.extend(extra.shape)
   },
 }
