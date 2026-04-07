@@ -1,20 +1,20 @@
-import { computed, type ComputedRef } from 'vue'
-import { useRuntimeConfig, useAppConfig } from '#app'
-import type { VariantDefinition } from './useVariant'
+import { computed, type ComputedRef } from "vue";
+import { useRuntimeConfig, useAppConfig } from "#app";
+import type { VariantDefinition } from "./useVariant";
 
 /**
  * Describes a resolved registry entry as returned by `useVariantRegistry`.
  */
 export interface RegistryEntry {
   /** The variant's key in the registry. */
-  name: string
+  name: string;
   /**
    * The resolved `extends` chain (from `app.config` if present, otherwise `nuxt.config`).
    * An empty array means this is a base feature with no parents.
    */
-  extends: string[]
+  extends: string[];
   /** Union of all config keys defined across both sources. */
-  configKeys: string[]
+  configKeys: string[];
 }
 
 /**
@@ -23,31 +23,40 @@ export interface RegistryEntry {
  * The returned computed ref updates automatically when `app.config` changes.
  */
 export function useVariantRegistry(): ComputedRef<RegistryEntry[]> {
-  const runtimeConfig = useRuntimeConfig()
-  const appConfig = useAppConfig()
+  const runtimeConfig = useRuntimeConfig();
+  const appConfig = useAppConfig();
 
   return computed(() => {
-    const configKey = runtimeConfig.public.variantsConfigKey as string
-    const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as Record<string, VariantDefinition<unknown>>
-    const appRegistry = ((appConfig as Record<string, unknown>)[configKey] ?? {}) as Record<string, VariantDefinition<unknown>>
+    const configKey = runtimeConfig.public.variantsConfigKey as string;
+    const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as Record<
+      string,
+      VariantDefinition<unknown>
+    >;
+    const appRegistry = ((appConfig as Record<string, unknown>)[configKey] ?? {}) as Record<
+      string,
+      VariantDefinition<unknown>
+    >;
 
-    const keys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)])
+    const keys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)]);
 
     return [...keys].map((name) => {
-      const base = baseRegistry[name]
-      const app = appRegistry[name]
+      const base = baseRegistry[name];
+      const app = appRegistry[name];
 
-      const resolvedExtends = app?.extends ?? base?.extends
-      const extendsArr = resolvedExtends === undefined
-        ? []
-        : Array.isArray(resolvedExtends) ? resolvedExtends : [resolvedExtends]
+      const resolvedExtends = app?.extends ?? base?.extends;
+      const extendsArr =
+        resolvedExtends === undefined
+          ? []
+          : Array.isArray(resolvedExtends)
+            ? resolvedExtends
+            : [resolvedExtends];
 
       const configKeys = Object.keys({
-        ...(base?.config as object ?? {}),
-        ...(app?.config as object ?? {}),
-      })
+        ...base?.config,
+        ...app?.config,
+      });
 
-      return { name, extends: extendsArr, configKeys }
-    })
-  })
+      return { name, extends: extendsArr, configKeys };
+    });
+  });
 }

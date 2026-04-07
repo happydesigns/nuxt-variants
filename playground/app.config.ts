@@ -4,46 +4,46 @@ export default defineAppConfig({
       config: {
         tocMaxDepth: 3,
         tocSticky: true,
-        tocTitle: 'On this page',
+        tocTitle: "On this page",
       },
     },
 
     sidebar: {
       config: {
-        sidebarPosition: 'right',
+        sidebarPosition: "right",
         sidebarWidth: 280,
         sidebarCollapsible: false,
       },
     },
 
     article: {
-      extends: ['breadcrumbs', 'hero', 'seo', 'toc'],
+      extends: ["breadcrumbs", "hero", "seo", "toc"],
       config: {
-        heroHeight: 'sm',
-        heroAlign: 'center',
-        tocTitle: 'Contents',
+        heroHeight: "sm",
+        heroAlign: "center",
+        tocTitle: "Contents",
         authorBox: false,
       },
     },
 
     event: {
-      extends: ['breadcrumbs', 'hero'],
+      extends: ["breadcrumbs", "hero"],
       config: {
-        heroHeight: 'lg',
+        heroHeight: "lg",
         heroOverlay: true,
-        heroAlign: 'center',
+        heroAlign: "center",
       },
     },
 
     landing: {
-      extends: ['hero', 'sidebar'],
+      extends: ["hero", "sidebar"],
       config: {
-        heroHeight: 'xl',
+        heroHeight: "xl",
         heroOverlay: true,
-        heroAlign: 'center',
-        sidebarPosition: 'left',
+        heroAlign: "center",
+        sidebarPosition: "left",
         sidebarCollapsible: true,
       },
     },
   },
-})
+});

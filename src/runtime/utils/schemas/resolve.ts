@@ -1,34 +1,34 @@
-import { detectAdapter } from './adapters/detect'
-import type { AnyObjectSchema } from './adapters/types'
+import { detectAdapter } from "./adapters/detect";
+import type { AnyObjectSchema } from "./adapters/types";
 
 /**
  * A registry mapping variant names to their object schemas.
  * Entries may be `undefined` for variants that have no schema of their own.
  */
 export interface SchemaRegistry {
-  [variantName: string]: AnyObjectSchema | undefined
+  [variantName: string]: AnyObjectSchema | undefined;
 }
 
 function resolveExtendsGraph(variants: string[], graph: Record<string, string[]>): string[] {
-  const result: string[] = []
-  const visited = new Set<string>()
+  const result: string[] = [];
+  const visited = new Set<string>();
 
   function walk(name: string): void {
-    if (visited.has(name)) return
-    visited.add(name)
+    if (visited.has(name)) return;
+    visited.add(name);
 
-    for (const parent of (graph[name] ?? [])) {
-      walk(parent)
+    for (const parent of graph[name] ?? []) {
+      walk(parent);
     }
 
-    result.push(name)
+    result.push(name);
   }
 
   for (const variant of variants) {
-    walk(variant)
+    walk(variant);
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -51,33 +51,33 @@ export function mergeVariantSchemas(
   graph: Record<string, string[]> = {},
 ): AnyObjectSchema {
   const firstSchema = activeVariants
-    .flatMap(v => resolveExtendsGraph([v], graph))
-    .map(name => registry[name])
-    .find((s): s is AnyObjectSchema => s !== undefined)
+    .flatMap((v) => resolveExtendsGraph([v], graph))
+    .map((name) => registry[name])
+    .find((s): s is AnyObjectSchema => s !== undefined);
 
   if (!firstSchema) {
-    return {} as AnyObjectSchema
+    return {} as AnyObjectSchema;
   }
 
-  const adapter = detectAdapter(firstSchema)
-  let base = adapter.emptyObject() as AnyObjectSchema
+  const adapter = detectAdapter(firstSchema);
+  let base = adapter.emptyObject() as AnyObjectSchema;
 
-  const flattened = resolveExtendsGraph(activeVariants, graph)
+  const flattened = resolveExtendsGraph(activeVariants, graph);
 
   for (const name of flattened) {
-    const extra = registry[name]
-    if (extra === undefined) continue
+    const extra = registry[name];
+    if (extra === undefined) continue;
 
-    const extraAdapter = detectAdapter(extra)
+    const extraAdapter = detectAdapter(extra);
     if (extraAdapter !== adapter) {
       throw new Error(
-        `[nuxt-variants] Schema adapter mismatch for variant "${name}". `
-        + 'All schemas in a registry must use the same validator library.',
-      )
+        `[nuxt-variants] Schema adapter mismatch for variant "${name}". ` +
+          "All schemas in a registry must use the same validator library.",
+      );
     }
 
-    base = adapter.merge(base, extra) as AnyObjectSchema
+    base = adapter.merge(base, extra) as AnyObjectSchema;
   }
 
-  return base
+  return base;
 }

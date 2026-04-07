@@ -8,17 +8,32 @@
       — no cast needed.
     </p>
     <table>
-      <tr><td><code>heroHeight</code></td><td>{{ config.heroHeight }}</td></tr>
-      <tr><td><code>heroOverlay</code></td><td>{{ config.heroOverlay }}</td></tr>
-      <tr><td><code>sidebarPosition</code></td><td>{{ config.sidebarPosition }}</td></tr>
-      <tr><td><code>sidebarWidth</code></td><td>{{ config.sidebarWidth }}</td></tr>
-      <tr><td><code>sidebarCollapsible</code></td><td>{{ config.sidebarCollapsible }}</td></tr>
+      <tr>
+        <td><code>heroHeight</code></td>
+        <td>{{ config.heroHeight }}</td>
+      </tr>
+      <tr>
+        <td><code>heroOverlay</code></td>
+        <td>{{ config.heroOverlay }}</td>
+      </tr>
+      <tr>
+        <td><code>sidebarPosition</code></td>
+        <td>{{ config.sidebarPosition }}</td>
+      </tr>
+      <tr>
+        <td><code>sidebarWidth</code></td>
+        <td>{{ config.sidebarWidth }}</td>
+      </tr>
+      <tr>
+        <td><code>sidebarCollapsible</code></td>
+        <td>{{ config.sidebarCollapsible }}</td>
+      </tr>
     </table>
   </div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'content', variant: 'landing' })
+definePageMeta({ layout: "content", variant: "landing" });
 
-const config = useVariant('landing')
+const config = useVariant("landing");
 </script>

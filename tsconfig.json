@@ -5,9 +5,5 @@
       "#nuxt-variants": ["./src/runtime/types.ts"]
     }
   },
-  "exclude": [
-    "dist",
-    "node_modules",
-    "playground",
-  ]
+  "exclude": ["dist", "node_modules", "playground"]
 }

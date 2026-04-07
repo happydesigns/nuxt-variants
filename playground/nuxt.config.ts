@@ -1,60 +1,60 @@
 export default defineNuxtConfig({
-  modules: ['../src/module', '@nuxt/content'],
+  modules: ["../src/module", "@nuxt/content"],
   devtools: { enabled: true },
-  compatibilityDate: 'latest',
+  compatibilityDate: "latest",
 
   variants: {
-    configKey: 'variants',
+    configKey: "variants",
     registry: {
       breadcrumbs: {
         config: {
-          breadcrumbSeparator: ' / ',
+          breadcrumbSeparator: " / ",
           breadcrumbShowHome: true,
         },
       },
 
       hero: {
         config: {
-          heroHeight: 'md' as const,
+          heroHeight: "md" as const,
           heroOverlay: false,
-          heroAlign: 'left' as const,
+          heroAlign: "left" as const,
         },
       },
 
       seo: {
         config: {
-          titleTemplate: '%s - My Site',
+          titleTemplate: "%s - My Site",
         },
       },
 
       article: {
-        extends: ['breadcrumbs', 'hero', 'seo'],
+        extends: ["breadcrumbs", "hero", "seo"],
         config: {
-          heroHeight: 'sm' as const,
-          heroAlign: 'left' as const,
+          heroHeight: "sm" as const,
+          heroAlign: "left" as const,
           authorBox: true,
         },
       },
 
       event: {
-        extends: ['breadcrumbs', 'hero'],
+        extends: ["breadcrumbs", "hero"],
         config: {
-          heroHeight: 'lg' as const,
+          heroHeight: "lg" as const,
           heroOverlay: true,
-          heroAlign: 'center' as const,
+          heroAlign: "center" as const,
         },
       },
 
       landing: {
-        extends: ['hero', 'sidebar'],
+        extends: ["hero", "sidebar"],
         config: {
-          heroHeight: 'xl' as const,
+          heroHeight: "xl" as const,
           heroOverlay: true,
-          heroAlign: 'center' as const,
-          sidebarPosition: 'left' as const,
+          heroAlign: "center" as const,
+          sidebarPosition: "left" as const,
           sidebarCollapsible: true,
         },
       },
     },
   },
-})
+});

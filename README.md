@@ -32,27 +32,27 @@ npx nuxt module add @h4designs/nuxt-variants
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['nuxt-variants'],
+  modules: ["nuxt-variants"],
   variants: {
     registry: {
       // Feature: a reusable config block with no parents
       breadcrumbs: {
-        config: { separator: ' / ', showHome: true },
+        config: { separator: " / ", showHome: true },
       },
       hero: {
-        config: { height: 'md', overlay: false },
+        config: { height: "md", overlay: false },
       },
       seo: {
-        config: { titleTemplate: '%s - My Site' },
+        config: { titleTemplate: "%s - My Site" },
       },
       // Layout variant: composes features and overrides specific values
       article: {
-        extends: ['breadcrumbs', 'hero', 'seo'],
-        config: { height: 'sm', authorBox: true },
+        extends: ["breadcrumbs", "hero", "seo"],
+        config: { height: "sm", authorBox: true },
       },
     },
   },
-})
+});
 ```
 
 ### 2. Override at runtime in `app.config.ts`
@@ -66,24 +66,24 @@ export default defineAppConfig({
       config: { authorBox: false }, // overrides nuxt.config's default of true
     },
   },
-})
+});
 ```
 
 ### 3. Resolve config in a component
 
 ```ts
 // Fully typed when the variant name is a literal string
-const config = useVariant('article')
-config.value.height      // string | undefined
-config.value.showHome    // boolean | undefined
-config.value.authorBox   // boolean | undefined
+const config = useVariant("article");
+config.value.height; // string | undefined
+config.value.showHome; // boolean | undefined
+config.value.authorBox; // boolean | undefined
 
 // Reactive name — pass a ref or getter directly
-const variantName = computed(() => route.meta.variant ?? 'article')
-const config = useVariant(variantName)
+const variantName = computed(() => route.meta.variant ?? "article");
+const config = useVariant(variantName);
 
 // Check feature inheritance at any depth
-const hasBreadcrumbs = useVariantExtends(variantName, 'breadcrumbs')
+const hasBreadcrumbs = useVariantExtends(variantName, "breadcrumbs");
 // hasBreadcrumbs.value → true (article extends breadcrumbs)
 ```
 
@@ -97,11 +97,11 @@ const hasBreadcrumbs = useVariantExtends(variantName, 'breadcrumbs')
 </template>
 
 <script setup lang="ts">
-const route = useRoute()
-const variantName = computed(() => route.meta.variant ?? 'article')
+const route = useRoute();
+const variantName = computed(() => route.meta.variant ?? "article");
 
-const config = useVariant(variantName)
-const hasBreadcrumbs = useVariantExtends(variantName, 'breadcrumbs')
+const config = useVariant(variantName);
+const hasBreadcrumbs = useVariantExtends(variantName, "breadcrumbs");
 </script>
 ```
 
@@ -109,10 +109,10 @@ Each page sets its variant via `definePageMeta` — no layout duplication needed
 
 ```ts
 // pages/article.vue
-definePageMeta({ layout: 'content', variant: 'article' })
+definePageMeta({ layout: "content", variant: "article" });
 
 // pages/landing.vue
-definePageMeta({ layout: 'content', variant: 'landing' })
+definePageMeta({ layout: "content", variant: "landing" });
 ```
 
 ## Nuxt Content v3 Integration
@@ -123,41 +123,41 @@ definePageMeta({ layout: 'content', variant: 'landing' })
 
 ```ts
 // content.config.ts
-import { defineCollection } from '@nuxt/content'
-import { z } from 'zod'
-import { variantGraph } from './.nuxt/variants-graph.mjs'
-import { mergeVariantSchemas, type SchemaRegistry } from 'nuxt-variants/schemas'
+import { defineCollection } from "@nuxt/content";
+import { z } from "zod";
+import { variantGraph } from "./.nuxt/variants-graph.mjs";
+import { mergeVariantSchemas, type SchemaRegistry } from "nuxt-variants/schemas";
 
 const variantSchemas: SchemaRegistry = {
-  seo:     z.object({ seoTitle: z.string() }),
+  seo: z.object({ seoTitle: z.string() }),
   article: z.object({ authorName: z.string() }),
-}
+};
 
 export const collections = {
   blog: defineCollection({
-    type: 'page',
-    source: 'blog/**',
+    type: "page",
+    source: "blog/**",
     // article extends seo → merged schema has both seoTitle and authorName
-    schema: mergeVariantSchemas(['article'], variantSchemas, variantGraph),
+    schema: mergeVariantSchemas(["article"], variantSchemas, variantGraph),
   }),
-}
+};
 ```
 
 With the `article → seo` inheritance defined in `nuxt.config.ts`, `mergeVariantSchemas` produces a schema equivalent to:
 
 ```ts
-z.object({ seoTitle: z.string(), authorName: z.string() })
+z.object({ seoTitle: z.string(), authorName: z.string() });
 ```
 
 No manual schema composition needed. Add a field to the `seo` schema and every collection that uses an `article`-derived variant picks it up automatically.
 
 ### `mergeVariantSchemas(activeVariants, registry, graph?)`
 
-| Parameter | Type | Description |
-|---|---|---|
-| `activeVariants` | `string[]` | Variant keys whose schemas should be merged |
-| `registry` | `SchemaRegistry` | Map of variant name → Zod or Valibot object schema |
-| `graph` | `Record<string, string[]>` | Inheritance graph (import from `.nuxt/variants-graph.mjs`). Defaults to `{}` (flat) |
+| Parameter        | Type                       | Description                                                                         |
+| ---------------- | -------------------------- | ----------------------------------------------------------------------------------- |
+| `activeVariants` | `string[]`                 | Variant keys whose schemas should be merged                                         |
+| `registry`       | `SchemaRegistry`           | Map of variant name → Zod or Valibot object schema                                  |
+| `graph`          | `Record<string, string[]>` | Inheritance graph (import from `.nuxt/variants-graph.mjs`). Defaults to `{}` (flat) |
 
 Resolution order is bottom-up: ancestor schemas are merged first so child schemas correctly override parent fields.
 
@@ -171,34 +171,44 @@ After adding the augmentation, `useVariant('article')` returns
 
 ```ts
 // types/variants.d.ts
-interface BreadcrumbsConfig { separator: string; showHome: boolean }
-interface HeroConfig { height: 'sm' | 'md' | 'lg' | 'xl'; overlay: boolean }
-interface SeoConfig { titleTemplate: string }
-interface ArticleConfig { authorBox: boolean }
+interface BreadcrumbsConfig {
+  separator: string;
+  showHome: boolean;
+}
+interface HeroConfig {
+  height: "sm" | "md" | "lg" | "xl";
+  overlay: boolean;
+}
+interface SeoConfig {
+  titleTemplate: string;
+}
+interface ArticleConfig {
+  authorBox: boolean;
+}
 
-declare module '#nuxt-variants' {
+declare module "#nuxt-variants" {
   interface CustomVariantRegistry {
-    breadcrumbs: BreadcrumbsConfig
-    hero: HeroConfig
-    seo: SeoConfig
-    article: BreadcrumbsConfig & HeroConfig & SeoConfig & ArticleConfig
+    breadcrumbs: BreadcrumbsConfig;
+    hero: HeroConfig;
+    seo: SeoConfig;
+    article: BreadcrumbsConfig & HeroConfig & SeoConfig & ArticleConfig;
   }
 }
 ```
 
 ## Module Options
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `registry` | `Record<string, VariantDefinition>` | `{}` | Build-time variant definitions |
-| `configKey` | `string` | `'variants'` | Key used in `app.config` for runtime overrides |
+| Option      | Type                                | Default      | Description                                    |
+| ----------- | ----------------------------------- | ------------ | ---------------------------------------------- |
+| `registry`  | `Record<string, VariantDefinition>` | `{}`         | Build-time variant definitions                 |
+| `configKey` | `string`                            | `'variants'` | Key used in `app.config` for runtime overrides |
 
 ## `VariantDefinition`
 
 ```ts
 interface VariantDefinition<T> {
-  extends?: string | string[]  // parent variant(s) to inherit from
-  config: Partial<T>           // the config values this variant contributes
+  extends?: string | string[]; // parent variant(s) to inherit from
+  config: Partial<T>; // the config values this variant contributes
 }
 ```
 
@@ -223,9 +233,9 @@ Returns a `ComputedRef<RegistryEntry[]>` — a flat list of all variants from bo
 
 ```ts
 interface RegistryEntry {
-  name: string
-  extends: string[]    // resolved extends chain (app.config wins over nuxt.config)
-  configKeys: string[]
+  name: string;
+  extends: string[]; // resolved extends chain (app.config wins over nuxt.config)
+  configKeys: string[];
 }
 ```
 
@@ -236,14 +246,14 @@ interface RegistryEntry {
 Exported by the module at build time. Contains the pre-computed inheritance graph:
 
 ```ts
-import { variantGraph } from '#variants-graph'
+import { variantGraph } from "#variants-graph";
 // { article: ['breadcrumbs', 'hero', 'seo'], seo: [], hero: [], ... }
 ```
 
 Use this anywhere outside of Nuxt's Vite pipeline (e.g. `content.config.ts`) by importing from the generated file directly:
 
 ```ts
-import { variantGraph } from './.nuxt/variants-graph.mjs'
+import { variantGraph } from "./.nuxt/variants-graph.mjs";
 ```
 
 ## How merging works
@@ -260,7 +270,11 @@ variant: { extends: ['base'], config: { size: 'lg' } }
 If `app.config` also defines:
 
 ```ts
-variant: { config: { size: 'xl' } }
+variant: {
+  config: {
+    size: "xl";
+  }
+}
 ```
 
 The result is `{ color: 'blue', size: 'xl' }` — `app.config` always wins over `nuxt.config` for the same variant.
@@ -272,42 +286,39 @@ Arrays in config are **replaced**, not concatenated, when a child overrides a pa
 <details>
   <summary>Local development</summary>
 
-  ```bash
-  # Install dependencies
-  pnpm install
+```bash
+# Install dependencies
+pnpm install
 
-  # Generate type stubs
-  pnpm dev:prepare
+# Generate type stubs
+pnpm dev:prepare
 
-  # Develop with the playground
-  pnpm dev
+# Develop with the playground
+pnpm dev
 
-  # Build the playground
-  pnpm dev:build
+# Build the playground
+pnpm dev:build
 
-  # Run ESLint
-  pnpm lint
+# Run ESLint
+pnpm lint
 
-  # Run Vitest
-  pnpm test
-  pnpm test:watch
+# Run Vitest
+pnpm test
+pnpm test:watch
 
-  # Release new version
-  pnpm release
-  ```
+# Release new version
+pnpm release
+```
 
 </details>
 
-
 <!-- Badges -->
+
 [npm-version-src]: https://img.shields.io/npm/v/@h4designs/nuxt-variants/latest.svg?style=flat&colorA=020420&colorB=00DC82
 [npm-version-href]: https://npmjs.com/package/@h4designs/nuxt-variants
-
 [npm-downloads-src]: https://img.shields.io/npm/dm/@h4designs/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
 [npm-downloads-href]: https://npm.chart.dev/@h4designs/nuxt-variants
-
 [license-src]: https://img.shields.io/npm/l/@h4designs/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
 [license-href]: https://npmjs.com/package/@h4designs/nuxt-variants
-
 [nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt
 [nuxt-href]: https://nuxt.com

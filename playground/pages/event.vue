@@ -8,16 +8,28 @@
       — no cast needed.
     </p>
     <table>
-      <tr><td><code>heroHeight</code></td><td>{{ config.heroHeight }}</td></tr>
-      <tr><td><code>heroOverlay</code></td><td>{{ config.heroOverlay }}</td></tr>
-      <tr><td><code>heroAlign</code></td><td>{{ config.heroAlign }}</td></tr>
-      <tr><td><code>breadcrumbSeparator</code></td><td>{{ config.breadcrumbSeparator }}</td></tr>
+      <tr>
+        <td><code>heroHeight</code></td>
+        <td>{{ config.heroHeight }}</td>
+      </tr>
+      <tr>
+        <td><code>heroOverlay</code></td>
+        <td>{{ config.heroOverlay }}</td>
+      </tr>
+      <tr>
+        <td><code>heroAlign</code></td>
+        <td>{{ config.heroAlign }}</td>
+      </tr>
+      <tr>
+        <td><code>breadcrumbSeparator</code></td>
+        <td>{{ config.breadcrumbSeparator }}</td>
+      </tr>
     </table>
   </div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'content', variant: 'event' })
+definePageMeta({ layout: "content", variant: "event" });
 
-const config = useVariant('event')
+const config = useVariant("event");
 </script>
