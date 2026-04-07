@@ -1,8 +1,11 @@
 {
   "name": "nuxt-variants",
-  "version": "1.0.0",
-  "description": "My new Nuxt module",
-  "repository": "your-org/my-module",
+  "version": "0.0.0",
+  "description": "A centralized, deeply-merging configuration engine for Nuxt layouts with build-time variant graph and Nuxt Content v3 schema merging.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/happydesigns/nuxt-variants.git"
+  },
   "license": "MIT",
   "type": "module",
   "exports": {
