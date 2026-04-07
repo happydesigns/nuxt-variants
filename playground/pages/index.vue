@@ -35,6 +35,23 @@
         </NuxtLink>
       </div>
     </section>
+
+    <section :style="styles.section">
+      <h2 :style="styles.sectionTitle">Build-time schema merging</h2>
+      <p :style="styles.sectionDesc">
+        <code>mergeVariantSchemas</code> walks the <code>#variants-graph</code> at build time and produces
+        a single Zod schema for Nuxt Content v3. The <code>blog</code> collection inherits both
+        <code>seoTitle</code> (from <code>seo</code>) and <code>authorName</code> (from <code>article</code>)
+        without manually composing schemas.
+      </p>
+      <NuxtLink to="/blog" :style="styles.contentCard">
+        <span :style="styles.cardName">blog collection →</span>
+        <p :style="styles.contentMeta">
+          variant chain: <code>article → seo</code><br>
+          merged schema fields: <code>seoTitle</code>, <code>authorName</code>
+        </p>
+      </NuxtLink>
+    </section>
   </div>
 </template>
 
@@ -57,6 +74,8 @@ const styles = {
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px', maxWidth: '960px' },
   featureCard: { padding: '18px 20px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px' },
   layoutCard: { display: 'block', padding: '18px 20px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', textDecoration: 'none' },
+  contentCard: { display: 'inline-block', padding: '18px 24px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', textDecoration: 'none', maxWidth: '400px' },
+  contentMeta: { margin: '8px 0 0', fontSize: '13px', color: '#64748b', lineHeight: '1.8' },
   cardName: { display: 'block', fontSize: '16px', fontWeight: '700', color: '#1e293b', textTransform: 'capitalize' as const, marginBottom: '10px' },
   configKeys: { display: 'flex', flexWrap: 'wrap' as const, gap: '4px' },
   configKey: { fontSize: '11px', padding: '1px 6px', background: '#f1f5f9', borderRadius: '4px', color: '#475569', fontFamily: 'monospace' },

@@ -9,6 +9,14 @@ interface HeroConfig {
   heroAlign: 'left' | 'center' | 'right'
 }
 
+interface SeoConfig {
+  titleTemplate: string
+}
+
+interface ArticleConfig {
+  authorBox: boolean
+}
+
 interface TocConfig {
   tocMaxDepth: number
   tocSticky: boolean
@@ -25,9 +33,10 @@ declare module '#nuxt-variants' {
   interface CustomVariantRegistry {
     breadcrumbs: BreadcrumbsConfig
     hero: HeroConfig
+    seo: SeoConfig
     toc: TocConfig
     sidebar: SidebarConfig
-    article: BreadcrumbsConfig & HeroConfig & TocConfig
+    article: BreadcrumbsConfig & HeroConfig & SeoConfig & ArticleConfig & TocConfig
     event: BreadcrumbsConfig & HeroConfig
     landing: HeroConfig & SidebarConfig
   }
