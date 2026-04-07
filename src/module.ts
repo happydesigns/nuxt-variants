@@ -1,4 +1,10 @@
-import { defineNuxtModule, addImportsDir, addTypeTemplate, createResolver } from '@nuxt/kit'
+import { defineNuxtModule, addImportsDir, addTypeTemplate, addTemplate, createResolver } from '@nuxt/kit'
+
+/** A single variant entry as it appears in either the base registry or appConfig overrides. */
+interface VariantEntry {
+  extends?: string | string[]
+  [key: string]: unknown
+}
 
 export interface ModuleOptions {
   registry: Record<string, unknown>
@@ -29,6 +35,35 @@ export interface CustomVariantRegistry {}
     })
 
     nuxt.options.alias['#nuxt-variants'] = `${nuxt.options.buildDir}/types/nuxt-variants`
+
+    const baseRegistry = (options.registry ?? {}) as Record<string, VariantEntry>
+    const appRegistry = ((nuxt.options.appConfig[options.configKey] ?? {}) as Record<string, VariantEntry>)
+
+    const allKeys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)])
+    const variantGraph: Record<string, string[]> = {}
+
+    for (const key of allKeys) {
+      const extendsValue = appRegistry[key]?.extends ?? baseRegistry[key]?.extends
+      variantGraph[key] = extendsValue === undefined
+        ? []
+        : Array.isArray(extendsValue) ? extendsValue : [extendsValue]
+    }
+
+    const graphTemplate = addTemplate({
+      filename: 'variants-graph.mjs',
+      getContents: () => `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};\n`,
+    })
+
+    const graphTypeTemplate = addTemplate({
+      filename: 'variants-graph.d.ts',
+      getContents: () => `export declare const variantGraph: Record<string, string[]>;\n`,
+    })
+
+    nuxt.options.alias['#variants-graph'] = graphTemplate.dst
+
+    nuxt.hook('prepare:types', ({ references }) => {
+      references.push({ path: graphTypeTemplate.dst })
+    })
 
     addImportsDir(resolver.resolve('./runtime/composables'))
     addImportsDir(resolver.resolve('./runtime/utils'))
