@@ -7,10 +7,7 @@
     "type": "git",
     "url": "git+https://github.com/happydesigns/nuxt-variants.git"
   },
-  "workspaces": [
-    "playground"
-  ],
-  "files": [
+"files": [
     "dist"
   ],
   "type": "module",
