@@ -55,12 +55,12 @@
 </template>
 
 <script setup lang="ts">
-const registry = useVariantRegistry();
+const registry = useVariants();
 
-type RegistryEntry = ReturnType<typeof useVariantRegistry>["value"][number];
+type VariantEntry = ReturnType<typeof useVariants>["value"][number];
 
-const features = computed(() => registry.value.filter((v: RegistryEntry) => !v.extends.length));
-const layouts = computed(() => registry.value.filter((v: RegistryEntry) => v.extends.length > 0));
+const features = computed(() => registry.value.filter((v: VariantEntry) => !v.extends.length));
+const layouts = computed(() => registry.value.filter((v: VariantEntry) => v.extends.length > 0));
 
 const styles = {
   page: {

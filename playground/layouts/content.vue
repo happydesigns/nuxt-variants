@@ -145,13 +145,13 @@ const pageTitle = computed(
   () => String(variantName.value).charAt(0).toUpperCase() + String(variantName.value).slice(1),
 );
 
-const config = useVariant(variantName) as ComputedRef<LayoutConfig>;
-const tocConfig = useVariant("toc");
+const { config, has } = useVariant(variantName) as { config: ComputedRef<LayoutConfig>; has: ReturnType<typeof useVariant>["has"] };
+const { config: tocConfig } = useVariant("toc");
 
-const hasBreadcrumbs = useVariantExtends(variantName, "breadcrumbs");
-const hasHero = useVariantExtends(variantName, "hero");
-const hasToc = useVariantExtends(variantName, "toc");
-const hasSidebar = useVariantExtends(variantName, "sidebar");
+const hasBreadcrumbs = has("breadcrumbs");
+const hasHero = has("hero");
+const hasToc = has("toc");
+const hasSidebar = has("sidebar");
 
 const heroHeights: Record<string, string> = {
   sm: "160px",

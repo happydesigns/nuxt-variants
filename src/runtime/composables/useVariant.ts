@@ -23,32 +23,33 @@ type VariantConfigOf<K extends VariantName> = K extends keyof CustomVariantRegis
   ? Partial<CustomVariantRegistry[K]>
   : Record<string, unknown>;
 
+export interface UseVariantReturn<K extends VariantName> {
+  /** The fully merged configuration object for this variant. */
+  config: ComputedRef<VariantConfigOf<K>>;
+  /**
+   * Returns a computed ref that is `true` if this variant directly or
+   * transitively extends the given feature name.
+   */
+  has: (featureName: MaybeRefOrGetter<string>) => ComputedRef<boolean>;
+}
+
 /**
- * Reactively resolves a named variant by merging its configuration with all
- * inherited parent variants. The returned computed ref updates automatically
- * when `app.config` changes (e.g. via Nuxt Studio), without a page reload.
+ * Reactively resolves a named variant, returning its merged config and a
+ * helper to check inheritance.
  *
- * Accepts a plain string or any ref/getter so the name itself can be reactive.
- *
- * To enable typed variant resolution, augment `CustomVariantRegistry` in your project:
  * @example
- * declare module '#nuxt-variants' {
- *   interface CustomVariantRegistry {
- *     myButton: { size: 'sm' | 'lg', rounded: boolean }
- *   }
- * }
+ * const { config, has } = useVariant('blog')
+ * has('seo')   // ComputedRef<true>
  *
  * @param name - The variant key to resolve, typed against `CustomVariantRegistry` when augmented.
- * @returns A computed ref of the fully merged configuration object, or an empty object if the variant is inactive or not found.
  */
 export function useVariant<K extends VariantName>(
   name: MaybeRefOrGetter<K>,
-): ComputedRef<VariantConfigOf<K>> {
+): UseVariantReturn<K> {
   const runtimeConfig = useRuntimeConfig();
   const appConfig = useAppConfig();
 
-  return computed(() => {
-    const resolvedName = toValue(name) as string;
+  function getRegistries() {
     const configKey = runtimeConfig.public.variantsConfigKey as string;
     const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as Record<
       string,
@@ -58,44 +59,76 @@ export function useVariant<K extends VariantName>(
       string,
       VariantDefinition<unknown>
     >;
+    return { baseRegistry, overrideRegistry };
+  }
 
-    function resolve(variantName: string, visited: Set<string>): Record<string, unknown> {
-      if (visited.has(variantName)) {
-        return {};
-      }
+  function resolve(
+    variantName: string,
+    baseRegistry: Record<string, VariantDefinition<unknown>>,
+    overrideRegistry: Record<string, VariantDefinition<unknown>>,
+    visited: Set<string>,
+  ): Record<string, unknown> {
+    if (visited.has(variantName)) return {};
+    visited.add(variantName);
 
-      visited.add(variantName);
+    const baseEntry = baseRegistry[variantName];
+    const overrideEntry = overrideRegistry[variantName];
 
-      const baseEntry = baseRegistry[variantName] as VariantDefinition<unknown> | undefined;
-      const overrideEntry = overrideRegistry[variantName] as VariantDefinition<unknown> | undefined;
+    if (!baseEntry && !overrideEntry) return {};
 
-      if (!baseEntry && !overrideEntry) {
-        return {};
-      }
+    const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
+    if (isActive === false) return {};
 
-      const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
-      if (isActive === false) {
-        return {};
-      }
+    const extendsFrom = overrideEntry?.extends ?? baseEntry?.extends;
+    const parentNames =
+      extendsFrom === undefined ? [] : Array.isArray(extendsFrom) ? extendsFrom : [extendsFrom];
 
-      const extendsFrom = overrideEntry?.extends ?? baseEntry?.extends;
-      const parentNames =
-        extendsFrom === undefined ? [] : Array.isArray(extendsFrom) ? extendsFrom : [extendsFrom];
+    const resolvedParents = parentNames.reduceRight<Record<string, unknown>>(
+      (acc, parentName) =>
+        defuReplaceArray(acc, resolve(parentName, baseRegistry, overrideRegistry, new Set(visited))),
+      {},
+    );
 
-      const resolvedParents = parentNames.reduceRight<Record<string, unknown>>(
-        (acc, parentName) => defuReplaceArray(acc, resolve(parentName, new Set(visited))),
-        {},
-      );
+    const mergedConfig = defuReplaceArray(
+      {},
+      (overrideEntry?.config ?? {}) as Record<string, unknown>,
+      (baseEntry?.config ?? {}) as Record<string, unknown>,
+    );
 
-      const mergedConfig = defuReplaceArray(
-        {},
-        (overrideEntry?.config ?? {}) as Record<string, unknown>,
-        (baseEntry?.config ?? {}) as Record<string, unknown>,
-      );
+    return defuReplaceArray({}, mergedConfig, resolvedParents);
+  }
 
-      return defuReplaceArray({}, mergedConfig, resolvedParents);
-    }
-
-    return resolve(resolvedName, new Set()) as VariantConfigOf<K>;
+  const config = computed(() => {
+    const { baseRegistry, overrideRegistry } = getRegistries();
+    return resolve(toValue(name) as string, baseRegistry, overrideRegistry, new Set()) as VariantConfigOf<K>;
   });
+
+  function has(featureName: MaybeRefOrGetter<string>): ComputedRef<boolean> {
+    return computed(() => {
+      const { baseRegistry, overrideRegistry } = getRegistries();
+      const target = toValue(featureName);
+
+      function check(variantName: string, visited: Set<string>): boolean {
+        if (variantName === target) return true;
+        if (visited.has(variantName)) return false;
+        visited.add(variantName);
+
+        const baseEntry = baseRegistry[variantName];
+        const overrideEntry = overrideRegistry[variantName];
+        const extendsFrom = overrideEntry?.extends ?? baseEntry?.extends;
+        const parents =
+          extendsFrom === undefined
+            ? []
+            : Array.isArray(extendsFrom)
+              ? extendsFrom
+              : [extendsFrom];
+
+        return parents.some((parent) => check(parent, new Set(visited)));
+      }
+
+      return check(toValue(name) as string, new Set());
+    });
+  }
+
+  return { config, has };
 }

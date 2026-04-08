@@ -1,8 +1,8 @@
 <script setup lang="ts">
 const { data: post } = await useAsyncData("hello-world", () => queryCollection("blog").first());
 
-const articleVariant = useVariant("article");
-const extendsSeo = useVariantExtends("article", "seo");
+const { config: articleVariant, has } = useVariant("article");
+const extendsSeo = has("seo");
 </script>
 
 <template>

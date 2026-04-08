@@ -48,7 +48,7 @@ declare module "vue-router" {
   }
 }
 
-declare function useVariantRegistry(): import("vue").ComputedRef<
+declare function useVariants(): import("vue").ComputedRef<
   {
     name: string;
     extends: string[];

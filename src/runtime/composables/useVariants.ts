@@ -3,9 +3,9 @@ import { useRuntimeConfig, useAppConfig } from "#app";
 import type { VariantDefinition } from "./useVariant";
 
 /**
- * Describes a resolved registry entry as returned by `useVariantRegistry`.
+ * Describes a resolved registry entry as returned by `useVariants`.
  */
-export interface RegistryEntry {
+export interface VariantEntry {
   /** The variant's key in the registry. */
   name: string;
   /**
@@ -22,7 +22,7 @@ export interface RegistryEntry {
  * entries from `nuxt.config` (build-time) and `app.config` (runtime).
  * The returned computed ref updates automatically when `app.config` changes.
  */
-export function useVariantRegistry(): ComputedRef<RegistryEntry[]> {
+export function useVariants(): ComputedRef<VariantEntry[]> {
   const runtimeConfig = useRuntimeConfig();
   const appConfig = useAppConfig();
 
