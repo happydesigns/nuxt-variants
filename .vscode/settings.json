@@ -1,9 +1,9 @@
 {
   "oxc.enable": true,
   "oxc.configPath": "./oxlint.json",
-  "[typescript]": { "editor.defaultFormatter": "oxfmt.oxfmt-vscode" },
-  "[typescriptreact]": { "editor.defaultFormatter": "oxfmt.oxfmt-vscode" },
-  "[javascript]": { "editor.defaultFormatter": "oxfmt.oxfmt-vscode" },
-  "[vue]": { "editor.defaultFormatter": "oxfmt.oxfmt-vscode" },
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "[vue]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  }
 }
