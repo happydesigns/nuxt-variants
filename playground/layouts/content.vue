@@ -122,22 +122,6 @@
 </template>
 
 <script setup lang="ts">
-import type { ComputedRef } from "vue";
-
-interface LayoutConfig {
-  breadcrumbSeparator?: string;
-  breadcrumbShowHome?: boolean;
-  heroHeight?: string;
-  heroOverlay?: boolean;
-  heroAlign?: string;
-  tocMaxDepth?: number;
-  tocSticky?: boolean;
-  tocTitle?: string;
-  sidebarPosition?: string;
-  sidebarWidth?: number;
-  sidebarCollapsible?: boolean;
-}
-
 const route = useRoute();
 
 const variantName = computed(() => route.meta.variant ?? "unknown");
@@ -145,7 +129,7 @@ const pageTitle = computed(
   () => String(variantName.value).charAt(0).toUpperCase() + String(variantName.value).slice(1),
 );
 
-const { config, has } = useVariant(variantName) as { config: ComputedRef<LayoutConfig>; has: ReturnType<typeof useVariant>["has"] };
+const { config, has } = useVariant(variantName);
 const { config: tocConfig } = useVariant("toc");
 
 const hasBreadcrumbs = has("breadcrumbs");

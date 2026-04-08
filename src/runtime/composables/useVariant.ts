@@ -19,9 +19,19 @@ type VariantName = keyof CustomVariantRegistry extends never
   ? string
   : keyof CustomVariantRegistry | string;
 
+type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (
+  x: infer I,
+) => void
+  ? I
+  : never;
+
+type AnyVariantConfig = keyof CustomVariantRegistry extends never
+  ? Record<string, unknown>
+  : Partial<UnionToIntersection<CustomVariantRegistry[keyof CustomVariantRegistry]>>;
+
 type VariantConfigOf<K extends VariantName> = K extends keyof CustomVariantRegistry
   ? Partial<CustomVariantRegistry[K]>
-  : Record<string, unknown>;
+  : AnyVariantConfig;
 
 export interface UseVariantReturn<K extends VariantName> {
   /** The fully merged configuration object for this variant. */
