@@ -53,9 +53,7 @@ export interface UseVariantReturn<K extends VariantName> {
  *
  * @param name - The variant key to resolve, typed against `CustomVariantRegistry` when augmented.
  */
-export function useVariant<K extends VariantName>(
-  name: MaybeRefOrGetter<K>,
-): UseVariantReturn<K> {
+export function useVariant<K extends VariantName>(name: MaybeRefOrGetter<K>): UseVariantReturn<K> {
   const runtimeConfig = useRuntimeConfig();
   const appConfig = useAppConfig();
 
@@ -95,7 +93,10 @@ export function useVariant<K extends VariantName>(
 
     const resolvedParents = parentNames.reduceRight<Record<string, unknown>>(
       (acc, parentName) =>
-        defuReplaceArray(acc, resolve(parentName, baseRegistry, overrideRegistry, new Set(visited))),
+        defuReplaceArray(
+          acc,
+          resolve(parentName, baseRegistry, overrideRegistry, new Set(visited)),
+        ),
       {},
     );
 
@@ -110,7 +111,12 @@ export function useVariant<K extends VariantName>(
 
   const config = computed(() => {
     const { baseRegistry, overrideRegistry } = getRegistries();
-    return resolve(toValue(name) as string, baseRegistry, overrideRegistry, new Set()) as VariantConfigOf<K>;
+    return resolve(
+      toValue(name) as string,
+      baseRegistry,
+      overrideRegistry,
+      new Set(),
+    ) as VariantConfigOf<K>;
   });
 
   function has(featureName: MaybeRefOrGetter<string>): ComputedRef<boolean> {
@@ -127,11 +133,7 @@ export function useVariant<K extends VariantName>(
         const overrideEntry = overrideRegistry[variantName];
         const extendsFrom = overrideEntry?.extends ?? baseEntry?.extends;
         const parents =
-          extendsFrom === undefined
-            ? []
-            : Array.isArray(extendsFrom)
-              ? extendsFrom
-              : [extendsFrom];
+          extendsFrom === undefined ? [] : Array.isArray(extendsFrom) ? extendsFrom : [extendsFrom];
 
         return parents.some((parent) => check(parent, new Set(visited)));
       }
