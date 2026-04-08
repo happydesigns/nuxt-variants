@@ -15,250 +15,186 @@ const hasToc = has("toc");
 const hasSidebar = has("sidebar");
 
 const heroHeights: Record<string, string> = {
-  sm: "160px",
-  md: "260px",
-  lg: "360px",
-  xl: "460px",
-};
-
-function flagStyle(active: boolean) {
-  return {
-    display: "inline-block",
-    padding: "2px 10px",
-    borderRadius: "12px",
-    fontSize: "12px",
-    fontWeight: "600",
-    background: active ? "#d1fae5" : "#fee2e2",
-    color: active ? "#065f46" : "#991b1b",
-    marginRight: "6px",
-  };
-}
-
-const styles = {
-  page: { fontFamily: "system-ui, sans-serif", minHeight: "100vh", background: "#f8fafc" },
-  nav: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "12px 24px",
-    background: "#1e293b",
-    color: "#94a3b8",
-  },
-  navLink: { color: "#7dd3fc", textDecoration: "none", fontSize: "14px" },
-  badge: {
-    fontSize: "12px",
-    padding: "2px 8px",
-    background: "#334155",
-    borderRadius: "6px",
-    color: "#e2e8f0",
-  },
-  breadcrumbs: {
-    padding: "10px 32px",
-    background: "#fff",
-    borderBottom: "1px solid #e2e8f0",
-    fontSize: "14px",
-    color: "#64748b",
-    display: "flex",
-    gap: "6px",
-  },
-  hero: {
-    display: "flex",
-    flexDirection: "column" as const,
-    justifyContent: "flex-end",
-    padding: "32px",
-    color: "#fff",
-    transition: "min-height 0.3s",
-  },
-  heroContent: { maxWidth: "640px" },
-  heroLabel: {
-    fontSize: "11px",
-    opacity: 0.6,
-    marginBottom: "6px",
-    letterSpacing: "0.05em",
-    textTransform: "uppercase" as const,
-  },
-  heroTitle: { margin: 0, fontSize: "36px", fontWeight: "800" },
-  body: { display: "flex", gap: "0", alignItems: "flex-start", minHeight: "400px" },
-  sidebar: {
-    flexShrink: 0,
-    background: "#f1f5f9",
-    borderRight: "1px solid #e2e8f0",
-    minHeight: "400px",
-  },
-  sidebarInner: { padding: "24px 20px" },
-  sidebarTitle: { margin: "0 0 12px", fontSize: "14px", fontWeight: "700", color: "#374151" },
-  sidebarMeta: { margin: "4px 0", fontSize: "12px", color: "#64748b" },
-  main: { flex: 1, padding: "32px" },
-  toc: {
-    width: "220px",
-    flexShrink: 0,
-    top: "16px",
-    padding: "20px 16px",
-    background: "#fff",
-    borderLeft: "1px solid #e2e8f0",
-    minHeight: "200px",
-  },
-  tocTitle: {
-    margin: "0 0 8px",
-    fontSize: "13px",
-    fontWeight: "700",
-    color: "#374151",
-    textTransform: "uppercase" as const,
-  },
-  tocMeta: { margin: "2px 0", fontSize: "11px", color: "#94a3b8" },
-  tocList: {
-    paddingLeft: "16px",
-    margin: "12px 0 0",
-    fontSize: "13px",
-    color: "#475569",
-    lineHeight: "1.8",
-  },
-  debugPanel: {
-    margin: "32px",
-    padding: "20px",
-    background: "#fff",
-    border: "1px solid #e2e8f0",
-    borderRadius: "10px",
-  },
-  debugTitle: {
-    margin: "0 0 10px",
-    fontSize: "12px",
-    fontWeight: "700",
-    textTransform: "uppercase" as const,
-    color: "#94a3b8",
-    letterSpacing: "0.08em",
-  },
-  debugTable: { width: "100%", borderCollapse: "collapse" as const, fontSize: "13px" },
-  debugKey: {
-    padding: "4px 12px 4px 0",
-    color: "#64748b",
-    fontFamily: "monospace",
-    whiteSpace: "nowrap" as const,
-  },
-  debugValue: { padding: "4px 0", color: "#1e293b", fontWeight: "500", fontFamily: "monospace" },
-  flags: { display: "flex", flexWrap: "wrap" as const, gap: "6px" },
+  sm: "180px",
+  md: "280px",
+  lg: "380px",
+  xl: "480px",
 };
 </script>
 
 <template>
-  <div :style="styles.page">
-    <nav :style="styles.nav">
-      <NuxtLink to="/" :style="styles.navLink">← All variants</NuxtLink>
-      <span :style="styles.badge">layout: content</span>
-      <span :style="styles.badge">variant: {{ variantName }}</span>
-    </nav>
+  <div class="min-h-screen bg-default flex flex-col">
 
-    <div v-if="hasBreadcrumbs" :style="styles.breadcrumbs">
-      <span v-if="config.breadcrumbShowHome">🏠 Home</span>
-      <span>{{ config.breadcrumbSeparator }}</span>
-      <span>{{ variantName }}</span>
-    </div>
-
-    <div
-      :style="{
-        ...styles.hero,
-        minHeight: heroHeights[config.heroHeight ?? 'md'],
-        alignItems:
-          config.heroAlign === 'center'
-            ? 'center'
-            : config.heroAlign === 'right'
-              ? 'flex-end'
-              : 'flex-start',
-        background: config.heroOverlay
-          ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
-          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      }"
-    >
-      <div :style="styles.heroContent">
-        <p :style="styles.heroLabel">
-          hero · height: {{ config.heroHeight }} · overlay: {{ config.heroOverlay }}
-        </p>
-        <slot name="hero-title">
-          <h1 :style="styles.heroTitle">
-            {{ pageTitle }}
-          </h1>
-        </slot>
-        <slot name="hero-subtitle" />
+    <!-- Top bar -->
+    <div class="border-b border-default flex divide-x divide-default h-11 shrink-0">
+      <NuxtLink
+        to="/"
+        class="flex items-center px-5 text-xs font-mono text-muted hover:text-highlighted hover:bg-muted transition-colors no-underline shrink-0"
+      >
+        ← variants
+      </NuxtLink>
+      <div class="flex items-center px-5 gap-1.5 shrink-0">
+        <span class="font-mono text-xs text-muted">layout</span>
+        <span class="text-muted text-xs">/</span>
+        <span class="font-mono text-xs text-highlighted">content</span>
+      </div>
+      <div class="flex items-center px-5 gap-1.5">
+        <span class="font-mono text-xs text-muted">variant</span>
+        <span class="text-muted text-xs">/</span>
+        <span class="font-mono text-xs text-primary font-semibold">{{ variantName }}</span>
       </div>
     </div>
 
-    <div :style="styles.body">
+    <!-- Breadcrumbs -->
+    <div
+      v-if="hasBreadcrumbs"
+      class="border-b border-default px-5 py-2 flex items-center gap-1.5 font-mono text-xs bg-muted"
+    >
+      <span v-if="config.breadcrumbShowHome" class="text-muted">Home</span>
+      <span class="text-dimmed">{{ config.breadcrumbSeparator }}</span>
+      <span class="text-highlighted">{{ variantName }}</span>
+    </div>
+
+    <!-- Hero -->
+    <div
+      v-if="hasHero"
+      class="border-b border-default relative overflow-hidden shrink-0 bg-terminal"
+      :style="{ minHeight: heroHeights[config.heroHeight ?? 'md'] }"
+    >
+      <div
+        class="absolute inset-0 bg-grid-dark"
+        :style="{ opacity: config.heroOverlay ? 0.6 : 1 }"
+      />
+      <div
+        class="relative flex flex-col justify-end p-8 h-full"
+        :style="{
+          minHeight: heroHeights[config.heroHeight ?? 'md'],
+          alignItems:
+            config.heroAlign === 'center' ? 'center'
+            : config.heroAlign === 'right' ? 'flex-end'
+            : 'flex-start',
+        }"
+      >
+        <div :class="config.heroAlign === 'center' ? 'text-center' : ''">
+          <p class="font-mono text-[10px] text-white/50 mb-2 uppercase tracking-widest m-0">
+            height:{{ config.heroHeight }} &nbsp;·&nbsp; overlay:{{ config.heroOverlay }} &nbsp;·&nbsp; align:{{ config.heroAlign }}
+          </p>
+          <slot name="hero-title">
+            <h1 class="text-4xl font-bold text-white m-0 tracking-tight">{{ pageTitle }}</h1>
+          </slot>
+          <slot name="hero-subtitle" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Body: sidebar | main | toc -->
+    <div class="flex divide-x divide-default flex-1 min-h-64">
+
+      <!-- Sidebar -->
       <aside
         v-if="hasSidebar"
+        class="shrink-0 bg-muted flex flex-col"
         :style="{
-          ...styles.sidebar,
           order: config.sidebarPosition === 'left' ? -1 : 1,
           width: `${config.sidebarWidth}px`,
         }"
       >
-        <div :style="styles.sidebarInner">
-          <h3 :style="styles.sidebarTitle">Sidebar</h3>
-          <p :style="styles.sidebarMeta">position: {{ config.sidebarPosition }}</p>
-          <p :style="styles.sidebarMeta">width: {{ config.sidebarWidth }}px</p>
-          <p :style="styles.sidebarMeta">collapsible: {{ config.sidebarCollapsible }}</p>
+        <div class="border-b border-default px-5 py-3">
+          <span class="font-mono text-[10px] text-muted uppercase tracking-widest">Sidebar</span>
+        </div>
+        <div class="p-5 flex flex-col gap-3">
+          <div v-for="[k, v] in [['position', config.sidebarPosition], ['width', `${config.sidebarWidth}px`], ['collapsible', config.sidebarCollapsible]]" :key="k" class="flex items-center justify-between">
+            <span class="font-mono text-xs text-muted">{{ k }}</span>
+            <span class="font-mono text-xs text-highlighted">{{ v }}</span>
+          </div>
           <slot name="sidebar" />
         </div>
       </aside>
 
-      <main :style="styles.main">
+      <!-- Main -->
+      <main class="flex-1 p-8 min-w-0">
         <slot />
       </main>
 
+      <!-- TOC -->
       <aside
         v-if="hasToc"
-        :style="{
-          ...styles.toc,
-          position: config.tocSticky ? 'sticky' : 'static',
-        }"
+        class="w-52 shrink-0 bg-muted flex flex-col"
+        :style="{ position: config.tocSticky ? 'sticky' : 'static', top: 0 }"
       >
-        <h3 :style="styles.tocTitle">
-          {{ config.tocTitle }}
-        </h3>
-        <p :style="styles.tocMeta">maxDepth: {{ config.tocMaxDepth }}</p>
-        <p :style="styles.tocMeta">sticky: {{ config.tocSticky }}</p>
-        <ul :style="styles.tocList">
-          <li>Introduction</li>
-          <li>Section 1</li>
-          <li v-if="(config.tocMaxDepth ?? 1) >= 2">→ Subsection 1.1</li>
-          <li v-if="(config.tocMaxDepth ?? 1) >= 3">→→ Deep section 1.1.1</li>
-          <li>Section 2</li>
-        </ul>
-        <slot name="toc" />
+        <div class="border-b border-default px-5 py-3">
+          <span class="font-mono text-[10px] text-muted uppercase tracking-widest">{{ config.tocTitle }}</span>
+        </div>
+        <div class="p-5 flex flex-col gap-3">
+          <div v-for="[k, v] in [['maxDepth', config.tocMaxDepth], ['sticky', config.tocSticky]]" :key="k" class="flex items-center justify-between">
+            <span class="font-mono text-xs text-muted">{{ k }}</span>
+            <span class="font-mono text-xs text-highlighted">{{ v }}</span>
+          </div>
+          <div class="border-t border-default pt-3 flex flex-col gap-1.5 mt-1">
+            <span class="font-mono text-xs text-muted">Introduction</span>
+            <span class="font-mono text-xs text-muted">Section 1</span>
+            <span v-if="(config.tocMaxDepth ?? 1) >= 2" class="font-mono text-xs text-dimmed pl-3">↳ Subsection 1.1</span>
+            <span v-if="(config.tocMaxDepth ?? 1) >= 3" class="font-mono text-xs text-dimmed pl-6">↳ Deep 1.1.1</span>
+            <span class="font-mono text-xs text-muted">Section 2</span>
+          </div>
+          <slot name="toc" />
+        </div>
       </aside>
+
     </div>
 
-    <div :style="styles.debugPanel">
-      <h3 :style="styles.debugTitle">Resolved config</h3>
-      <table :style="styles.debugTable">
-        <tr v-for="(value, key) in config" :key="key">
-          <td :style="styles.debugKey">
-            {{ key }}
-          </td>
-          <td :style="styles.debugValue">
-            {{ value }}
-          </td>
-        </tr>
-      </table>
-      <template v-if="hasToc">
-        <h3 :style="{ ...styles.debugTitle, marginTop: '12px' }">toc feature defaults</h3>
-        <table :style="styles.debugTable">
-          <tr v-for="(value, key) in tocConfig" :key="key">
-            <td :style="styles.debugKey">
-              {{ key }}
-            </td>
-            <td :style="styles.debugValue">
-              {{ value }}
-            </td>
-          </tr>
-        </table>
-      </template>
-      <h3 :style="{ ...styles.debugTitle, marginTop: '12px' }">Feature flags</h3>
-      <div :style="styles.flags">
-        <span :style="flagStyle(hasBreadcrumbs)">breadcrumbs {{ hasBreadcrumbs ? "✓" : "✗" }}</span>
-        <span :style="flagStyle(hasHero)">hero {{ hasHero ? "✓" : "✗" }}</span>
-        <span :style="flagStyle(hasToc)">toc {{ hasToc ? "✓" : "✗" }}</span>
-        <span :style="flagStyle(hasSidebar)">sidebar {{ hasSidebar ? "✓" : "✗" }}</span>
+    <!-- Debug panel -->
+    <div class="border-t border-default bg-terminal shrink-0">
+      <!-- Header row -->
+      <div class="border-b border-white/10 flex divide-x divide-white/10">
+        <div class="px-5 py-3 shrink-0">
+          <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest">Resolved config</span>
+        </div>
+        <div class="px-5 py-3 flex items-center gap-2 flex-1">
+          <span class="font-mono text-xs text-primary">{{ variantName }}</span>
+        </div>
+        <div class="px-5 py-3 flex items-center gap-2 shrink-0">
+          <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest mr-2">flags</span>
+          <span
+            v-for="[name, active] in [['breadcrumbs', hasBreadcrumbs], ['hero', hasHero], ['toc', hasToc], ['sidebar', hasSidebar]]"
+            :key="String(name)"
+            :class="active ? 'text-success border-success/30' : 'text-white/40 border-white/10'"
+            class="font-mono text-[10px] px-2 py-0.5 border rounded-sm ml-1"
+          >
+            {{ active ? '✓' : '✗' }} {{ name }}
+          </span>
+        </div>
       </div>
+
+      <!-- Config rows -->
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] divide-x divide-white/5">
+        <div
+          v-for="(value, key) in config"
+          :key="key"
+          class="flex items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition-colors gap-4"
+        >
+          <span class="font-mono text-xs text-white/50 shrink-0 w-36">{{ key }}</span>
+          <span class="font-mono text-xs text-white/85">{{ value }}</span>
+        </div>
+      </div>
+
+      <!-- TOC defaults (if applicable) -->
+      <template v-if="hasToc">
+        <div class="border-t border-white/10 px-5 py-3">
+          <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest">toc feature defaults</span>
+        </div>
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] divide-x divide-white/5">
+          <div
+            v-for="(value, key) in tocConfig"
+            :key="key"
+            class="flex items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition-colors gap-4"
+          >
+            <span class="font-mono text-xs text-white/50 shrink-0 w-36">{{ key }}</span>
+            <span class="font-mono text-xs text-white/85">{{ value }}</span>
+          </div>
+        </div>
+      </template>
+
     </div>
   </div>
 </template>

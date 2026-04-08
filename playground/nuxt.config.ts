@@ -1,7 +1,8 @@
 export default defineNuxtConfig({
-  modules: ["../src/module", "@nuxt/content"],
+  modules: ["../src/module", "@nuxt/content", "@nuxt/ui"],
   devtools: { enabled: true },
   compatibilityDate: "latest",
+  css: ["~/assets/css/main.css"],
 
   variants: {
     configKey: "variants",

@@ -1,56 +1,43 @@
 <script setup lang="ts">
 definePageMeta({ layout: "content", variant: "article" });
 
-const config = useVariant("article");
+const { config } = useVariant("article");
 </script>
 
 <template>
-  <div>
-    <h2>Article body</h2>
-    <p>
-      This page calls <code>useVariant('article')</code> with a <strong>literal string</strong>.
-      TypeScript infers the return type as
-      <code
-        >ComputedRef&lt;Partial&lt;BreadcrumbsConfig &amp; HeroConfig &amp; SeoConfig &amp;
-        TocConfig&gt;&gt;</code
-      >
-      — no cast needed.
-    </p>
-    <p>
-      The <code>article</code> variant extends <code>seo</code> in <code>nuxt.config.ts</code>, but
-      <code>app.config.ts</code> overrides its <code>extends</code> chain to also include
-      <code>toc</code>. This means <code>tocTitle</code> and <code>authorBox: false</code> come from
-      the app config at runtime.
-    </p>
-    <table>
-      <tr>
-        <td><code>titleTemplate</code></td>
-        <td>{{ config.titleTemplate }}</td>
-      </tr>
-      <tr>
-        <td><code>authorBox</code></td>
-        <td>{{ config.authorBox }}</td>
-      </tr>
-      <tr>
-        <td><code>tocTitle</code></td>
-        <td>{{ config.tocTitle }}</td>
-      </tr>
-      <tr>
-        <td><code>tocMaxDepth</code></td>
-        <td>{{ config.tocMaxDepth }}</td>
-      </tr>
-      <tr>
-        <td><code>heroHeight</code></td>
-        <td>{{ config.heroHeight }}</td>
-      </tr>
-      <tr>
-        <td><code>heroAlign</code></td>
-        <td>{{ config.heroAlign }}</td>
-      </tr>
-      <tr>
-        <td><code>breadcrumbSeparator</code></td>
-        <td>{{ config.breadcrumbSeparator }}</td>
-      </tr>
-    </table>
+  <div class="space-y-6 max-w-2xl">
+    <div>
+      <h2 class="text-xl font-bold text-highlighted tracking-tight mb-2">Article</h2>
+      <p class="text-sm text-muted leading-relaxed">
+        Calls <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default">useVariant('article')</code> with a literal string.
+        TypeScript infers the merged type across <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default">breadcrumbs</code>,
+        <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default">hero</code>,
+        <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default">seo</code>, and
+        <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default">toc</code> — no cast needed.
+      </p>
+    </div>
+
+    <div class="border border-default rounded-sm overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-default bg-muted flex items-center gap-2">
+        <span class="font-mono text-xs text-dimmed uppercase tracking-widest">app.config override</span>
+        <span class="font-mono text-[10px] px-1.5 py-0.5 bg-warning/10 text-warning border border-warning/20 rounded-sm">authorBox: false</span>
+      </div>
+      <p class="text-xs text-muted leading-relaxed px-4 py-3 m-0">
+        <code class="font-mono">app.config.ts</code> extends the article chain to also include <code class="font-mono">toc</code>,
+        and overrides <code class="font-mono">authorBox</code> from <code class="font-mono">true</code> → <code class="font-mono">false</code>.
+      </p>
+    </div>
+
+    <div class="border border-default rounded-sm overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-default bg-muted">
+        <span class="font-mono text-xs text-dimmed uppercase tracking-widest">Resolved config</span>
+      </div>
+      <div class="divide-y divide-default">
+        <div v-for="[key, value] in Object.entries(config)" :key="key" class="flex items-center px-4 py-2.5 hover:bg-muted transition-colors">
+          <span class="font-mono text-xs text-toned w-48 shrink-0">{{ key }}</span>
+          <span class="font-mono text-xs text-highlighted">{{ value }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
