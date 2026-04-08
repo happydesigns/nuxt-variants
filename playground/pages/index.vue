@@ -1,59 +1,3 @@
-<template>
-  <div :style="styles.page">
-    <div :style="styles.header">
-      <h1 :style="styles.title">nuxt-variants playground</h1>
-      <p :style="styles.subtitle">
-        A centralized, deeply-merging configuration engine for Nuxt layouts.
-      </p>
-    </div>
-
-    <section :style="styles.section">
-      <h2 :style="styles.sectionTitle">Features</h2>
-      <p :style="styles.sectionDesc">
-        Base building blocks — no <code>extends</code>, just config defaults.
-      </p>
-      <div :style="styles.grid">
-        <div v-for="f in features" :key="f.name" :style="styles.featureCard">
-          <span :style="styles.cardName">{{ f.name }}</span>
-          <div :style="styles.configKeys">
-            <code v-for="k in f.configKeys" :key="k" :style="styles.configKey">{{ k }}</code>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section :style="styles.section">
-      <h2 :style="styles.sectionTitle">Layout variants</h2>
-      <p :style="styles.sectionDesc">Compose features and override config. Click to preview.</p>
-      <div :style="styles.grid">
-        <NuxtLink v-for="v in layouts" :key="v.name" :to="`/${v.name}`" :style="styles.layoutCard">
-          <span :style="styles.cardName">{{ v.name }}</span>
-          <div :style="styles.extendsRow">
-            <span v-for="p in v.extends" :key="p" :style="styles.parentBadge">{{ p }}</span>
-          </div>
-        </NuxtLink>
-      </div>
-    </section>
-
-    <section :style="styles.section">
-      <h2 :style="styles.sectionTitle">Build-time schema merging</h2>
-      <p :style="styles.sectionDesc">
-        <code>mergeVariantSchemas</code> walks the <code>#variants-graph</code> at build time and
-        produces a single Zod schema for Nuxt Content v3. The <code>blog</code> collection inherits
-        both <code>seoTitle</code> (from <code>seo</code>) and <code>authorName</code> (from
-        <code>article</code>) without manually composing schemas.
-      </p>
-      <NuxtLink to="/blog" :style="styles.contentCard">
-        <span :style="styles.cardName">blog collection →</span>
-        <p :style="styles.contentMeta">
-          variant chain: <code>article → seo</code><br />
-          merged schema fields: <code>seoTitle</code>, <code>authorName</code>
-        </p>
-      </NuxtLink>
-    </section>
-  </div>
-</template>
-
 <script setup lang="ts">
 const registry = useVariants();
 
@@ -132,3 +76,59 @@ const styles = {
   },
 };
 </script>
+
+<template>
+  <div :style="styles.page">
+    <div :style="styles.header">
+      <h1 :style="styles.title">nuxt-variants playground</h1>
+      <p :style="styles.subtitle">
+        A centralized, deeply-merging configuration engine for Nuxt layouts.
+      </p>
+    </div>
+
+    <section :style="styles.section">
+      <h2 :style="styles.sectionTitle">Features</h2>
+      <p :style="styles.sectionDesc">
+        Base building blocks — no <code>extends</code>, just config defaults.
+      </p>
+      <div :style="styles.grid">
+        <div v-for="f in features" :key="f.name" :style="styles.featureCard">
+          <span :style="styles.cardName">{{ f.name }}</span>
+          <div :style="styles.configKeys">
+            <code v-for="k in f.configKeys" :key="k" :style="styles.configKey">{{ k }}</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section :style="styles.section">
+      <h2 :style="styles.sectionTitle">Layout variants</h2>
+      <p :style="styles.sectionDesc">Compose features and override config. Click to preview.</p>
+      <div :style="styles.grid">
+        <NuxtLink v-for="v in layouts" :key="v.name" :to="`/${v.name}`" :style="styles.layoutCard">
+          <span :style="styles.cardName">{{ v.name }}</span>
+          <div :style="styles.extendsRow">
+            <span v-for="p in v.extends" :key="p" :style="styles.parentBadge">{{ p }}</span>
+          </div>
+        </NuxtLink>
+      </div>
+    </section>
+
+    <section :style="styles.section">
+      <h2 :style="styles.sectionTitle">Build-time schema merging</h2>
+      <p :style="styles.sectionDesc">
+        <code>mergeVariantSchemas</code> walks the <code>#variants-graph</code> at build time and
+        produces a single Zod schema for Nuxt Content v3. The <code>blog</code> collection inherits
+        both <code>seoTitle</code> (from <code>seo</code>) and <code>authorName</code> (from
+        <code>article</code>) without manually composing schemas.
+      </p>
+      <NuxtLink to="/blog" :style="styles.contentCard">
+        <span :style="styles.cardName">blog collection →</span>
+        <p :style="styles.contentMeta">
+          variant chain: <code>article → seo</code><br />
+          merged schema fields: <code>seoTitle</code>, <code>authorName</code>
+        </p>
+      </NuxtLink>
+    </section>
+  </div>
+</template>

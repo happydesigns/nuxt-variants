@@ -1,3 +1,9 @@
+<script setup lang="ts">
+definePageMeta({ layout: "content", variant: "article" });
+
+const config = useVariant("article");
+</script>
+
 <template>
   <div>
     <h2>Article body</h2>
@@ -48,9 +54,3 @@
     </table>
   </div>
 </template>
-
-<script setup lang="ts">
-definePageMeta({ layout: "content", variant: "article" });
-
-const config = useVariant("article");
-</script>

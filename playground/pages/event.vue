@@ -1,3 +1,9 @@
+<script setup lang="ts">
+definePageMeta({ layout: "content", variant: "event" });
+
+const config = useVariant("event");
+</script>
+
 <template>
   <div>
     <h2>Event body</h2>
@@ -27,9 +33,3 @@
     </table>
   </div>
 </template>
-
-<script setup lang="ts">
-definePageMeta({ layout: "content", variant: "event" });
-
-const config = useVariant("event");
-</script>

@@ -1,3 +1,9 @@
+<script setup lang="ts">
+definePageMeta({ layout: "content", variant: "landing" });
+
+const config = useVariant("landing");
+</script>
+
 <template>
   <div>
     <h2>Landing body</h2>
@@ -31,9 +37,3 @@
     </table>
   </div>
 </template>
-
-<script setup lang="ts">
-definePageMeta({ layout: "content", variant: "landing" });
-
-const config = useVariant("landing");
-</script>

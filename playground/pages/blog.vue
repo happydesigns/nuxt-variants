@@ -3,83 +3,7 @@ const { data: post } = await useAsyncData("hello-world", () => queryCollection("
 
 const { config: articleVariant, has } = useVariant("article");
 const extendsSeo = has("seo");
-</script>
 
-<template>
-  <div :style="styles.page">
-    <nav :style="styles.nav">
-      <NuxtLink to="/" :style="styles.navLink">← All variants</NuxtLink>
-      <span :style="styles.badge">Nuxt Content v3</span>
-      <span :style="styles.badge">mergeVariantSchemas</span>
-    </nav>
-
-    <div :style="styles.content">
-      <section :style="styles.section">
-        <h2 :style="styles.sectionTitle">Build-time schema merging</h2>
-        <p :style="styles.desc">
-          <code>mergeVariantSchemas(['article'], variantSchemas, variantGraph)</code> walked the
-          inheritance graph at build time (<code>article → seo</code>) and produced a single Zod
-          schema with both fields. Nuxt Content v3 used it to create the SQLite columns.
-        </p>
-
-        <div :style="styles.card">
-          <div :style="styles.cardHeader">
-            <span :style="styles.cardTitle">content/blog/hello-world.md</span>
-            <span :style="styles.pill">SQLite-backed</span>
-          </div>
-          <table :style="styles.table">
-            <tr>
-              <td :style="styles.key"><code>seoTitle</code></td>
-              <td :style="styles.value">{{ post?.seoTitle }}</td>
-              <td :style="styles.source">from <code>seo</code> schema</td>
-            </tr>
-            <tr>
-              <td :style="styles.key"><code>authorName</code></td>
-              <td :style="styles.value">{{ post?.authorName }}</td>
-              <td :style="styles.source">from <code>article</code> schema</td>
-            </tr>
-          </table>
-        </div>
-      </section>
-
-      <section :style="styles.section">
-        <h2 :style="styles.sectionTitle">Runtime variant config</h2>
-        <p :style="styles.desc">
-          <code>useVariant('article')</code> deeply merges the registry and
-          <code>app.config.ts</code> override at runtime. The <code>app.config.ts</code> sets
-          <code>authorBox: false</code>, overriding the <code>nuxt.config.ts</code> default of
-          <code>true</code>.
-          <br />
-          <code>useVariantExtends('article', 'seo')</code> returns
-          <strong>{{ extendsSeo }}</strong> — proving the inheritance graph is also available
-          reactively at runtime.
-        </p>
-
-        <div :style="styles.card">
-          <div :style="styles.cardHeader">
-            <span :style="styles.cardTitle">useVariant('article')</span>
-            <span :style="{ ...styles.pill, background: '#d1fae5', color: '#065f46' }"
-              >reactive</span
-            >
-          </div>
-          <table :style="styles.table">
-            <tr v-for="(val, key) in articleVariant" :key="key">
-              <td :style="styles.key">
-                <code>{{ key }}</code>
-              </td>
-              <td :style="styles.value">{{ val }}</td>
-              <td :style="styles.source">
-                <span v-if="key === 'authorBox'" :style="styles.override">app.config override</span>
-              </td>
-            </tr>
-          </table>
-        </div>
-      </section>
-    </div>
-  </div>
-</template>
-
-<script lang="ts">
 const styles = {
   page: { fontFamily: "system-ui, sans-serif", minHeight: "100vh", background: "#f8fafc" },
   nav: {
@@ -155,3 +79,77 @@ const styles = {
   },
 };
 </script>
+
+<template>
+  <div :style="styles.page">
+    <nav :style="styles.nav">
+      <NuxtLink to="/" :style="styles.navLink">← All variants</NuxtLink>
+      <span :style="styles.badge">Nuxt Content v3</span>
+      <span :style="styles.badge">mergeVariantSchemas</span>
+    </nav>
+
+    <div :style="styles.content">
+      <section :style="styles.section">
+        <h2 :style="styles.sectionTitle">Build-time schema merging</h2>
+        <p :style="styles.desc">
+          <code>mergeVariantSchemas(['article'], variantSchemas, variantGraph)</code> walked the
+          inheritance graph at build time (<code>article → seo</code>) and produced a single Zod
+          schema with both fields. Nuxt Content v3 used it to create the SQLite columns.
+        </p>
+
+        <div :style="styles.card">
+          <div :style="styles.cardHeader">
+            <span :style="styles.cardTitle">content/blog/hello-world.md</span>
+            <span :style="styles.pill">SQLite-backed</span>
+          </div>
+          <table :style="styles.table">
+            <tr>
+              <td :style="styles.key"><code>seoTitle</code></td>
+              <td :style="styles.value">{{ post?.seoTitle }}</td>
+              <td :style="styles.source">from <code>seo</code> schema</td>
+            </tr>
+            <tr>
+              <td :style="styles.key"><code>authorName</code></td>
+              <td :style="styles.value">{{ post?.authorName }}</td>
+              <td :style="styles.source">from <code>article</code> schema</td>
+            </tr>
+          </table>
+        </div>
+      </section>
+
+      <section :style="styles.section">
+        <h2 :style="styles.sectionTitle">Runtime variant config</h2>
+        <p :style="styles.desc">
+          <code>useVariant('article')</code> deeply merges the registry and
+          <code>app.config.ts</code> override at runtime. The <code>app.config.ts</code> sets
+          <code>authorBox: false</code>, overriding the <code>nuxt.config.ts</code> default of
+          <code>true</code>.
+          <br />
+          <code>useVariantExtends('article', 'seo')</code> returns
+          <strong>{{ extendsSeo }}</strong> — proving the inheritance graph is also available
+          reactively at runtime.
+        </p>
+
+        <div :style="styles.card">
+          <div :style="styles.cardHeader">
+            <span :style="styles.cardTitle">useVariant('article')</span>
+            <span :style="{ ...styles.pill, background: '#d1fae5', color: '#065f46' }"
+              >reactive</span
+            >
+          </div>
+          <table :style="styles.table">
+            <tr v-for="(val, key) in articleVariant" :key="key">
+              <td :style="styles.key">
+                <code>{{ key }}</code>
+              </td>
+              <td :style="styles.value">{{ val }}</td>
+              <td :style="styles.source">
+                <span v-if="key === 'authorBox'" :style="styles.override">app.config override</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</template>
