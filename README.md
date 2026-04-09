@@ -32,7 +32,7 @@ npx nuxt module add @h4designs/nuxt-variants
 
 ```ts
 export default defineNuxtConfig({
-  modules: ["nuxt-variants"],
+  modules: ["@h4designs/nuxt-variants"],
   variants: {
     registry: {
       // Feature: a reusable config block with no parents
@@ -73,17 +73,17 @@ export default defineAppConfig({
 
 ```ts
 // Fully typed when the variant name is a literal string
-const config = useVariant("article");
+const { config } = useVariant("article");
 config.value.height; // string | undefined
 config.value.showHome; // boolean | undefined
 config.value.authorBox; // boolean | undefined
 
 // Reactive name — pass a ref or getter directly
 const variantName = computed(() => route.meta.variant ?? "article");
-const config = useVariant(variantName);
+const { config, has } = useVariant(variantName);
 
 // Check feature inheritance at any depth
-const hasBreadcrumbs = useVariantExtends(variantName, "breadcrumbs");
+const hasBreadcrumbs = has("breadcrumbs");
 // hasBreadcrumbs.value → true (article extends breadcrumbs)
 ```
 
@@ -100,8 +100,8 @@ const hasBreadcrumbs = useVariantExtends(variantName, "breadcrumbs");
 const route = useRoute();
 const variantName = computed(() => route.meta.variant ?? "article");
 
-const config = useVariant(variantName);
-const hasBreadcrumbs = useVariantExtends(variantName, "breadcrumbs");
+const { config, has } = useVariant(variantName);
+const hasBreadcrumbs = has("breadcrumbs");
 </script>
 ```
 
@@ -126,7 +126,7 @@ definePageMeta({ layout: "content", variant: "landing" });
 import { defineCollection } from "@nuxt/content";
 import { z } from "zod";
 import { variantGraph } from "./.nuxt/variants-graph.mjs";
-import { mergeVariantSchemas, type SchemaRegistry } from "nuxt-variants/schemas";
+import { mergeVariantSchemas, type SchemaRegistry } from "@h4designs/nuxt-variants/schemas";
 
 const variantSchemas: SchemaRegistry = {
   seo: z.object({ seoTitle: z.string() }),
@@ -208,6 +208,7 @@ declare module "#nuxt-variants" {
 ```ts
 interface VariantDefinition<T> {
   extends?: string | string[]; // parent variant(s) to inherit from
+  active?: boolean; // set to false to exclude this variant from resolution (default: true)
   config: Partial<T>; // the config values this variant contributes
 }
 ```
@@ -216,23 +217,33 @@ interface VariantDefinition<T> {
 
 ### `useVariant(name)`
 
-Resolves a variant by merging its config with all inherited parents. Returns a reactive `ComputedRef` that updates when `app.config` changes.
+Resolves a variant by merging its config with all inherited parents. Returns `{ config, has }`.
 
 - `name` — `MaybeRefOrGetter<string>` — variant key, or a ref/getter of one
 - Merge priority (highest → lowest): variant's own `app.config` → variant's own `nuxt.config` → last parent → … → first parent
+- If a variant's `active` is set to `false`, it resolves to an empty config
 
-### `useVariantExtends(variantName, featureName)`
+#### `config`
 
-Returns a `ComputedRef<boolean>` that is `true` if `variantName` directly or transitively extends `featureName`. Safe against circular `extends` chains.
+`ComputedRef<VariantConfigOf<K>>` — the fully merged config object. Updates reactively when `app.config` changes.
 
-- Both parameters accept `MaybeRefOrGetter<string>`
+#### `has(featureName)`
 
-### `useVariantRegistry()`
+Returns a `ComputedRef<boolean>` that is `true` if this variant directly or transitively extends `featureName`. Safe against circular `extends` chains.
 
-Returns a `ComputedRef<RegistryEntry[]>` — a flat list of all variants from both `nuxt.config` and `app.config`, each with its resolved `extends` chain and union of config keys.
+- `featureName` — `MaybeRefOrGetter<string>`
 
 ```ts
-interface RegistryEntry {
+const { config, has } = useVariant("article");
+const hasBreadcrumbs = has("breadcrumbs"); // ComputedRef<boolean>
+```
+
+### `useVariants()`
+
+Returns a `ComputedRef<VariantEntry[]>` — a flat list of all variants from both `nuxt.config` and `app.config`, each with its resolved `extends` chain and union of config keys.
+
+```ts
+interface VariantEntry {
   name: string;
   extends: string[]; // resolved extends chain (app.config wins over nuxt.config)
   configKeys: string[];
@@ -291,7 +302,7 @@ Arrays in config are **replaced**, not concatenated, when a child overrides a pa
 pnpm install
 
 # Generate type stubs
-pnpm dev:prepare
+pnpm prepare
 
 # Develop with the playground
 pnpm dev
