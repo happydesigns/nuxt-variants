@@ -1,8 +1,6 @@
 # Changelog
 
-
 ## v0.0.1
-
 
 ### 🚀 Enhancements
 
@@ -65,4 +63,3 @@
 ### ❤️ Contributors
 
 - Jan Fröhlich ([@janfrl](https://github.com/janfrl))
-
