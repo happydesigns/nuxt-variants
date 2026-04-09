@@ -65,6 +65,10 @@ export interface CustomVariantRegistry {}
             : [extendsValue];
     }
 
+    // Inject graph into globalThis so utilities like mergeVariantSchemas
+    // can find it automatically even when called in content.config.ts
+    (globalThis as any).__NUXT_VARIANTS_GRAPH__ = variantGraph;
+
     const graphMjsPath = join(nuxt.options.buildDir, "variants-graph.mjs");
     const graphDmtsPath = join(nuxt.options.buildDir, "variants-graph.d.mts");
     const graphContent = `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};\n`;
