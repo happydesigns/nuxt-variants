@@ -31,8 +31,10 @@ export default defineNuxtModule<ModuleOptions>({
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url);
 
-    nuxt.options.runtimeConfig.public.variantRegistry = options.registry;
-    nuxt.options.runtimeConfig.public.variantsConfigKey = options.configKey;
+    Object.assign(nuxt.options.runtimeConfig.public, {
+      variantRegistry: options.registry,
+      variantsConfigKey: options.configKey,
+    });
 
     addTypeTemplate({
       filename: "types/nuxt-variants.d.ts",
@@ -64,34 +66,26 @@ export interface CustomVariantRegistry {}
     }
 
     const graphMjsPath = join(nuxt.options.buildDir, "variants-graph.mjs");
-    const graphDtsPath = join(nuxt.options.buildDir, "variants-graph.d.ts");
+    const graphDmtsPath = join(nuxt.options.buildDir, "variants-graph.d.mts");
+    const graphContent = `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};\n`;
+    const graphDtsContent = `export declare const variantGraph: Record<string, string[]>;\n`;
 
+    // Write eagerly so content.config.ts can import the file at Nuxt init time,
+    // before any hooks fire. addTemplate keeps them in sync during build.
     mkdirSync(nuxt.options.buildDir, { recursive: true });
-    writeFileSync(
-      graphMjsPath,
-      `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};\n`,
-      "utf-8",
-    );
-    writeFileSync(
-      graphDtsPath,
-      `export declare const variantGraph: Record<string, string[]>;\n`,
-      "utf-8",
-    );
+    writeFileSync(graphMjsPath, graphContent, "utf-8");
+    writeFileSync(graphDmtsPath, graphDtsContent, "utf-8");
 
-    addTemplate({
-      filename: "variants-graph.mjs",
-      getContents: () => `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};\n`,
-    });
-
-    addTemplate({
-      filename: "variants-graph.d.ts",
-      getContents: () => `export declare const variantGraph: Record<string, string[]>;\n`,
-    });
+    addTemplate({ filename: "variants-graph.mjs", getContents: () => graphContent });
+    addTemplate({ filename: "variants-graph.d.mts", getContents: () => graphDtsContent });
 
     nuxt.options.alias["#variants-graph"] = graphMjsPath;
 
     nuxt.hook("prepare:types", ({ references }) => {
-      references.push({ path: graphDtsPath });
+      // Re-write in case Nuxt cleaned buildDir after setup() ran.
+      writeFileSync(graphMjsPath, graphContent, "utf-8");
+      writeFileSync(graphDmtsPath, graphDtsContent, "utf-8");
+      references.push({ path: graphDmtsPath });
     });
 
     addImportsDir(resolver.resolve("./runtime/composables"));
