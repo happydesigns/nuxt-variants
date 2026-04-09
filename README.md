@@ -15,7 +15,7 @@ A centralized, deeply-merging configuration engine for Nuxt layouts. Define reus
 - **Deep merge with array overwrite** — configs are deeply merged; arrays are replaced, not concatenated
 - **`extends` chain** — variants inherit from one or more parent variants, resolved bottom-up
 - **Two-layer config** — `nuxt.config` sets build-time defaults; `app.config` overrides at runtime (Nuxt Studio compatible)
-- **Reactive composables** — `useVariant` and `useVariantExtends` return `ComputedRef`s that update live when `app.config` changes
+- **Reactive composables** — `useVariant` and `useVariants` return `ComputedRef`s that update live when `app.config` changes
 - **Full TypeScript inference** — augment `#nuxt-variants` to get typed config per variant key
 - **Build-time variant graph** — the `extends` inheritance tree is computed once at build time and exposed as a virtual module (`#variants-graph`)
 - **Nuxt Content v3 schema merging** — `mergeVariantSchemas` walks the variant graph and produces a single merged Zod or Valibot schema for use with `defineCollection`
