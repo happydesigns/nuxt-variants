@@ -25,6 +25,9 @@
       "import": "./dist/module.mjs"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "prepack": "nuxt-module-build build",
     "prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt prepare playground",
