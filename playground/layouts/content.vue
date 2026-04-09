@@ -24,7 +24,6 @@ const heroHeights: Record<string, string> = {
 
 <template>
   <div class="min-h-screen bg-default flex flex-col">
-
     <!-- Top bar -->
     <div class="border-b border-default flex divide-x divide-default h-11 shrink-0">
       <NuxtLink
@@ -70,14 +69,19 @@ const heroHeights: Record<string, string> = {
         :style="{
           minHeight: heroHeights[config.heroHeight ?? 'md'],
           alignItems:
-            config.heroAlign === 'center' ? 'center'
-            : config.heroAlign === 'right' ? 'flex-end'
-            : 'flex-start',
+            config.heroAlign === 'center'
+              ? 'center'
+              : config.heroAlign === 'right'
+                ? 'flex-end'
+                : 'flex-start',
         }"
       >
         <div :class="config.heroAlign === 'center' ? 'text-center' : ''">
           <p class="font-mono text-[10px] text-white/50 mb-2 uppercase tracking-widest m-0">
-            height:{{ config.heroHeight }} &nbsp;·&nbsp; overlay:{{ config.heroOverlay }} &nbsp;·&nbsp; align:{{ config.heroAlign }}
+            height:{{ config.heroHeight }} &nbsp;·&nbsp; overlay:{{
+              config.heroOverlay
+            }}
+            &nbsp;·&nbsp; align:{{ config.heroAlign }}
           </p>
           <slot name="hero-title">
             <h1 class="text-4xl font-bold text-white m-0 tracking-tight">{{ pageTitle }}</h1>
@@ -89,7 +93,6 @@ const heroHeights: Record<string, string> = {
 
     <!-- Body: sidebar | main | toc -->
     <div class="flex divide-x divide-default flex-1 min-h-64">
-
       <!-- Sidebar -->
       <aside
         v-if="hasSidebar"
@@ -103,7 +106,15 @@ const heroHeights: Record<string, string> = {
           <span class="font-mono text-[10px] text-muted uppercase tracking-widest">Sidebar</span>
         </div>
         <div class="p-5 flex flex-col gap-3">
-          <div v-for="[k, v] in [['position', config.sidebarPosition], ['width', `${config.sidebarWidth}px`], ['collapsible', config.sidebarCollapsible]]" :key="k" class="flex items-center justify-between">
+          <div
+            v-for="[k, v] in [
+              ['position', config.sidebarPosition],
+              ['width', `${config.sidebarWidth}px`],
+              ['collapsible', config.sidebarCollapsible],
+            ]"
+            :key="k"
+            class="flex items-center justify-between"
+          >
             <span class="font-mono text-xs text-muted">{{ k }}</span>
             <span class="font-mono text-xs text-highlighted">{{ v }}</span>
           </div>
@@ -123,24 +134,36 @@ const heroHeights: Record<string, string> = {
         :style="{ position: config.tocSticky ? 'sticky' : 'static', top: 0 }"
       >
         <div class="border-b border-default px-5 py-3">
-          <span class="font-mono text-[10px] text-muted uppercase tracking-widest">{{ config.tocTitle }}</span>
+          <span class="font-mono text-[10px] text-muted uppercase tracking-widest">{{
+            config.tocTitle
+          }}</span>
         </div>
         <div class="p-5 flex flex-col gap-3">
-          <div v-for="[k, v] in [['maxDepth', config.tocMaxDepth], ['sticky', config.tocSticky]]" :key="k" class="flex items-center justify-between">
+          <div
+            v-for="[k, v] in [
+              ['maxDepth', config.tocMaxDepth],
+              ['sticky', config.tocSticky],
+            ]"
+            :key="k"
+            class="flex items-center justify-between"
+          >
             <span class="font-mono text-xs text-muted">{{ k }}</span>
             <span class="font-mono text-xs text-highlighted">{{ v }}</span>
           </div>
           <div class="border-t border-default pt-3 flex flex-col gap-1.5 mt-1">
             <span class="font-mono text-xs text-muted">Introduction</span>
             <span class="font-mono text-xs text-muted">Section 1</span>
-            <span v-if="(config.tocMaxDepth ?? 1) >= 2" class="font-mono text-xs text-dimmed pl-3">↳ Subsection 1.1</span>
-            <span v-if="(config.tocMaxDepth ?? 1) >= 3" class="font-mono text-xs text-dimmed pl-6">↳ Deep 1.1.1</span>
+            <span v-if="(config.tocMaxDepth ?? 1) >= 2" class="font-mono text-xs text-dimmed pl-3"
+              >↳ Subsection 1.1</span
+            >
+            <span v-if="(config.tocMaxDepth ?? 1) >= 3" class="font-mono text-xs text-dimmed pl-6"
+              >↳ Deep 1.1.1</span
+            >
             <span class="font-mono text-xs text-muted">Section 2</span>
           </div>
           <slot name="toc" />
         </div>
       </aside>
-
     </div>
 
     <!-- Debug panel -->
@@ -148,20 +171,29 @@ const heroHeights: Record<string, string> = {
       <!-- Header row -->
       <div class="border-b border-white/10 flex divide-x divide-white/10">
         <div class="px-5 py-3 shrink-0">
-          <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest">Resolved config</span>
+          <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest"
+            >Resolved config</span
+          >
         </div>
         <div class="px-5 py-3 flex items-center gap-2 flex-1">
           <span class="font-mono text-xs text-primary">{{ variantName }}</span>
         </div>
         <div class="px-5 py-3 flex items-center gap-2 shrink-0">
-          <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest mr-2">flags</span>
+          <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest mr-2"
+            >flags</span
+          >
           <span
-            v-for="[name, active] in [['breadcrumbs', hasBreadcrumbs], ['hero', hasHero], ['toc', hasToc], ['sidebar', hasSidebar]]"
+            v-for="[name, active] in [
+              ['breadcrumbs', hasBreadcrumbs],
+              ['hero', hasHero],
+              ['toc', hasToc],
+              ['sidebar', hasSidebar],
+            ]"
             :key="String(name)"
             :class="active ? 'text-success border-success/30' : 'text-white/40 border-white/10'"
             class="font-mono text-[10px] px-2 py-0.5 border rounded-sm ml-1"
           >
-            {{ active ? '✓' : '✗' }} {{ name }}
+            {{ active ? "✓" : "✗" }} {{ name }}
           </span>
         </div>
       </div>
@@ -181,7 +213,9 @@ const heroHeights: Record<string, string> = {
       <!-- TOC defaults (if applicable) -->
       <template v-if="hasToc">
         <div class="border-t border-white/10 px-5 py-3">
-          <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest">toc feature defaults</span>
+          <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest"
+            >toc feature defaults</span
+          >
         </div>
         <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] divide-x divide-white/5">
           <div
@@ -194,7 +228,6 @@ const heroHeights: Record<string, string> = {
           </div>
         </div>
       </template>
-
     </div>
   </div>
 </template>

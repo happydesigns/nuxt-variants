@@ -29,13 +29,18 @@ const extendsSeo = has("seo");
       <!-- Schema merging -->
       <section>
         <div class="flex items-baseline gap-3 mb-5">
-          <h2 class="text-xl font-bold text-highlighted tracking-tight m-0">Build-time schema merging</h2>
+          <h2 class="text-xl font-bold text-highlighted tracking-tight m-0">
+            Build-time schema merging
+          </h2>
           <UBadge color="primary" variant="subtle" class="font-mono">SQLite-backed</UBadge>
         </div>
         <p class="text-sm text-muted leading-relaxed mb-5">
-          <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default">mergeVariantSchemas(['article'], variantSchemas, variantGraph)</code>
-          walked the inheritance graph at build time (<code class="font-mono text-xs">article → seo</code>)
-          and produced a single Zod schema. Nuxt Content v3 used it to create the SQLite columns.
+          <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default"
+            >mergeVariantSchemas(['article'], variantSchemas, variantGraph)</code
+          >
+          walked the inheritance graph at build time (<code class="font-mono text-xs"
+            >article → seo</code
+          >) and produced a single Zod schema. Nuxt Content v3 used it to create the SQLite columns.
         </p>
 
         <div class="border border-default rounded-sm overflow-hidden">
@@ -60,16 +65,25 @@ const extendsSeo = has("seo");
       <!-- Runtime config -->
       <section>
         <div class="flex items-baseline gap-3 mb-5">
-          <h2 class="text-xl font-bold text-highlighted tracking-tight m-0">Runtime variant config</h2>
+          <h2 class="text-xl font-bold text-highlighted tracking-tight m-0">
+            Runtime variant config
+          </h2>
           <UBadge color="success" variant="subtle" class="font-mono">reactive</UBadge>
         </div>
         <p class="text-sm text-muted leading-relaxed mb-5">
-          <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default">useVariant('article')</code>
+          <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default"
+            >useVariant('article')</code
+          >
           deeply merges registry + <code class="font-mono text-xs">app.config.ts</code> at runtime.
-          The app config sets <code class="font-mono text-xs">authorBox: false</code>, overriding the nuxt.config default of <code class="font-mono text-xs">true</code>.
+          The app config sets <code class="font-mono text-xs">authorBox: false</code>, overriding
+          the nuxt.config default of <code class="font-mono text-xs">true</code>.
           <br class="mb-2" />
-          <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default mt-2 inline-block">has('seo')</code>
-          returns <strong class="text-highlighted font-mono text-xs">{{ extendsSeo }}</strong> — the inheritance graph is also reactive at runtime.
+          <code
+            class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default mt-2 inline-block"
+            >has('seo')</code
+          >
+          returns <strong class="text-highlighted font-mono text-xs">{{ extendsSeo }}</strong> — the
+          inheritance graph is also reactive at runtime.
         </p>
 
         <div class="border border-default rounded-sm overflow-hidden">
@@ -87,7 +101,8 @@ const extendsSeo = has("seo");
               <span
                 v-if="key === 'authorBox'"
                 class="font-mono text-[10px] px-1.5 py-0.5 bg-warning/10 text-warning border border-warning/20 rounded-sm"
-              >app.config override</span>
+                >app.config override</span
+              >
             </div>
           </div>
         </div>
