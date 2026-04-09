@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.0.2
+
+[compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.1...v0.0.2)
+
+### 🚀 Enhancements
+
+- Auto-inject variant graph into mergeVariantSchemas utility ([47c1faa](https://github.com/happydesigns/nuxt-variants/commit/47c1faa))
+
+### 📖 Documentation
+
+- Update readme ([88b9bcc](https://github.com/happydesigns/nuxt-variants/commit/88b9bcc))
+
+### 🏡 Chore
+
+- Set publishConfig access to public ([bc84b07](https://github.com/happydesigns/nuxt-variants/commit/bc84b07))
+- Lint ([48a246c](https://github.com/happydesigns/nuxt-variants/commit/48a246c))
+- Fix readme typo ([776b1f1](https://github.com/happydesigns/nuxt-variants/commit/776b1f1))
+
+### ❤️ Contributors
+
+- Jan Fröhlich ([@janfrl](https://github.com/janfrl))
+
 ## v0.0.1
 
 ### 🚀 Enhancements
