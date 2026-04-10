@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.0.3
+
+[compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.2...v0.0.3)
+
+### 🩹 Fixes
+
+- Add schemas subpath export as built dist entry ([99d5d1d](https://github.com/happydesigns/nuxt-variants/commit/99d5d1d))
+
+### 📖 Documentation
+
+- Update readme for auto-injected variant graph in mergeVariantSchemas ([a5c95c3](https://github.com/happydesigns/nuxt-variants/commit/a5c95c3))
+
+### 🏡 Chore
+
+- Add unbuild as explicit dev dependency ([1055bc1](https://github.com/happydesigns/nuxt-variants/commit/1055bc1))
+
+### ❤️ Contributors
+
+- Jan Fröhlich ([@janfrl](https://github.com/janfrl))
+
 ## v0.0.2
 
 [compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.1...v0.0.2)
