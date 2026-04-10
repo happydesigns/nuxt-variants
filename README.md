@@ -117,7 +117,7 @@ definePageMeta({ layout: "content", variant: "landing" });
 
 ## Nuxt Content v3 Integration
 
-`nuxt-variants` ships `mergeVariantSchemas` for use in `content.config.ts`. It walks the pre-computed `#variants-graph` at build time and produces a single merged Zod or Valibot schema, so every field from a variant's full inheritance chain becomes a typed SQLite column in Nuxt Content v3.
+`nuxt-variants` ships `mergeVariantSchemas` for use in `content.config.ts`. It produces a single merged Zod or Valibot schema covering a variant's full inheritance chain, so every inherited field becomes a typed SQLite column in Nuxt Content v3.
 
 ### Setup
 
@@ -125,7 +125,6 @@ definePageMeta({ layout: "content", variant: "landing" });
 // content.config.ts
 import { defineCollection } from "@nuxt/content";
 import { z } from "zod";
-import { variantGraph } from "./.nuxt/variants-graph.mjs";
 import { mergeVariantSchemas, type SchemaRegistry } from "@h4designs/nuxt-variants/schemas";
 
 const variantSchemas: SchemaRegistry = {
@@ -138,7 +137,7 @@ export const collections = {
     type: "page",
     source: "blog/**",
     // article extends seo → merged schema has both seoTitle and authorName
-    schema: mergeVariantSchemas(["article"], variantSchemas, variantGraph),
+    schema: mergeVariantSchemas(["article"], variantSchemas),
   }),
 };
 ```
@@ -151,13 +150,12 @@ z.object({ seoTitle: z.string(), authorName: z.string() });
 
 No manual schema composition needed. Add a field to the `seo` schema and every collection that uses an `article`-derived variant picks it up automatically.
 
-### `mergeVariantSchemas(activeVariants, registry, graph?)`
+### `mergeVariantSchemas(activeVariants, registry)`
 
-| Parameter        | Type                       | Description                                                                         |
-| ---------------- | -------------------------- | ----------------------------------------------------------------------------------- |
-| `activeVariants` | `string[]`                 | Variant keys whose schemas should be merged                                         |
-| `registry`       | `SchemaRegistry`           | Map of variant name → Zod or Valibot object schema                                  |
-| `graph`          | `Record<string, string[]>` | Inheritance graph (import from `.nuxt/variants-graph.mjs`). Defaults to `{}` (flat) |
+| Parameter        | Type             | Description                                        |
+| ---------------- | ---------------- | -------------------------------------------------- |
+| `activeVariants` | `string[]`       | Variant keys whose schemas should be merged        |
+| `registry`       | `SchemaRegistry` | Map of variant name → Zod or Valibot object schema |
 
 Resolution order is bottom-up: ancestor schemas are merged first so child schemas correctly override parent fields.
 
