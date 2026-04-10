@@ -18,7 +18,7 @@
         "./dist/types.d.mts"
       ],
       "schemas": [
-        "./src/runtime/utils/schemas/index.ts"
+        "./dist/schemas.d.mts"
       ]
     }
   },
@@ -28,8 +28,8 @@
       "import": "./dist/module.mjs"
     },
     "./schemas": {
-      "types": "./src/runtime/utils/schemas/index.ts",
-      "import": "./src/runtime/utils/schemas/index.ts"
+      "types": "./dist/schemas.d.mts",
+      "import": "./dist/schemas.mjs"
     }
   },
   "publishConfig": {
