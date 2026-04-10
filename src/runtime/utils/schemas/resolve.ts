@@ -48,10 +48,23 @@ function resolveExtendsGraph(variants: string[], graph: Record<string, string[]>
 export function mergeVariantSchemas(
   activeVariants: string[],
   registry: SchemaRegistry,
-  graph: Record<string, string[]> = (globalThis as any).__NUXT_VARIANTS_GRAPH__ || {},
+  graph?: Record<string, string[]>,
 ): AnyObjectSchema {
+  if (graph === undefined) {
+    const injected = (globalThis as any).__NUXT_VARIANTS_GRAPH__;
+    if (injected === undefined) {
+      throw new Error(
+        "[nuxt-variants] mergeVariantSchemas: no variant graph available. " +
+          "Either pass the graph explicitly as the third argument, or ensure the nuxt-variants " +
+          "module is listed before @nuxt/content in your modules array so the graph is " +
+          "injected into globalThis before content.config.ts is evaluated.",
+      );
+    }
+    graph = injected as Record<string, string[]>;
+  }
+  const resolvedGraph = graph as Record<string, string[]>;
   const firstSchema = activeVariants
-    .flatMap((v) => resolveExtendsGraph([v], graph))
+    .flatMap((v) => resolveExtendsGraph([v], resolvedGraph))
     .map((name) => registry[name])
     .find((s): s is AnyObjectSchema => s !== undefined);
 
@@ -62,7 +75,7 @@ export function mergeVariantSchemas(
   const adapter = detectAdapter(firstSchema);
   let base = adapter.emptyObject() as AnyObjectSchema;
 
-  const flattened = resolveExtendsGraph(activeVariants, graph);
+  const flattened = resolveExtendsGraph(activeVariants, resolvedGraph);
 
   for (const name of flattened) {
     const extra = registry[name];

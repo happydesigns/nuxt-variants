@@ -74,22 +74,49 @@ export interface CustomVariantRegistry {}
     const graphContent = `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};\n`;
     const graphDtsContent = `export declare const variantGraph: Record<string, string[]>;\n`;
 
+    const schemasMjsPath = join(nuxt.options.buildDir, "variants-schemas.mjs");
+    const schemasDmtsPath = join(nuxt.options.buildDir, "variants-schemas.d.mts");
+    const schemasContent =
+      [
+        `import { mergeVariantSchemas as _merge } from "@h4designs/nuxt-variants/schemas";`,
+        `const _graph = ${JSON.stringify(variantGraph, null, 2)};`,
+        `export function mergeVariantSchemas(activeVariants, registry) {`,
+        `  return _merge(activeVariants, registry, _graph);`,
+        `}`,
+        `export { zodAdapter, valibotAdapter, detectAdapter } from "@h4designs/nuxt-variants/schemas";`,
+      ].join("\n") + "\n";
+    const schemasDtsContent =
+      [
+        `import type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@h4designs/nuxt-variants/schemas";`,
+        `export declare function mergeVariantSchemas(activeVariants: string[], registry: SchemaRegistry): AnyObjectSchema;`,
+        `export { zodAdapter, valibotAdapter, detectAdapter } from "@h4designs/nuxt-variants/schemas";`,
+        `export type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@h4designs/nuxt-variants/schemas";`,
+      ].join("\n") + "\n";
+
     // Write eagerly so content.config.ts can import the file at Nuxt init time,
     // before any hooks fire. addTemplate keeps them in sync during build.
     mkdirSync(nuxt.options.buildDir, { recursive: true });
     writeFileSync(graphMjsPath, graphContent, "utf-8");
     writeFileSync(graphDmtsPath, graphDtsContent, "utf-8");
+    writeFileSync(schemasMjsPath, schemasContent, "utf-8");
+    writeFileSync(schemasDmtsPath, schemasDtsContent, "utf-8");
 
     addTemplate({ filename: "variants-graph.mjs", getContents: () => graphContent });
     addTemplate({ filename: "variants-graph.d.mts", getContents: () => graphDtsContent });
+    addTemplate({ filename: "variants-schemas.mjs", getContents: () => schemasContent });
+    addTemplate({ filename: "variants-schemas.d.mts", getContents: () => schemasDtsContent });
 
     nuxt.options.alias["#variants-graph"] = graphMjsPath;
+    nuxt.options.alias["#variants-schemas"] = schemasMjsPath;
 
     nuxt.hook("prepare:types", ({ references }) => {
       // Re-write in case Nuxt cleaned buildDir after setup() ran.
       writeFileSync(graphMjsPath, graphContent, "utf-8");
       writeFileSync(graphDmtsPath, graphDtsContent, "utf-8");
+      writeFileSync(schemasMjsPath, schemasContent, "utf-8");
+      writeFileSync(schemasDmtsPath, schemasDtsContent, "utf-8");
       references.push({ path: graphDmtsPath });
+      references.push({ path: schemasDmtsPath });
     });
 
     addImportsDir(resolver.resolve("./runtime/composables"));
