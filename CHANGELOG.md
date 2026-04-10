@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.0.4
+
+[compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.3...v0.0.4)
+
+### 🚀 Enhancements
+
+- Generate #variants-schemas virtual module with baked-in graph ([3e9acba](https://github.com/happydesigns/nuxt-variants/commit/3e9acba))
+
+### ❤️ Contributors
+
+- Jan Fröhlich ([@janfrl](https://github.com/janfrl))
+
 ## v0.0.3
 
 [compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.2...v0.0.3)
