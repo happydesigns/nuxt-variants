@@ -36,6 +36,53 @@ export default defineNuxtModule<ModuleOptions>({
       variantsConfigKey: options.configKey,
     });
 
+    // Build variant graph up-front so the type template can use it.
+    const baseRegistry = (options.registry ?? {}) as Record<string, VariantEntry>;
+    const appRegistry = (nuxt.options.appConfig[options.configKey] ?? {}) as Record<
+      string,
+      VariantEntry
+    >;
+
+    const allRegistryKeys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)]);
+    const variantGraph: Record<string, string[]> = {};
+
+    for (const key of allRegistryKeys) {
+      const extendsValue = appRegistry[key]?.extends ?? baseRegistry[key]?.extends;
+      variantGraph[key] =
+        extendsValue === undefined
+          ? []
+          : Array.isArray(extendsValue)
+            ? extendsValue
+            : [extendsValue];
+    }
+
+    /** Converts a JS config object into a TypeScript type literal string (widened to primitives). */
+    function serializeConfigShape(config: Record<string, unknown>): string {
+      const entries = Object.entries(config).map(([k, v]) => {
+        let t: string;
+        if (v === null) t = "null";
+        else if (Array.isArray(v)) t = "unknown[]";
+        else
+          switch (typeof v) {
+            case "string": t = "string"; break;
+            case "number": t = "number"; break;
+            case "boolean": t = "boolean"; break;
+            case "object": t = serializeConfigShape(v as Record<string, unknown>); break;
+            default: t = "unknown";
+          }
+        return `${k}: ${t}`;
+      });
+      return entries.length ? `{ ${entries.join("; ")} }` : "{}";
+    }
+
+    /** Returns the key itself plus all transitive ancestors, deduped, in resolution order. */
+    function getAncestors(key: string, visited = new Set<string>()): string[] {
+      if (visited.has(key)) return [];
+      visited.add(key);
+      const parents = variantGraph[key] ?? [];
+      return [key, ...parents.flatMap((p) => getAncestors(p, new Set(visited)))];
+    }
+
     addTypeTemplate({
       filename: "types/nuxt-variants.d.ts",
       getContents: () => {
@@ -57,7 +104,6 @@ export default defineNuxtModule<ModuleOptions>({
           ];
           for (const candidate of candidates) {
             if (existsSync(candidate)) {
-              // Relative path from types/ dir, without extension (TS resolves it)
               configPaths.push(relative(typesDir, candidate).replace(/\.[mc]?[tj]sx?$/, "").replace(/\\/g, "/"));
               break;
             }
@@ -68,22 +114,41 @@ export default defineNuxtModule<ModuleOptions>({
           .map((p, i) => `import cfg${i} from ${JSON.stringify(p)}`)
           .join("\n");
 
-        // _RawVariants: extract the configKey from the merged app configs.
-        // Use Defu if multiple layers, otherwise just typeof cfg0.
+        // _AppVariants: typed from the imported app.config files.
         const cfgRefs = configPaths.map((_, i) => `typeof cfg${i}`).join(", ");
-        const rawVariantsType =
+        const appVariantsType =
           configPaths.length === 0
-            ? `Record<string, { config?: Record<string, unknown> }>`
+            ? `Record<never, never>`
             : configPaths.length === 1
-              ? `typeof cfg0 extends { ${options.configKey}: infer V } ? V : Record<string, { config?: Record<string, unknown> }>`
-              : `import('defu').Defu<${cfgRefs.split(", ")[0]}, [${cfgRefs.split(", ").slice(1).join(", ")}]> extends { ${options.configKey}: infer V } ? V : Record<string, { config?: Record<string, unknown> }>`;
+              ? `typeof cfg0 extends { ${options.configKey}: infer V } ? V : Record<never, never>`
+              : `import('defu').Defu<${cfgRefs.split(", ")[0]}, [${cfgRefs.split(", ").slice(1).join(", ")}]> extends { ${options.configKey}: infer V } ? V : Record<never, never>`;
 
-        const registryKeys = Object.keys((options.registry ?? {}) as Record<string, unknown>);
+        // _RegistryVariants: typed from the module registry (nuxt.config.ts options).
+        // These are serialized from JS values since nuxt.config.ts is not imported.
+        const registryVariantsEntries = Object.entries(baseRegistry)
+          .map(([key, entry]) => {
+            const configShape = serializeConfigShape((entry as VariantEntry).config as Record<string, unknown> ?? {});
+            return `  ${key}: { config: ${configShape} }`;
+          })
+          .join("\n");
+
+        const registryKeys = Object.keys(baseRegistry);
         const entries = registryKeys
-          .map(
-            (key) =>
-              `  ${key}: _VariantConfig<_RawVariants extends { ${key}: infer E } ? E : { config?: Record<string, unknown> }>`,
-          )
+          .map((key) => {
+            // Include configs from self + all transitive ancestors so that
+            // useVariant('article') returns a type that includes inherited properties.
+            const chain = getAncestors(key);
+            const configType = chain
+              .map((k) => {
+                // Use `infer` pattern rather than `extends keyof` — TypeScript reliably
+                // evaluates infer-based conditionals even when the base type is itself
+                // a conditional type, whereas `K extends keyof ConditionalType` can
+                // fail to resolve and fall to the else branch (producing never).
+                return `_VariantConfig<_AppVariants extends { ${k}: infer _E${k} } ? _E${k} : _RegistryVariants extends { ${k}: infer _E${k} } ? _E${k} : never>`;
+              })
+              .join("\n    & ");
+            return `  ${key}: ${configType}`;
+          })
           .join("\n");
 
         return `// Generated by nuxt-variants — do not edit.
@@ -94,8 +159,11 @@ declare global {
   const defineAppConfig: <C extends AppConfigInput>(config: C) => C
 }
 
-type _VariantConfig<T> = T extends { config?: infer C } ? NonNullable<C> : Record<string, unknown>
-type _RawVariants = ${rawVariantsType}
+type _VariantConfig<T> = T extends { config?: infer C } ? NonNullable<C> : {}
+type _AppVariants = ${appVariantsType}
+type _RegistryVariants = {
+${registryVariantsEntries}
+}
 
 export interface CustomVariantRegistry {
 ${entries}
@@ -111,25 +179,6 @@ declare module 'vue-router' {
     });
 
     nuxt.options.alias["#nuxt-variants"] = `${nuxt.options.buildDir}/types/nuxt-variants`;
-
-    const baseRegistry = (options.registry ?? {}) as Record<string, VariantEntry>;
-    const appRegistry = (nuxt.options.appConfig[options.configKey] ?? {}) as Record<
-      string,
-      VariantEntry
-    >;
-
-    const allKeys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)]);
-    const variantGraph: Record<string, string[]> = {};
-
-    for (const key of allKeys) {
-      const extendsValue = appRegistry[key]?.extends ?? baseRegistry[key]?.extends;
-      variantGraph[key] =
-        extendsValue === undefined
-          ? []
-          : Array.isArray(extendsValue)
-            ? extendsValue
-            : [extendsValue];
-    }
 
     // Inject graph into globalThis so utilities like mergeVariantSchemas
     // can find it automatically even when called in content.config.ts
