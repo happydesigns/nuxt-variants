@@ -15,27 +15,20 @@ export interface VariantDefinition<T> {
   config: Partial<T>;
 }
 
-type VariantName = keyof CustomVariantRegistry extends never
-  ? string
-  : keyof CustomVariantRegistry | string;
+type AnyVariantConfig = Record<string, unknown>;
 
-type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (
-  x: infer I,
-) => void
-  ? I
-  : never;
+/**
+ * The resolved config type for a variant key (or union of keys).
+ *
+ * @example
+ * type Config = VariantConfigOf<'article'>
+ * // → Partial<ArticleConfig>
+ */
+export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<CustomVariantRegistry[K]>;
 
-type AnyVariantConfig = keyof CustomVariantRegistry extends never
-  ? Record<string, unknown>
-  : Partial<UnionToIntersection<CustomVariantRegistry[keyof CustomVariantRegistry]>>;
-
-type VariantConfigOf<K extends VariantName> = K extends keyof CustomVariantRegistry
-  ? Partial<CustomVariantRegistry[K]>
-  : AnyVariantConfig;
-
-export interface UseVariantReturn<K extends VariantName> {
+export interface UseVariantReturn<TConfig> {
   /** The fully merged configuration object for this variant. */
-  config: ComputedRef<VariantConfigOf<K>>;
+  config: ComputedRef<TConfig>;
   /**
    * Returns a computed ref that is `true` if this variant directly or
    * transitively extends the given feature name.
@@ -53,7 +46,11 @@ export interface UseVariantReturn<K extends VariantName> {
  *
  * @param name - The variant key to resolve, typed against `CustomVariantRegistry` when augmented.
  */
-export function useVariant<K extends VariantName>(name: MaybeRefOrGetter<K>): UseVariantReturn<K> {
+export function useVariant<K extends keyof CustomVariantRegistry>(
+  name: MaybeRefOrGetter<K>,
+): UseVariantReturn<VariantConfigOf<K>>;
+export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<AnyVariantConfig>;
+export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<unknown> {
   const runtimeConfig = useRuntimeConfig();
   const appConfig = useAppConfig();
 
@@ -116,7 +113,7 @@ export function useVariant<K extends VariantName>(name: MaybeRefOrGetter<K>): Us
       baseRegistry,
       overrideRegistry,
       new Set(),
-    ) as VariantConfigOf<K>;
+    ) as unknown;
   });
 
   function has(featureName: MaybeRefOrGetter<string>): ComputedRef<boolean> {
