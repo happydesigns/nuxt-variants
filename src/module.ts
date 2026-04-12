@@ -11,12 +11,27 @@ import {
 /** A single variant entry as it appears in either the base registry or appConfig overrides. */
 interface VariantEntry {
   extends?: string | string[];
+  config?: Record<string, unknown>;
   [key: string]: unknown;
 }
 
+/**
+ * A registry entry. Can be:
+ * - A full entry object: `{ extends?: string | string[]; config?: {...} }`
+ * - An array of strings — shorthand for `{ extends: [...] }` with no config
+ * - An empty object `{}` — feature with no config and no extends
+ */
+type RegistryEntryInput = string[] | { extends?: string | string[]; config?: Record<string, unknown> }
+
 export interface ModuleOptions {
-  registry: Record<string, unknown>;
+  registry: Record<string, RegistryEntryInput>;
   configKey: string;
+}
+
+/** Normalise any shorthand registry entry into a full VariantEntry. */
+function normalizeEntry(raw: RegistryEntryInput): VariantEntry {
+  if (Array.isArray(raw)) return { extends: raw, config: {} };
+  return { ...raw, config: raw.config ?? {} };
 }
 
 export default defineNuxtModule<ModuleOptions>({
@@ -31,13 +46,16 @@ export default defineNuxtModule<ModuleOptions>({
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url);
 
+    // Build variant graph up-front so the type template can use it.
+    // Normalise shorthand entries (arrays, missing config) into full VariantEntry objects.
+    const baseRegistry = Object.fromEntries(
+      Object.entries(options.registry ?? {}).map(([k, v]) => [k, normalizeEntry(v)]),
+    ) as Record<string, VariantEntry>;
+
     Object.assign(nuxt.options.runtimeConfig.public, {
-      variantRegistry: options.registry,
+      variantRegistry: baseRegistry,
       variantsConfigKey: options.configKey,
     });
-
-    // Build variant graph up-front so the type template can use it.
-    const baseRegistry = (options.registry ?? {}) as Record<string, VariantEntry>;
     const appRegistry = (nuxt.options.appConfig[options.configKey] ?? {}) as Record<
       string,
       VariantEntry
