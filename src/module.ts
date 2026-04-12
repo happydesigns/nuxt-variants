@@ -187,6 +187,9 @@ export interface CustomVariantRegistry {
 ${entries}
 }
 
+/** The resolved (merged) config type for a variant key. */
+export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<CustomVariantRegistry[K]>
+
 declare module 'vue-router' {
   interface RouteMeta {
     variant?: string;
