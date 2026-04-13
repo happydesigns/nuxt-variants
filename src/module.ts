@@ -21,7 +21,9 @@ interface VariantEntry {
  * - An array of strings — shorthand for `{ extends: [...] }` with no config
  * - An empty object `{}` — feature with no config and no extends
  */
-type RegistryEntryInput = string[] | { extends?: string | string[]; config?: Record<string, unknown> }
+type RegistryEntryInput =
+  | string[]
+  | { extends?: string | string[]; config?: Record<string, unknown> };
 
 export interface ModuleOptions {
   registry: Record<string, RegistryEntryInput>;
@@ -82,11 +84,20 @@ export default defineNuxtModule<ModuleOptions>({
         else if (Array.isArray(v)) t = "unknown[]";
         else
           switch (typeof v) {
-            case "string": t = "string"; break;
-            case "number": t = "number"; break;
-            case "boolean": t = "boolean"; break;
-            case "object": t = serializeConfigShape(v as Record<string, unknown>); break;
-            default: t = "unknown";
+            case "string":
+              t = "string";
+              break;
+            case "number":
+              t = "number";
+              break;
+            case "boolean":
+              t = "boolean";
+              break;
+            case "object":
+              t = serializeConfigShape(v as Record<string, unknown>);
+              break;
+            default:
+              t = "unknown";
           }
         return `${k}: ${t}`;
       });
@@ -122,7 +133,11 @@ export default defineNuxtModule<ModuleOptions>({
           ];
           for (const candidate of candidates) {
             if (existsSync(candidate)) {
-              configPaths.push(relative(typesDir, candidate).replace(/\.[mc]?[tj]sx?$/, "").replace(/\\/g, "/"));
+              configPaths.push(
+                relative(typesDir, candidate)
+                  .replace(/\.[mc]?[tj]sx?$/, "")
+                  .replace(/\\/g, "/"),
+              );
               break;
             }
           }
@@ -145,7 +160,9 @@ export default defineNuxtModule<ModuleOptions>({
         // These are serialized from JS values since nuxt.config.ts is not imported.
         const registryVariantsEntries = Object.entries(baseRegistry)
           .map(([key, entry]) => {
-            const configShape = serializeConfigShape((entry as VariantEntry).config as Record<string, unknown> ?? {});
+            const configShape = serializeConfigShape(
+              ((entry as VariantEntry).config as Record<string, unknown>) ?? {},
+            );
             return `  ${key}: { config: ${configShape} }`;
           })
           .join("\n");

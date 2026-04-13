@@ -153,10 +153,14 @@ const heroHeights: Record<string, string> = {
           <div class="border-t border-default pt-3 flex flex-col gap-1.5 mt-1">
             <span class="font-mono text-xs text-muted">Introduction</span>
             <span class="font-mono text-xs text-muted">Section 1</span>
-            <span v-if="((config.tocMaxDepth as number) ?? 1) >=2" class="font-mono text-xs text-dimmed pl-3"
+            <span
+              v-if="((config.tocMaxDepth as number) ?? 1) >= 2"
+              class="font-mono text-xs text-dimmed pl-3"
               >↳ Subsection 1.1</span
             >
-            <span v-if="((config.tocMaxDepth as number) ?? 1) >=3" class="font-mono text-xs text-dimmed pl-6"
+            <span
+              v-if="((config.tocMaxDepth as number) ?? 1) >= 3"
+              class="font-mono text-xs text-dimmed pl-6"
               >↳ Deep 1.1.1</span
             >
             <span class="font-mono text-xs text-muted">Section 2</span>

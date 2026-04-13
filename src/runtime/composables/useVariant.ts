@@ -24,7 +24,9 @@ type AnyVariantConfig = Record<string, unknown>;
  * type Config = VariantConfigOf<'article'>
  * // → Partial<ArticleConfig>
  */
-export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<CustomVariantRegistry[K]>;
+export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<
+  CustomVariantRegistry[K]
+>;
 
 export interface UseVariantReturn<TConfig> {
   /** The fully merged configuration object for this variant. */
@@ -108,12 +110,7 @@ export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<unk
 
   const config = computed(() => {
     const { baseRegistry, overrideRegistry } = getRegistries();
-    return resolve(
-      toValue(name) as string,
-      baseRegistry,
-      overrideRegistry,
-      new Set(),
-    ) as unknown;
+    return resolve(toValue(name) as string, baseRegistry, overrideRegistry, new Set()) as unknown;
   });
 
   function has(featureName: MaybeRefOrGetter<string>): ComputedRef<boolean> {
