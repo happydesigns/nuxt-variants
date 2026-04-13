@@ -16,7 +16,7 @@ A centralized, deeply-merging configuration engine for Nuxt layouts. Define reus
 - **`extends` chain** — variants inherit from one or more parent variants, resolved bottom-up
 - **Two-layer config** — `nuxt.config` sets build-time defaults; `app.config` overrides at runtime (Nuxt Studio compatible)
 - **Reactive composables** — `useVariant` and `useVariants` return `ComputedRef`s that update live when `app.config` changes
-- **Full TypeScript inference** — augment `#nuxt-variants` to get typed config per variant key
+- **Full TypeScript inference** — `CustomVariantRegistry` is auto-generated from your config; augment it for narrower types
 - **Build-time variant graph** — the `extends` inheritance tree is computed once at build time and exposed as a virtual module (`#variants-graph`)
 - **Nuxt Content v3 schema merging** — `mergeVariantSchemas` walks the variant graph and produces a single merged Zod or Valibot schema for use with `defineCollection`
 
@@ -50,6 +50,8 @@ export default defineNuxtConfig({
         extends: ["breadcrumbs", "hero", "seo"],
         config: { height: "sm", authorBox: true },
       },
+      // Shorthand: an array of parent names with no own config
+      event: ["breadcrumbs", "hero"],
     },
   },
 });
@@ -150,12 +152,13 @@ z.object({ seoTitle: z.string(), authorName: z.string() });
 
 No manual schema composition needed. Add a field to the `seo` schema and every collection that uses an `article`-derived variant picks it up automatically.
 
-### `mergeVariantSchemas(activeVariants, registry)`
+### `mergeVariantSchemas(activeVariants, registry, graph?)`
 
-| Parameter        | Type             | Description                                        |
-| ---------------- | ---------------- | -------------------------------------------------- |
-| `activeVariants` | `string[]`       | Variant keys whose schemas should be merged        |
-| `registry`       | `SchemaRegistry` | Map of variant name → Zod or Valibot object schema |
+| Parameter        | Type                          | Description                                                                                              |
+| ---------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `activeVariants` | `string[]`                    | Variant keys whose schemas should be merged                                                              |
+| `registry`       | `SchemaRegistry`              | Map of variant name → Zod or Valibot object schema                                                       |
+| `graph`          | `Record<string, string[]>` \| omitted | Inheritance graph. When omitted the module-injected graph from `globalThis` is used automatically |
 
 Resolution order is bottom-up: ancestor schemas are merged first so child schemas correctly override parent fields.
 
@@ -163,36 +166,57 @@ All schemas in a single `mergeVariantSchemas` call must use the same validator l
 
 ## TypeScript
 
-Augment `#nuxt-variants` in your project to get typed config per variant key.
-After adding the augmentation, `useVariant('article')` returns
-`ComputedRef<Partial<ArticleConfig>>` with full autocomplete.
+### Auto-generated types
+
+`nuxt-variants` generates `CustomVariantRegistry` automatically from your `nuxt.config.ts` registry and `app.config.ts` values — no manual type declarations required. Config value shapes are widened to their primitive types (`string`, `number`, `boolean`), and inherited properties from all ancestors are included.
+
+After running `nuxt prepare` (or `pnpm dev`), `useVariant('article')` already returns a typed `ComputedRef` with every inherited key in scope:
+
+```ts
+const { config } = useVariant("article");
+config.value.separator; // string | undefined  (inherited from breadcrumbs)
+config.value.height;    // string | undefined  (inherited from hero)
+config.value.authorBox; // boolean | undefined (own config)
+```
+
+### `VariantConfigOf<K>`
+
+Use the exported `VariantConfigOf` helper to reference a variant's resolved config type anywhere in your codebase:
+
+```ts
+import type { VariantConfigOf } from "#nuxt-variants";
+
+type ArticleConfig = VariantConfigOf<"article">;
+// Partial<{ separator: string; showHome: boolean; height: string; overlay: boolean; authorBox: boolean }>
+
+function renderArticle(config: ArticleConfig) { … }
+```
+
+### Optional: manual augmentation for precise types
+
+The auto-generated types widen literal values to their base primitives. If you need narrow types (e.g. `"sm" | "md" | "lg"` instead of `string`), augment `CustomVariantRegistry` manually:
 
 ```ts
 // types/variants.d.ts
-interface BreadcrumbsConfig {
-  separator: string;
-  showHome: boolean;
-}
-interface HeroConfig {
-  height: "sm" | "md" | "lg" | "xl";
-  overlay: boolean;
-}
-interface SeoConfig {
-  titleTemplate: string;
-}
-interface ArticleConfig {
-  authorBox: boolean;
-}
-
 declare module "#nuxt-variants" {
   interface CustomVariantRegistry {
-    breadcrumbs: BreadcrumbsConfig;
-    hero: HeroConfig;
-    seo: SeoConfig;
-    article: BreadcrumbsConfig & HeroConfig & SeoConfig & ArticleConfig;
+    hero: {
+      height: "sm" | "md" | "lg" | "xl";
+      overlay: boolean;
+    };
+    article: {
+      separator: string;
+      showHome: boolean;
+      height: "sm" | "md" | "lg" | "xl";
+      overlay: boolean;
+      titleTemplate: string;
+      authorBox: boolean;
+    };
   }
 }
 ```
+
+Manual entries override the auto-generated ones for the keys you specify.
 
 ## Module Options
 
@@ -208,6 +232,14 @@ interface VariantDefinition<T> {
   extends?: string | string[]; // parent variant(s) to inherit from
   active?: boolean; // set to false to exclude this variant from resolution (default: true)
   config: Partial<T>; // the config values this variant contributes
+}
+```
+
+**Shorthand:** if a variant only inherits from parents with no own config, you can write it as a plain array of parent names:
+
+```ts
+registry: {
+  event: ["breadcrumbs", "hero"], // same as { extends: ["breadcrumbs", "hero"] }
 }
 ```
 
