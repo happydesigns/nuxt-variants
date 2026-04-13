@@ -166,6 +166,19 @@ describe("mergeVariantSchemas — Zod", () => {
     const merged = mergeVariantSchemas([], registry, graph);
     expect(merged).toEqual({});
   });
+
+  it("does not infinite-loop on a circular graph and still merges reachable schemas", () => {
+    // a → b → a  (cycle)
+    const cyclicGraph = { a: ["b"], b: ["a"] };
+    const registry = {
+      a: z.object({ fromA: z.string() }),
+      b: z.object({ fromB: z.number() }),
+    };
+    const merged = mergeVariantSchemas(["a"], registry, cyclicGraph);
+    const keys = Object.keys((merged as any).shape);
+    expect(keys).toContain("fromA");
+    expect(keys).toContain("fromB");
+  });
 });
 
 describe("mergeVariantSchemas — Valibot", () => {
