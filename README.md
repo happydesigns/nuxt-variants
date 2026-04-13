@@ -154,10 +154,10 @@ No manual schema composition needed. Add a field to the `seo` schema and every c
 
 ### `mergeVariantSchemas(activeVariants, registry, graph?)`
 
-| Parameter        | Type                          | Description                                                                                              |
-| ---------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `activeVariants` | `string[]`                    | Variant keys whose schemas should be merged                                                              |
-| `registry`       | `SchemaRegistry`              | Map of variant name → Zod or Valibot object schema                                                       |
+| Parameter        | Type                                  | Description                                                                                       |
+| ---------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `activeVariants` | `string[]`                            | Variant keys whose schemas should be merged                                                       |
+| `registry`       | `SchemaRegistry`                      | Map of variant name → Zod or Valibot object schema                                                |
 | `graph`          | `Record<string, string[]>` \| omitted | Inheritance graph. When omitted the module-injected graph from `globalThis` is used automatically |
 
 Resolution order is bottom-up: ancestor schemas are merged first so child schemas correctly override parent fields.
@@ -175,7 +175,7 @@ After running `nuxt prepare` (or `pnpm dev`), `useVariant('article')` already re
 ```ts
 const { config } = useVariant("article");
 config.value.separator; // string | undefined  (inherited from breadcrumbs)
-config.value.height;    // string | undefined  (inherited from hero)
+config.value.height; // string | undefined  (inherited from hero)
 config.value.authorBox; // boolean | undefined (own config)
 ```
 
