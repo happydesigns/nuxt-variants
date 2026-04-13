@@ -1,5 +1,45 @@
 # Changelog
 
+## v0.0.5
+
+[compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.4...v0.0.5)
+
+### 🚀 Enhancements
+
+- Auto-generate CustomVariantRegistry from app.config.ts ([95b7b9f](https://github.com/happydesigns/nuxt-variants/commit/95b7b9f))
+- Include inherited variant configs in CustomVariantRegistry types ([347734d](https://github.com/happydesigns/nuxt-variants/commit/347734d))
+- Allow shorthand registry entries to reduce boilerplate ([eae3fe4](https://github.com/happydesigns/nuxt-variants/commit/eae3fe4))
+- Export VariantConfigOf from generated #nuxt-variants template ([965542c](https://github.com/happydesigns/nuxt-variants/commit/965542c))
+
+### 🩹 Fixes
+
+- **ci:** Use prepare instead of non-existent dev:prepare script ([6348657](https://github.com/happydesigns/nuxt-variants/commit/6348657))
+- **typecheck:** Exclude test fixtures from root vue-tsc and type $fetch as string ([9c21b6a](https://github.com/happydesigns/nuxt-variants/commit/9c21b6a))
+
+### 📖 Documentation
+
+- Update README for auto-generated types, shorthand syntax, VariantConfigOf ([7b685cd](https://github.com/happydesigns/nuxt-variants/commit/7b685cd))
+
+### 🏡 Chore
+
+- Add test coverage ([b868074](https://github.com/happydesigns/nuxt-variants/commit/b868074))
+- Lint ([91b67a8](https://github.com/happydesigns/nuxt-variants/commit/91b67a8))
+
+### ✅ Tests
+
+- Add unit tests for merge utility and schema adapters ([9436de1](https://github.com/happydesigns/nuxt-variants/commit/9436de1))
+- **fixture:** Add variants fixture for E2E composable tests ([45c6b27](https://github.com/happydesigns/nuxt-variants/commit/45c6b27))
+- Add E2E tests for useVariant, has(), and useVariants ([99d2971](https://github.com/happydesigns/nuxt-variants/commit/99d2971))
+- Cover cycle-detection guard in resolveExtendsGraph ([40ffcdb](https://github.com/happydesigns/nuxt-variants/commit/40ffcdb))
+
+### 🎨 Styles
+
+- Apply oxfmt formatting ([f9e0dde](https://github.com/happydesigns/nuxt-variants/commit/f9e0dde))
+
+### ❤️ Contributors
+
+- Jan Fröhlich ([@janfrl](https://github.com/janfrl))
+
 ## v0.0.4
 
 [compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.3...v0.0.4)
