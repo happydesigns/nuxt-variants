@@ -3,7 +3,7 @@
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![License][license-src]][license-href]
-[![Nuxt][nuxt-href]][nuxt-href]
+[![Nuxt][nuxt-src]][nuxt-href]
 
 A centralized, deeply-merging configuration engine for Nuxt layouts. Define reusable feature configs, compose them into layout variants via an `extends` chain, and resolve the fully merged config at runtime — with `app.config` overrides layered on top of `nuxt.config` base definitions.
 
