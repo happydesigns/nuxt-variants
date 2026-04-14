@@ -1,5 +1,5 @@
 {
-  "name": "@h4designs/nuxt-variants",
+  "name": "@happydesigns/nuxt-variants",
   "version": "0.0.5",
   "description": "A centralized, deeply-merging configuration engine for Nuxt layouts with build-time variant graph and Nuxt Content v3 schema merging.",
   "license": "MIT",

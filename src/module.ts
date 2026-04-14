@@ -231,19 +231,19 @@ declare module 'vue-router' {
     const schemasDmtsPath = join(nuxt.options.buildDir, "variants-schemas.d.mts");
     const schemasContent =
       [
-        `import { mergeVariantSchemas as _merge } from "@h4designs/nuxt-variants/schemas";`,
+        `import { mergeVariantSchemas as _merge } from "@happydesigns/nuxt-variants/schemas";`,
         `const _graph = ${JSON.stringify(variantGraph, null, 2)};`,
         `export function mergeVariantSchemas(activeVariants, registry) {`,
         `  return _merge(activeVariants, registry, _graph);`,
         `}`,
-        `export { zodAdapter, valibotAdapter, detectAdapter } from "@h4designs/nuxt-variants/schemas";`,
+        `export { zodAdapter, valibotAdapter, detectAdapter } from "@happydesigns/nuxt-variants/schemas";`,
       ].join("\n") + "\n";
     const schemasDtsContent =
       [
-        `import type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@h4designs/nuxt-variants/schemas";`,
+        `import type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
         `export declare function mergeVariantSchemas(activeVariants: string[], registry: SchemaRegistry): AnyObjectSchema;`,
-        `export { zodAdapter, valibotAdapter, detectAdapter } from "@h4designs/nuxt-variants/schemas";`,
-        `export type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@h4designs/nuxt-variants/schemas";`,
+        `export { zodAdapter, valibotAdapter, detectAdapter } from "@happydesigns/nuxt-variants/schemas";`,
+        `export type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
       ].join("\n") + "\n";
 
     // Write eagerly so content.config.ts can import the file at Nuxt init time,

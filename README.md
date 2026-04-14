@@ -23,7 +23,7 @@ A centralized, deeply-merging configuration engine for Nuxt layouts. Define reus
 ## Quick Setup
 
 ```bash
-npx nuxt module add @h4designs/nuxt-variants
+npx nuxt module add @happydesigns/nuxt-variants
 ```
 
 ## Basic Usage
@@ -32,7 +32,7 @@ npx nuxt module add @h4designs/nuxt-variants
 
 ```ts
 export default defineNuxtConfig({
-  modules: ["@h4designs/nuxt-variants"],
+  modules: ["@happydesigns/nuxt-variants"],
   variants: {
     registry: {
       // Feature: a reusable config block with no parents
@@ -127,7 +127,7 @@ definePageMeta({ layout: "content", variant: "landing" });
 // content.config.ts
 import { defineCollection } from "@nuxt/content";
 import { z } from "zod";
-import { mergeVariantSchemas, type SchemaRegistry } from "@h4designs/nuxt-variants/schemas";
+import { mergeVariantSchemas, type SchemaRegistry } from "@happydesigns/nuxt-variants/schemas";
 
 const variantSchemas: SchemaRegistry = {
   seo: z.object({ seoTitle: z.string() }),
@@ -355,11 +355,11 @@ pnpm release
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@h4designs/nuxt-variants/latest.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-version-href]: https://npmjs.com/package/@h4designs/nuxt-variants
-[npm-downloads-src]: https://img.shields.io/npm/dm/@h4designs/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npm.chart.dev/@h4designs/nuxt-variants
-[license-src]: https://img.shields.io/npm/l/@h4designs/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
-[license-href]: https://npmjs.com/package/@h4designs/nuxt-variants
+[npm-version-src]: https://img.shields.io/npm/v/@happydesigns/nuxt-variants/latest.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-version-href]: https://npmjs.com/package/@happydesigns/nuxt-variants
+[npm-downloads-src]: https://img.shields.io/npm/dm/@happydesigns/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-downloads-href]: https://npm.chart.dev/@happydesigns/nuxt-variants
+[license-src]: https://img.shields.io/npm/l/@happydesigns/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
+[license-href]: https://npmjs.com/package/@happydesigns/nuxt-variants
 [nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt
 [nuxt-href]: https://nuxt.com
