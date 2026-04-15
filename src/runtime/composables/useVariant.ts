@@ -15,7 +15,15 @@ export interface VariantDefinition<T> {
   config: Partial<T>;
 }
 
-type AnyVariantConfig = Record<string, unknown>;
+type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (
+  x: infer I,
+) => void
+  ? I
+  : never;
+
+type AnyVariantConfig = keyof CustomVariantRegistry extends never
+  ? Record<string, unknown>
+  : Partial<UnionToIntersection<CustomVariantRegistry[keyof CustomVariantRegistry]>>;
 
 /**
  * The resolved config type for a variant key (or union of keys).
