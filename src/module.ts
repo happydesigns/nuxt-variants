@@ -241,7 +241,7 @@ declare module 'vue-router' {
     const schemasDtsContent =
       [
         `import type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
-        `export declare function mergeVariantSchemas(activeVariants: string[], registry: SchemaRegistry): AnyObjectSchema;`,
+        `export declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ZodObjectSchema | undefined>, graph?: Record<string, string[]>): ZodObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ValibotObjectSchema | undefined>, graph?: Record<string, string[]>): ValibotObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, AnyObjectSchema | undefined>, graph?: Record<string, string[]>): AnyObjectSchema;`,
         `export { zodAdapter, valibotAdapter, detectAdapter } from "@happydesigns/nuxt-variants/schemas";`,
         `export type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
       ].join("\n") + "\n";

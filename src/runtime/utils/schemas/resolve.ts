@@ -1,5 +1,5 @@
 import { detectAdapter } from "./adapters/detect";
-import type { AnyObjectSchema } from "./adapters/types";
+import type { AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "./adapters/types";
 
 /**
  * A registry mapping variant names to their object schemas.
@@ -45,9 +45,12 @@ function resolveExtendsGraph(variants: string[], graph: Record<string, string[]>
  * @returns The merged object schema, or an empty object schema when no
  *   registered schema is found for any of the active variants.
  */
+export function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ZodObjectSchema | undefined>, graph?: Record<string, string[]>): ZodObjectSchema;
+export function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ValibotObjectSchema | undefined>, graph?: Record<string, string[]>): ValibotObjectSchema;
+export function mergeVariantSchemas(activeVariants: string[], registry: Record<string, AnyObjectSchema | undefined>, graph?: Record<string, string[]>): AnyObjectSchema;
 export function mergeVariantSchemas(
   activeVariants: string[],
-  registry: SchemaRegistry,
+  registry: Record<string, AnyObjectSchema | undefined>,
   graph?: Record<string, string[]>,
 ): AnyObjectSchema {
   if (graph === undefined) {
