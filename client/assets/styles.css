@@ -73,6 +73,22 @@ h1 {
   line-height: 1.2;
 }
 
+.connection {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.connection.active {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+}
+
 h2 {
   font-size: 15px;
   margin-bottom: 10px;
