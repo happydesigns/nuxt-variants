@@ -5,10 +5,17 @@ import {
   addImportsDir,
   addTypeTemplate,
   addTemplate,
+  addServerHandler,
   createResolver,
 } from "@nuxt/kit";
+import { addCustomTab } from "@nuxt/devtools-kit";
 import { collectVariantDiagnostics } from "./runtime/utils/diagnostics";
-import type { VariantRegistry } from "./runtime/utils/variants";
+import {
+  listVariantEntries,
+  resolveVariantConfig,
+  variantHasFeature,
+  type VariantRegistry,
+} from "./runtime/utils/variants";
 
 /** A single variant entry as it appears in either the base registry or appConfig overrides. */
 interface VariantEntry {
@@ -82,10 +89,44 @@ export default defineNuxtModule<ModuleOptions>({
       baseRegistry as VariantRegistry,
       appRegistry as VariantRegistry,
     );
+    const devtoolsEnabled = nuxt.options.dev || process.env.NODE_ENV === "test";
 
     for (const diagnostic of diagnostics) {
       // The diagnostics are also emitted as virtual-module data below so tooling can render them.
       console.warn(`[nuxt-variants] ${diagnostic.message}`);
+    }
+
+    if (devtoolsEnabled) {
+      const variantEntries = listVariantEntries(
+        baseRegistry as VariantRegistry,
+        appRegistry as VariantRegistry,
+      );
+      const devtoolsData = {
+        configKey: options.configKey,
+        variants: variantEntries.map((entry) => ({
+          ...entry,
+          base: baseRegistry[entry.name] ?? null,
+          app: appRegistry[entry.name] ?? null,
+          resolvedConfig: resolveVariantConfig(
+            entry.name,
+            baseRegistry as VariantRegistry,
+            appRegistry as VariantRegistry,
+          ),
+          activeFeatures: [...allRegistryKeys].filter((feature) =>
+            variantHasFeature(
+              entry.name,
+              feature,
+              baseRegistry as VariantRegistry,
+              appRegistry as VariantRegistry,
+            ),
+          ),
+        })),
+        graph: variantGraph,
+        diagnostics,
+      };
+      Object.assign(nuxt.options.runtimeConfig, {
+        variantDevtoolsData: devtoolsData,
+      });
     }
 
     /** Converts a JS config object into a TypeScript type literal string (widened to primitives). */
@@ -304,6 +345,27 @@ declare module 'vue-router' {
       references.push({ path: graphDmtsPath });
       references.push({ path: schemasDmtsPath });
     });
+
+    if (devtoolsEnabled) {
+      addServerHandler({
+        route: "/__nuxt-variants/devtools",
+        handler: resolver.resolve("./runtime/server/devtools.get"),
+      });
+
+      addCustomTab(
+        {
+          name: "nuxt-variants",
+          title: "Nuxt Variants",
+          icon: "i-lucide-git-branch",
+          category: "app",
+          view: {
+            type: "iframe",
+            src: "/__nuxt-variants/devtools",
+          },
+        },
+        nuxt,
+      );
+    }
 
     addImportsDir(resolver.resolve("./runtime/composables"));
     addImportsDir(resolver.resolve("./runtime/utils"));

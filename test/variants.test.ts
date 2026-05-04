@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { setup, $fetch } from "@nuxt/test-utils/e2e";
 
 function extractJson(html: string, id: string): unknown {
-  const match = html.match(new RegExp(`id="${id}">([\\s\\S]*?)<\\/`));
+  const match = html.match(new RegExp(`id="${id}"[^>]*>([\\s\\S]*?)<\\/`));
   if (!match) throw new Error(`Element #${id} not found in HTML`);
   const decoded = match[1]!
     .trim()
@@ -174,6 +174,25 @@ describe("nuxt-variants e2e", async () => {
       expect(find("article").configKeys).toEqual(["hasDate", "theme", "slots", "collision"]);
       expect(find("editorial").configKeys).toEqual(["tone"]);
       expect(find("extra").configKeys).toEqual(["custom"]);
+    });
+  });
+
+  describe("Nuxt DevTools", () => {
+    it("renders the variant inspector data in dev", async () => {
+      const html = await $fetch<string>("/__nuxt-variants/devtools");
+      expect(html).toContain("<title>Nuxt Variants DevTools</title>");
+
+      const data = extractJson(html, "variant-data") as {
+        configKey: string;
+        variants: Array<{ name: string; activeFeatures: string[] }>;
+        diagnostics: unknown[];
+      };
+
+      expect(data.configKey).toBe("variants");
+      expect(data.diagnostics).toEqual([]);
+      expect(data.variants.find((variant) => variant.name === "article")).toMatchObject({
+        activeFeatures: ["seo", "hero", "design", "article"],
+      });
     });
   });
 });
