@@ -29,8 +29,8 @@ body {
 .sidebar-head h2,
 .title-block h1,
 .panel-head h2,
-.overview-section h2,
-.overview-section p {
+.composition-head h2,
+.composition-head p {
   margin: 0;
   letter-spacing: 0;
 }
@@ -44,7 +44,7 @@ body {
 .sidebar-head p,
 .title-block p,
 .panel-head p,
-.overview-section p,
+.composition-head p,
 .muted {
   margin: 0;
   color: rgb(150 158 166);
@@ -159,28 +159,42 @@ body {
   line-height: 1.4;
 }
 
-.overview-grid {
+.composition-panel {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   padding: 1rem;
 }
 
-.overview-section {
+.composition-head {
   display: grid;
   gap: 0.5rem;
 }
 
-.overview-section h2 {
+.composition-head h2 {
   color: rgb(210 216 222);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 
-.overview-section p {
+.composition-head p {
   font-size: 0.8125rem;
   line-height: 1.5;
+}
+
+.composition-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.composition-label {
+  color: rgb(150 158 166);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.9;
+  text-transform: uppercase;
 }
 
 .panel-head {
@@ -281,8 +295,12 @@ body {
     padding-top: 0;
   }
 
-  .grid,
-  .overview-grid {
+  .grid {
     grid-template-columns: 1fr;
+  }
+
+  .composition-row {
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
   }
 }

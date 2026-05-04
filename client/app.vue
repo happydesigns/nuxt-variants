@@ -31,18 +31,18 @@ const currentVariantSummary = computed(() => {
   }
 
   const configCount = Object.keys(variant.resolvedConfig).length;
-  const configText = `${configCount} resolved config ${plural(configCount, "key")}`;
+  const configText = `${configCount} config ${plural(configCount, "key")}`;
 
   if (variant.extends.length > 0) {
-    return `Composes ${formatList(variant.extends)} and resolves ${configText}.`;
+    return `Merges ${formatList(variant.extends)} before ${variant.name}. Final config has ${configText}.`;
   }
 
-  if (variant.activeFeatures.length > 1) {
-    return `Base variant that resolves ${formatList(variant.activeFeatures)} with ${configText}.`;
-  }
-
-  return `Base variant with no parents and ${configText}.`;
+  return `Base variant with no parents. Final config has ${configText}.`;
 });
+
+const currentConfigKeyCount = computed(() =>
+  currentVariant.value ? Object.keys(currentVariant.value.resolvedConfig).length : 0,
+);
 </script>
 
 <template>
@@ -61,13 +61,13 @@ const currentVariantSummary = computed(() => {
             </div>
 
             <div class="header-badges">
-              <NBadge n="green">
-                {{ currentVariant?.activeFeatures.length ?? 0 }}
-                {{ plural(currentVariant?.activeFeatures.length ?? 0, "resolved feature") }}
-              </NBadge>
               <NBadge n="gray">
                 {{ currentVariant?.extends.length ?? 0 }}
                 {{ plural(currentVariant?.extends.length ?? 0, "parent") }}
+              </NBadge>
+              <NBadge n="gray">
+                {{ currentConfigKeyCount }}
+                {{ plural(currentConfigKeyCount, "config key") }}
               </NBadge>
               <NBadge v-if="data.diagnostics.length" n="orange">
                 {{ `${data.diagnostics.length} ${plural(data.diagnostics.length, "issue")}` }}
