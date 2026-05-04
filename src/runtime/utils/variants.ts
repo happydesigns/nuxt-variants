@@ -1,0 +1,118 @@
+import { defuReplaceArray } from "./merge";
+
+/**
+ * Describes a single variant entry in the registry.
+ * @template T The shape of the configuration object this variant produces.
+ */
+export interface VariantDefinition<T = unknown> {
+  extends?: string | string[];
+  active?: boolean;
+  config?: Partial<T>;
+}
+
+export type VariantRegistry = Record<string, VariantDefinition<unknown>>;
+
+export interface VariantListEntry {
+  /** The variant's key in the registry. */
+  name: string;
+  /**
+   * The resolved `extends` chain (from `app.config` if present, otherwise `nuxt.config`).
+   * An empty array means this is a base feature with no parents.
+   */
+  extends: string[];
+  /** Union of all config keys defined across both sources. */
+  configKeys: string[];
+}
+
+export function normalizeExtends(value: string | string[] | undefined): string[] {
+  if (value === undefined) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+export function getVariantExtends(
+  variantName: string,
+  baseRegistry: VariantRegistry,
+  overrideRegistry: VariantRegistry,
+): string[] {
+  return normalizeExtends(
+    overrideRegistry[variantName]?.extends ?? baseRegistry[variantName]?.extends,
+  );
+}
+
+export function resolveVariantConfig(
+  variantName: string,
+  baseRegistry: VariantRegistry,
+  overrideRegistry: VariantRegistry,
+  visited = new Set<string>(),
+): Record<string, unknown> {
+  if (visited.has(variantName)) return {};
+  visited.add(variantName);
+
+  const baseEntry = baseRegistry[variantName];
+  const overrideEntry = overrideRegistry[variantName];
+
+  if (!baseEntry && !overrideEntry) return {};
+
+  const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
+  if (isActive === false) return {};
+
+  const resolvedParents = getVariantExtends(
+    variantName,
+    baseRegistry,
+    overrideRegistry,
+  ).reduceRight<Record<string, unknown>>(
+    (acc, parentName) =>
+      defuReplaceArray(
+        acc,
+        resolveVariantConfig(parentName, baseRegistry, overrideRegistry, new Set(visited)),
+      ),
+    {},
+  );
+
+  const mergedConfig = defuReplaceArray(
+    {},
+    (overrideEntry?.config ?? {}) as Record<string, unknown>,
+    (baseEntry?.config ?? {}) as Record<string, unknown>,
+  );
+
+  return defuReplaceArray({}, mergedConfig, resolvedParents);
+}
+
+export function variantHasFeature(
+  variantName: string,
+  featureName: string,
+  baseRegistry: VariantRegistry,
+  overrideRegistry: VariantRegistry,
+  visited = new Set<string>(),
+): boolean {
+  if (variantName === featureName) return true;
+  if (visited.has(variantName)) return false;
+  visited.add(variantName);
+
+  return getVariantExtends(variantName, baseRegistry, overrideRegistry).some((parent) =>
+    variantHasFeature(parent, featureName, baseRegistry, overrideRegistry, new Set(visited)),
+  );
+}
+
+export function listVariantEntries(
+  baseRegistry: VariantRegistry,
+  overrideRegistry: VariantRegistry,
+): VariantListEntry[] {
+  const keys = new Set([...Object.keys(baseRegistry), ...Object.keys(overrideRegistry)]);
+
+  return [...keys].map((name) => {
+    const base = baseRegistry[name];
+    const app = overrideRegistry[name];
+
+    const configKeys = Object.keys({
+      ...base?.config,
+      ...app?.config,
+    });
+
+    return {
+      name,
+      extends: getVariantExtends(name, baseRegistry, overrideRegistry),
+      configKeys,
+    };
+  });
+}
