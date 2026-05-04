@@ -15,13 +15,13 @@ function plural(count: number, singular: string, pluralForm = `${singular}s`) {
 }
 
 function variantMeta(variant: VariantEntry) {
-  const configText = `${variant.configKeys.length} config ${plural(variant.configKeys.length, "key")}`;
+  const keyText = `${variant.configKeys.length} ${plural(variant.configKeys.length, "key")}`;
 
   if (variant.extends.length === 0) {
-    return `${configText} - base variant`;
+    return `${keyText} / base`;
   }
 
-  return `${configText} - extends ${variant.extends.length} ${plural(variant.extends.length, "parent")}`;
+  return `${keyText} / ${variant.extends.length} ${plural(variant.extends.length, "parent")}`;
 }
 </script>
 

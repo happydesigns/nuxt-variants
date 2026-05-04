@@ -10,7 +10,7 @@ defineProps<{
   <NCard>
     <div class="overview-grid">
       <div class="overview-section">
-        <h2>Inheritance</h2>
+        <h2>Parent Variants</h2>
         <div class="flex flex-wrap gap2">
           <NBadge v-for="parent in variant?.extends ?? []" :key="parent" n="gray">
             {{ parent }}
@@ -20,7 +20,8 @@ defineProps<{
       </div>
 
       <div class="overview-section">
-        <h2>Active Features</h2>
+        <h2>Resolved Feature Set</h2>
+        <p>Parent variants plus the selected variant.</p>
         <div class="flex flex-wrap gap2">
           <NBadge v-for="feature in variant?.activeFeatures ?? []" :key="feature" n="green">
             {{ feature }}

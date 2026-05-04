@@ -34,11 +34,11 @@ const currentVariantSummary = computed(() => {
   const configText = `${configCount} resolved config ${plural(configCount, "key")}`;
 
   if (variant.extends.length > 0) {
-    return `Extends ${formatList(variant.extends)} and exposes ${configText}.`;
+    return `Composes ${formatList(variant.extends)} and resolves ${configText}.`;
   }
 
   if (variant.activeFeatures.length > 1) {
-    return `Base variant that activates ${formatList(variant.activeFeatures)} with ${configText}.`;
+    return `Base variant that resolves ${formatList(variant.activeFeatures)} with ${configText}.`;
   }
 
   return `Base variant with no parents and ${configText}.`;
@@ -63,7 +63,7 @@ const currentVariantSummary = computed(() => {
             <div class="header-badges">
               <NBadge n="green">
                 {{ currentVariant?.activeFeatures.length ?? 0 }}
-                {{ plural(currentVariant?.activeFeatures.length ?? 0, "active feature") }}
+                {{ plural(currentVariant?.activeFeatures.length ?? 0, "resolved feature") }}
               </NBadge>
               <NBadge n="gray">
                 {{ currentVariant?.extends.length ?? 0 }}

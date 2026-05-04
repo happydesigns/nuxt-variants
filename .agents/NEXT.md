@@ -26,7 +26,9 @@ Completed on this branch:
   config, active features, and diagnostics. The sidebar is the only variant
   selector. The main panel focuses on a dynamic selected-variant summary, clear
   inheritance and feature sections, highlighted JSON config inspection, and
-  validation issues only when issues exist.
+  validation issues only when issues exist. The inspector names parent variants
+  separately from the resolved feature set because active features are the
+  parent chain plus the selected variant itself.
 
 Recommended next track: plan any further module features at a high level before
 implementation. Good candidates are typed authoring helpers for registry
