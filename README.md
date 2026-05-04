@@ -9,6 +9,11 @@ A centralized, deeply-merging configuration engine for Nuxt layouts. Define reus
 
 - [✨ Release Notes](/CHANGELOG.md)
 
+## Documentation
+
+- [Documentation source](/docs)
+- [Contributing guide](/CONTRIBUTING.md)
+
 ## Features
 
 - **Flat variant registry** — define features and layout variants in one place
@@ -337,8 +342,14 @@ pnpm prepare
 # Develop with the playground
 pnpm dev
 
+# Develop the Docus documentation
+pnpm docs:dev
+
 # Build the playground
 pnpm dev:build
+
+# Build the Docus documentation
+pnpm docs:build
 
 # Run ESLint
 pnpm lint
