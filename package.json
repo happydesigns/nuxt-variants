@@ -47,10 +47,10 @@
     "release": "pnpm lint:check && pnpm typecheck && pnpm test && pnpm prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "oxfmt && oxlint .",
     "lint:check": "oxfmt --check && oxlint .",
-    "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
+    "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit && cd ../client && vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit && cd ../client && vue-tsc --noEmit"
   },
   "dependencies": {
     "@nuxt/devtools-kit": "3.2.4",

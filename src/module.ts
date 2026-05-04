@@ -90,7 +90,7 @@ export default defineNuxtModule<ModuleOptions>({
       appRegistry as VariantRegistry,
     );
     const devtoolsEnabled = nuxt.options.dev || process.env.NODE_ENV === "test";
-    const sourceClientPath = resolver.resolve("../client");
+    const sourceClientPath = resolver.resolve("../client/.output/public");
     const builtClientPath = resolver.resolve("./client");
     const devtoolsClientPath = existsSync(join(sourceClientPath, "index.html"))
       ? sourceClientPath
