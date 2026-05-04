@@ -10,10 +10,10 @@ const code = computed(() => JSON.stringify(props.value, null, 2));
 
 <template>
   <NCard>
-    <div class="border-b n-border-base p4">
+    <div class="panel-head">
       <NIconTitle :icon="icon" :text="title" text-lg />
     </div>
-    <div class="p4">
+    <div class="panel-body">
       <NCodeBlock :code="code" lang="json" />
     </div>
   </NCard>

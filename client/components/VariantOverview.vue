@@ -8,13 +8,9 @@ defineProps<{
 
 <template>
   <NCard>
-    <div class="border-b n-border-base p4">
-      <NIconTitle icon="i-carbon-network-3" :text="variant?.name ?? 'Variant'" text-xl />
-      <p mt1 text-sm op50>Inheritance and active feature resolution for the selected variant.</p>
-    </div>
-    <div class="grid gap4 p4 md:grid-cols-2">
+    <div class="overview-grid">
       <div>
-        <div text-sm font-700 op70 mb2>Extends</div>
+        <NIconTitle icon="i-carbon-tree-view" text="Extends" text-sm font-700 op70 mb3 />
         <div class="flex flex-wrap gap2">
           <NBadge v-for="parent in variant?.extends ?? []" :key="parent" n="gray">
             {{ parent }}
@@ -24,7 +20,14 @@ defineProps<{
       </div>
 
       <div>
-        <div text-sm font-700 op70 mb2>Active Features</div>
+        <NIconTitle
+          icon="i-carbon-checkmark-outline"
+          text="Active Features"
+          text-sm
+          font-700
+          op70
+          mb3
+        />
         <div class="flex flex-wrap gap2">
           <NBadge v-for="feature in variant?.activeFeatures ?? []" :key="feature" n="green">
             {{ feature }}

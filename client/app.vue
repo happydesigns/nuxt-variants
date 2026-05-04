@@ -13,7 +13,29 @@ const { connected, currentVariant, data, error, pending, selected } = useVariant
         <LoadStatePanel :error="error" :pending="pending" />
 
         <template v-if="!pending && !error">
-          <VariantToolbar v-model:selected="selected" :variants="data.variants" />
+          <header class="main-header">
+            <div>
+              <NIconTitle
+                icon="i-carbon-network-3"
+                :text="currentVariant?.name ?? 'Variant'"
+                text-2xl
+                font-700
+              />
+              <p mt2 text-sm op60>
+                Resolved inheritance, feature composition, and app config overrides.
+              </p>
+            </div>
+
+            <div class="header-badges">
+              <NBadge n="green">
+                {{ currentVariant?.activeFeatures.length ?? 0 }} active features
+              </NBadge>
+              <NBadge n="gray"> {{ currentVariant?.extends.length ?? 0 }} parents </NBadge>
+              <NBadge :n="data.diagnostics.length ? 'orange' : 'green'">
+                {{ data.diagnostics.length }} diagnostics
+              </NBadge>
+            </div>
+          </header>
 
           <VariantOverview :variant="currentVariant" />
 

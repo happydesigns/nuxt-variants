@@ -23,7 +23,9 @@ Completed on this branch:
 - A Nuxt DevTools inspector served from a root Nuxt `client/` iframe app. The
   client uses `@nuxt/devtools-kit/iframe-client`, `@nuxt/devtools-ui-kit`, and
   split Vue components for variants, inheritance, config layers, resolved
-  config, active features, and diagnostics.
+  config, active features, and diagnostics. The sidebar is the only variant
+  selector, and the main panel focuses on the selected variant summary and
+  config inspection.
 
 Recommended next track: plan any further module features at a high level before
 implementation. Good candidates are typed authoring helpers for registry

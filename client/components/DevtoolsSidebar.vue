@@ -14,7 +14,7 @@ const emit = defineEmits<{
 
 <template>
   <aside class="sidebar n-bg-base">
-    <div class="p4 border-b n-border-base">
+    <div class="sidebar-head">
       <NIconTitle icon="i-carbon-branch" text="Nuxt Variants" text-lg font-700 />
       <div mt2>
         <NBadge :n="connected ? 'green' : 'gray'">
@@ -23,7 +23,7 @@ const emit = defineEmits<{
       </div>
     </div>
 
-    <div class="grid grid-cols-3 gap2 p3 border-b n-border-base">
+    <div class="metrics">
       <NCard
         v-for="metric in [
           { label: 'variants', value: data.variants.length },
@@ -42,13 +42,14 @@ const emit = defineEmits<{
       </NCard>
     </div>
 
-    <div class="flex flex-col gap1 p2">
+    <nav class="variant-list" aria-label="Variants">
       <NButton
         v-for="variant in data.variants"
         :key="variant.name"
         :n="variant.name === selected ? 'green' : 'gray'"
         class="variant-nav"
         type="button"
+        :aria-current="variant.name === selected ? 'page' : undefined"
         @click="emit('update:selected', variant.name)"
       >
         <span class="min-w-0 flex flex-col items-start">
@@ -61,6 +62,6 @@ const emit = defineEmits<{
           <span text-xs op60>{{ variant.configKeys.length }} config keys</span>
         </span>
       </NButton>
-    </div>
+    </nav>
   </aside>
 </template>

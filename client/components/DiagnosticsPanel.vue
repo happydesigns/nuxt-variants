@@ -8,11 +8,11 @@ defineProps<{
 
 <template>
   <NCard>
-    <div class="border-b n-border-base p4">
+    <div class="panel-head">
       <NIconTitle icon="i-carbon-warning-alt" text="Diagnostics" text-lg />
       <p mt1 text-sm op50>Build-time validation for the variant graph.</p>
     </div>
-    <div class="p4">
+    <div class="panel-body">
       <NTip v-if="!diagnostics.length" icon="i-carbon-checkmark-outline" n="green">
         No diagnostics.
       </NTip>
