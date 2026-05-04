@@ -49,6 +49,7 @@ export default defineNuxtConfig({
         config: {
           heroHeight: "sm",
           heroAlign: "left",
+          articleLayout: "stacked",
           authorBox: true,
         },
       },

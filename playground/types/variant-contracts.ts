@@ -7,12 +7,17 @@ type IsAssignable<T, Expected> = [T] extends [Expected] ? true : false;
 type ArticleConfig = VariantConfigOf<"article">;
 type LandingConfig = VariantConfigOf<"landing">;
 type EventConfig = VariantConfigOf<"event">;
+type PreviewConfig = VariantConfigOf<"preview">;
 
 export type ArticleIncludesInheritedFeatures = Expect<
   HasKey<ArticleConfig, "breadcrumbSeparator"> &
     HasKey<ArticleConfig, "heroHeight"> &
     HasKey<ArticleConfig, "titleTemplate"> &
     HasKey<ArticleConfig, "tocTitle">
+>;
+
+export type ArticleMergesBaseAndAppConfig = Expect<
+  HasKey<ArticleConfig, "articleLayout"> & HasKey<ArticleConfig, "tocTitle">
 >;
 
 export type ArticleOverrideTypesAreWidened = Expect<
@@ -31,5 +36,8 @@ export type EventIncludesHeroAndBreadcrumbs = Expect<
 export type RegistryContainsKnownVariants = Expect<
   HasKey<CustomVariantRegistry, "article"> &
     HasKey<CustomVariantRegistry, "event"> &
-    HasKey<CustomVariantRegistry, "landing">
+    HasKey<CustomVariantRegistry, "landing"> &
+    HasKey<CustomVariantRegistry, "preview">
 >;
+
+export type PreviewIncludesAppOnlyConfig = Expect<HasKey<PreviewConfig, "previewMode">>;

@@ -163,26 +163,28 @@ export default defineNuxtModule<ModuleOptions>({
             const configShape = serializeConfigShape(
               ((entry as VariantEntry).config as Record<string, unknown>) ?? {},
             );
-            return `  ${key}: { config: ${configShape} }`;
+            return `  ${JSON.stringify(key)}: { config: ${configShape} }`;
           })
           .join("\n");
 
-        const registryKeys = Object.keys(baseRegistry);
+        const registryKeys = [...allRegistryKeys];
         const entries = registryKeys
           .map((key) => {
             // Include configs from self + all transitive ancestors so that
             // useVariant('article') returns a type that includes inherited properties.
             const chain = getAncestors(key);
             const configType = chain
-              .map((k) => {
+              .map((k, index) => {
                 // Use `infer` pattern rather than `extends keyof` — TypeScript reliably
                 // evaluates infer-based conditionals even when the base type is itself
                 // a conditional type, whereas `K extends keyof ConditionalType` can
                 // fail to resolve and fall to the else branch (producing never).
-                return `_VariantConfig<_AppVariants extends { ${k}: infer _E${k} } ? _E${k} : _RegistryVariants extends { ${k}: infer _E${k} } ? _E${k} : never>`;
+                const prop = JSON.stringify(k);
+                return `_VariantConfig<_RegistryVariants extends Record<${prop}, infer _R${index}> ? _R${index} : never>
+    & _VariantConfig<_AppVariants extends Record<${prop}, infer _A${index}> ? _A${index} : never>`;
               })
               .join("\n    & ");
-            return `  ${key}: ${configType}`;
+            return `  ${JSON.stringify(key)}: ${configType}`;
           })
           .join("\n");
 
@@ -194,15 +196,25 @@ declare global {
   const defineAppConfig: <C extends AppConfigInput>(config: C) => C
 }
 
-type _VariantConfig<T> = T extends { config?: infer C } ? NonNullable<C> : {}
 type _AppVariants = ${appVariantsType}
 type _RegistryVariants = {
 ${registryVariantsEntries}
 }
 
-export interface CustomVariantRegistry {
+type _VariantConfig<T> = [T] extends [never] ? {} : T extends { config?: infer C } ? NonNullable<C> : {}
+type _AppVariantConfig<K extends keyof _AppVariants> = _VariantConfig<
+  _AppVariants extends Record<K, infer _A> ? _A : never
+>
+
+type _GeneratedVariantRegistry = {
 ${entries}
 }
+
+type _AppOnlyVariantRegistry = {
+  [K in Exclude<keyof _AppVariants, keyof _GeneratedVariantRegistry>]: _AppVariantConfig<K>
+}
+
+export type CustomVariantRegistry = _GeneratedVariantRegistry & _AppOnlyVariantRegistry
 
 /** The resolved (merged) config type for a variant key. */
 export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<CustomVariantRegistry[K]>
