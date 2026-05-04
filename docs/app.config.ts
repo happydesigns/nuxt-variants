@@ -3,10 +3,10 @@ export default defineAppConfig({
     locale: "en",
   },
   header: {
-    title: "nuxt-variants",
+    title: "Nuxt Variants",
   },
   seo: {
-    title: "nuxt-variants",
+    title: "Nuxt Variants",
     description: "Centralized, deeply merged layout variant configuration for Nuxt applications.",
   },
   github: {
