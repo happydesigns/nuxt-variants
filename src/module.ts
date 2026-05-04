@@ -90,6 +90,11 @@ export default defineNuxtModule<ModuleOptions>({
       appRegistry as VariantRegistry,
     );
     const devtoolsEnabled = nuxt.options.dev || process.env.NODE_ENV === "test";
+    const sourceClientPath = resolver.resolve("../client");
+    const builtClientPath = resolver.resolve("./client");
+    const devtoolsClientPath = existsSync(join(sourceClientPath, "index.html"))
+      ? sourceClientPath
+      : builtClientPath;
 
     for (const diagnostic of diagnostics) {
       // The diagnostics are also emitted as virtual-module data below so tooling can render them.
@@ -126,6 +131,7 @@ export default defineNuxtModule<ModuleOptions>({
       };
       Object.assign(nuxt.options.runtimeConfig, {
         variantDevtoolsData: devtoolsData,
+        variantDevtoolsClientPath: devtoolsClientPath,
       });
     }
 
@@ -349,6 +355,14 @@ declare module 'vue-router' {
     if (devtoolsEnabled) {
       addServerHandler({
         route: "/__nuxt-variants/devtools",
+        handler: resolver.resolve("./runtime/server/devtools.get"),
+      });
+      addServerHandler({
+        route: "/__nuxt-variants/devtools/data.json",
+        handler: resolver.resolve("./runtime/server/devtools-data.get"),
+      });
+      addServerHandler({
+        route: "/__nuxt-variants/devtools/**",
         handler: resolver.resolve("./runtime/server/devtools.get"),
       });
 

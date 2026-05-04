@@ -20,8 +20,9 @@ Completed on this branch:
 - Variant diagnostics for unknown parents, circular inheritance, and replaced
   `extends` chains.
 - `active: false` semantics for resolved config and feature checks.
-- A Nuxt DevTools inspector for variants, inheritance, config layers, resolved
-  config, active features, and diagnostics.
+- A Nuxt DevTools inspector served from a root `client/` iframe app for
+  variants, inheritance, config layers, resolved config, active features, and
+  diagnostics.
 
 Recommended next track: plan any further module features at a high level before
 implementation. Good candidates are typed authoring helpers for registry

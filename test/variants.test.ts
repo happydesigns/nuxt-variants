@@ -178,21 +178,27 @@ describe("nuxt-variants e2e", async () => {
   });
 
   describe("Nuxt DevTools", () => {
-    it("renders the variant inspector data in dev", async () => {
+    it("serves the client app and variant inspector data in dev", async () => {
       const html = await $fetch<string>("/__nuxt-variants/devtools");
       expect(html).toContain("<title>Nuxt Variants DevTools</title>");
+      expect(html).toContain(
+        '<script type="module" src="/__nuxt-variants/devtools/src/main.js"></script>',
+      );
 
-      const data = extractJson(html, "variant-data") as {
+      const data = await $fetch<{
         configKey: string;
         variants: Array<{ name: string; activeFeatures: string[] }>;
         diagnostics: unknown[];
-      };
+      }>("/__nuxt-variants/devtools/data.json");
 
       expect(data.configKey).toBe("variants");
       expect(data.diagnostics).toEqual([]);
       expect(data.variants.find((variant) => variant.name === "article")).toMatchObject({
         activeFeatures: ["seo", "hero", "design", "article"],
       });
+
+      const client = await $fetch<string>("/__nuxt-variants/devtools/src/main.js");
+      expect(client).toContain('fetch("/__nuxt-variants/devtools/data.json")');
     });
   });
 });
