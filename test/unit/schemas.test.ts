@@ -3,10 +3,6 @@ import { z } from "zod";
 import * as v from "valibot";
 import { mergeVariantSchemas, detectAdapter, zodAdapter, valibotAdapter } from "../../src/schemas";
 
-// ---------------------------------------------------------------------------
-// zodAdapter
-// ---------------------------------------------------------------------------
-
 describe("zodAdapter", () => {
   it("emptyObject() returns an empty Zod object with no shape keys", () => {
     const schema = zodAdapter.emptyObject();
@@ -28,14 +24,9 @@ describe("zodAdapter", () => {
     const base = z.object({ x: baseNum });
     const extra = z.object({ x: extraStr });
     const merged = zodAdapter.merge(base, extra);
-    // extra.shape.x (string) should win over base.shape.x (number)
     expect(merged.shape.x).toBe(extraStr);
   });
 });
-
-// ---------------------------------------------------------------------------
-// valibotAdapter
-// ---------------------------------------------------------------------------
 
 describe("valibotAdapter", () => {
   it("emptyObject() returns an empty Valibot object with no entries", () => {
@@ -62,10 +53,6 @@ describe("valibotAdapter", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// detectAdapter
-// ---------------------------------------------------------------------------
-
 describe("detectAdapter", () => {
   it("returns zodAdapter for a Zod object schema", () => {
     const schema = z.object({ x: z.string() });
@@ -86,10 +73,6 @@ describe("detectAdapter", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// mergeVariantSchemas
-// ---------------------------------------------------------------------------
-
 const graph = {
   seo: [],
   hero: [],
@@ -97,7 +80,7 @@ const graph = {
   blog: ["article"],
 };
 
-describe("mergeVariantSchemas — Zod", () => {
+describe("mergeVariantSchemas with Zod", () => {
   it("merges a single flat variant", () => {
     const registry = { seo: z.object({ title: z.string() }) };
     const merged = mergeVariantSchemas(["seo"], registry, graph);
@@ -132,7 +115,18 @@ describe("mergeVariantSchemas — Zod", () => {
     expect(keys).toContain("author");
   });
 
-  it("skips variants with no schema (undefined entry)", () => {
+  it("lets child schemas override inherited fields", () => {
+    const parentField = z.string();
+    const childField = z.number();
+    const registry = {
+      seo: z.object({ title: parentField }),
+      article: z.object({ title: childField }),
+    };
+    const merged = mergeVariantSchemas(["article"], registry, graph);
+    expect((merged as any).shape.title).toBe(childField);
+  });
+
+  it("skips variants with no schema", () => {
     const registry = {
       seo: z.object({ title: z.string() }),
       hero: undefined,
@@ -142,7 +136,6 @@ describe("mergeVariantSchemas — Zod", () => {
     const keys = Object.keys((merged as any).shape);
     expect(keys).toContain("title");
     expect(keys).toContain("date");
-    // hero has no schema — must not throw
   });
 
   it("merges multiple active variants", () => {
@@ -154,6 +147,17 @@ describe("mergeVariantSchemas — Zod", () => {
     const keys = Object.keys((merged as any).shape);
     expect(keys).toContain("title");
     expect(keys).toContain("banner");
+  });
+
+  it("lets later active variants override earlier active variants", () => {
+    const seoField = z.string();
+    const heroField = z.boolean();
+    const registry = {
+      seo: z.object({ shared: seoField }),
+      hero: z.object({ shared: heroField }),
+    };
+    const merged = mergeVariantSchemas(["seo", "hero"], registry, graph);
+    expect((merged as any).shape.shared).toBe(heroField);
   });
 
   it("returns empty object schema when no registry entry matches", () => {
@@ -168,7 +172,6 @@ describe("mergeVariantSchemas — Zod", () => {
   });
 
   it("does not infinite-loop on a circular graph and still merges reachable schemas", () => {
-    // a → b → a  (cycle)
     const cyclicGraph = { a: ["b"], b: ["a"] };
     const registry = {
       a: z.object({ fromA: z.string() }),
@@ -181,7 +184,7 @@ describe("mergeVariantSchemas — Zod", () => {
   });
 });
 
-describe("mergeVariantSchemas — Valibot", () => {
+describe("mergeVariantSchemas with Valibot", () => {
   it("merges inherited schemas with Valibot schemas", () => {
     const registry = {
       seo: v.object({ title: v.string() }),
@@ -194,9 +197,20 @@ describe("mergeVariantSchemas — Valibot", () => {
     expect(keys).toContain("banner");
     expect(keys).toContain("date");
   });
+
+  it("lets child Valibot schemas override inherited entries", () => {
+    const parentField = v.string();
+    const childField = v.number();
+    const registry = {
+      seo: v.object({ title: parentField }),
+      article: v.object({ title: childField }),
+    };
+    const merged = mergeVariantSchemas(["article"], registry as any, graph);
+    expect((merged as any).entries.title).toBe(childField);
+  });
 });
 
-describe("mergeVariantSchemas — graph resolution", () => {
+describe("mergeVariantSchemas graph resolution", () => {
   beforeEach(() => {
     delete (globalThis as any).__NUXT_VARIANTS_GRAPH__;
   });

@@ -34,9 +34,23 @@ describe("defuReplaceArray", () => {
     });
   });
 
-  it("replaces array when source has array and target has primitive", () => {
+  it("keeps target array when source has primitive", () => {
     expect(defuReplaceArray({ arr: [1, 2] }, { arr: 42 })).toEqual({
       arr: [1, 2],
+    });
+  });
+
+  it("keeps target primitive when source has array", () => {
+    expect(defuReplaceArray({ arr: 42 }, { arr: [1, 2] })).toEqual({
+      arr: 42,
+    });
+  });
+
+  it("replaces nested arrays instead of concatenating", () => {
+    expect(
+      defuReplaceArray({ nested: { arr: ["child"] } }, { nested: { arr: ["parent"] } }),
+    ).toEqual({
+      nested: { arr: ["child"] },
     });
   });
 
