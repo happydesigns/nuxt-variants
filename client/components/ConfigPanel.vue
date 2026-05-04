@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
-  icon: string;
   title: string;
+  description: string;
   value: unknown;
 }>();
 
@@ -11,10 +11,11 @@ const code = computed(() => JSON.stringify(props.value, null, 2));
 <template>
   <NCard>
     <div class="panel-head">
-      <NIconTitle :icon="icon" :text="title" text-lg />
+      <h2>{{ title }}</h2>
+      <p>{{ description }}</p>
     </div>
     <div class="panel-body">
-      <NCodeBlock :code="code" lang="json" />
+      <JsonCodeBlock :code="code" />
     </div>
   </NCard>
 </template>

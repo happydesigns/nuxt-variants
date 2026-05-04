@@ -24,8 +24,9 @@ Completed on this branch:
   client uses `@nuxt/devtools-kit/iframe-client`, `@nuxt/devtools-ui-kit`, and
   split Vue components for variants, inheritance, config layers, resolved
   config, active features, and diagnostics. The sidebar is the only variant
-  selector, and the main panel focuses on the selected variant summary and
-  config inspection.
+  selector. The main panel focuses on a dynamic selected-variant summary, clear
+  inheritance and feature sections, highlighted JSON config inspection, and
+  validation issues only when issues exist.
 
 Recommended next track: plan any further module features at a high level before
 implementation. Good candidates are typed authoring helpers for registry
