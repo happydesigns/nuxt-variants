@@ -29,6 +29,7 @@ Nuxt Variants keeps those decisions in one registry:
 - Runtime `app.config` overrides for Nuxt Studio-compatible editing.
 - Auto-generated TypeScript types through `#nuxt-variants`.
 - Build-time virtual graph through `#variants-graph`.
+- Build-time diagnostics for unknown parents, inheritance cycles, and replaced parent chains.
 - Graph-aware Nuxt Content schema helper through `@happydesigns/nuxt-variants/schemas`.
 
 ## Quick Setup
@@ -225,6 +226,7 @@ declare module "#nuxt-variants" {
 - `config` is a `ComputedRef` of the fully merged config.
 - `has(featureName)` returns a `ComputedRef<boolean>` for direct or transitive inheritance.
 - `name` and `featureName` can be strings, refs, computed refs, or getters.
+- `active: false` disables both resolved config and `has()` checks for that variant.
 
 `useVariants()` returns a computed list of known variants:
 
@@ -239,7 +241,7 @@ interface VariantEntry {
 Virtual modules:
 
 - `#nuxt-variants` exposes generated types.
-- `#variants-graph` exposes `variantGraph`.
+- `#variants-graph` exposes `variantGraph` and `variantDiagnostics`.
 - `#variants-schemas` exposes graph-aware schema helpers inside Nuxt's Vite pipeline. Use the package `schemas` export from `content.config.ts`.
 
 ## Merge Rules
@@ -267,6 +269,16 @@ Resolving `article` produces:
   density: "comfortable",
 }
 ```
+
+## Diagnostics
+
+During Nuxt prepare, Nuxt Variants warns about registry graph problems:
+
+- variants extending unknown parent keys
+- circular inheritance chains
+- `app.config` entries that replace an existing `nuxt.config` `extends` chain
+
+The same warnings are available as `variantDiagnostics` from `#variants-graph`, which is useful for tooling and DevTools integrations.
 
 ## Playground And Documentation
 
