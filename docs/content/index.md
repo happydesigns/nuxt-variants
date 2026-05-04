@@ -5,46 +5,18 @@ description: Centralized, deeply merged layout variant configuration for Nuxt ap
 
 # nuxt-variants
 
-Build one shared Nuxt layout and drive its behavior with named variants.
-Define reusable feature configs, compose them into page variants, and let
-`app.config` override the resolved result at runtime.
+Build one shared Nuxt layout and drive its behavior with named variants. Define
+reusable feature configs, compose them into page variants, and let `app.config`
+override the resolved result at runtime.
 
-::card-group
+## Start Here
 
-## ::card
-
-title: Install the module
-icon: i-lucide-package
-to: /docs/getting-started
-
----
-
-Add `@happydesigns/nuxt-variants` to a Nuxt app and define your first registry.
-::
-
-## ::card
-
-title: Learn the model
-icon: i-lucide-git-branch
-to: /docs/concepts
-
----
-
-Understand features, layout variants, inheritance, runtime overrides, and merge priority.
-::
-
-## ::card
-
-title: Use the API
-icon: i-lucide-code
-to: /docs/api
-
----
-
-Reference `useVariant`, `useVariants`, `mergeVariantSchemas`, and virtual modules.
-::
-
-:::
+- [Get started](/docs/getting-started): install the module, define a registry,
+  and resolve your first variant.
+- [Understand the model](/docs/concepts): learn how features, layout variants,
+  inheritance, and merge priority work.
+- [Use the API](/docs/api): reference composables, schema helpers, module
+  options, and virtual modules.
 
 ## Why Variants?
 
