@@ -1,4 +1,5 @@
 {
+  "ignorePatterns": ["docs/content/**"],
   "tabWidth": 2,
   "trailingComma": "all",
   "vueIndentScriptAndStyle": false

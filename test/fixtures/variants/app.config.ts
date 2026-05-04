@@ -1,8 +1,16 @@
 export default defineAppConfig({
   variants: {
-    // Override: flip hasDate to false to verify app.config wins over nuxt.config
-    article: { config: { hasDate: false } },
-    // Runtime-only variant that only exists in app.config
+    article: {
+      config: {
+        hasDate: false,
+        theme: { color: "green" },
+        slots: ["app-article"],
+      },
+    },
+    editorial: {
+      extends: ["hero"],
+      config: { tone: "app" },
+    },
     extra: { config: { custom: 42 } },
   },
 });

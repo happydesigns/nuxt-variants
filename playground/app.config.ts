@@ -1,21 +1,5 @@
 export default defineAppConfig({
   variants: {
-    toc: {
-      config: {
-        tocMaxDepth: 3,
-        tocSticky: true,
-        tocTitle: "On this page",
-      },
-    },
-
-    sidebar: {
-      config: {
-        sidebarPosition: "right",
-        sidebarWidth: 280,
-        sidebarCollapsible: false,
-      },
-    },
-
     article: {
       extends: ["breadcrumbs", "hero", "seo", "toc"],
       config: {
@@ -42,6 +26,7 @@ export default defineAppConfig({
         heroOverlay: true,
         heroAlign: "center",
         sidebarPosition: "left",
+        sidebarWidth: 300,
         sidebarCollapsible: true,
       },
     },
