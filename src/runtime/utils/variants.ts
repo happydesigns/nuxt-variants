@@ -4,13 +4,13 @@ import { defuReplaceArray } from "./merge";
  * Describes a single variant entry in the registry.
  * @template T The shape of the configuration object this variant produces.
  */
-export interface VariantDefinition<T = unknown> {
+export interface VariantRegistryEntry<T = unknown> {
   extends?: string | string[];
   active?: boolean;
   config?: Partial<T>;
 }
 
-export type VariantRegistry = Record<string, VariantDefinition<unknown>>;
+export type VariantRegistry = Record<string, VariantRegistryEntry<unknown>>;
 
 export interface VariantListEntry {
   /** The variant's key in the registry. */

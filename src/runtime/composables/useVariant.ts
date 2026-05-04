@@ -3,13 +3,13 @@ import { useRuntimeConfig, useAppConfig } from "#app";
 import {
   resolveVariantConfig,
   variantHasFeature,
-  type VariantDefinition,
+  type VariantRegistryEntry,
   type VariantRegistry,
 } from "../utils/variants";
 import type { CustomVariantRegistry } from "#nuxt-variants";
 
 export type { CustomVariantRegistry };
-export type { VariantDefinition };
+export type VariantDefinition<T = unknown> = VariantRegistryEntry<T>;
 
 type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (
   x: infer I,
