@@ -33,7 +33,7 @@ type AnyVariantConfig = keyof CustomVariantRegistry extends never
  * // → Partial<ArticleConfig>
  */
 export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<
-  CustomVariantRegistry[K]
+  UnionToIntersection<CustomVariantRegistry[K]>
 >;
 
 export interface UseVariantReturn<TConfig> {
