@@ -7,29 +7,31 @@ defineProps<{
 </script>
 
 <template>
-  <section class="panel">
-    <div class="panel-head">
-      <h2>{{ variant?.name ?? "Variant" }}</h2>
+  <NCard>
+    <div class="border-b n-border-base p4">
+      <NIconTitle icon="i-carbon-network-3" :text="variant?.name ?? 'Variant'" text-xl />
+      <p mt1 text-sm op50>Inheritance and active feature resolution for the selected variant.</p>
     </div>
-    <div class="panel-body grid">
+    <div class="grid gap4 p4 md:grid-cols-2">
       <div>
-        <h3>Extends</h3>
-        <div class="chips">
-          <span v-for="parent in variant?.extends ?? []" :key="parent" class="chip">
+        <div text-sm font-700 op70 mb2>Extends</div>
+        <div class="flex flex-wrap gap2">
+          <NBadge v-for="parent in variant?.extends ?? []" :key="parent" n="gray">
             {{ parent }}
-          </span>
-          <span v-if="!variant?.extends.length" class="empty">None</span>
+          </NBadge>
+          <span v-if="!variant?.extends.length" text-sm op50>None</span>
         </div>
       </div>
+
       <div>
-        <h3>Active Features</h3>
-        <div class="chips">
-          <span v-for="feature in variant?.activeFeatures ?? []" :key="feature" class="chip active">
+        <div text-sm font-700 op70 mb2>Active Features</div>
+        <div class="flex flex-wrap gap2">
+          <NBadge v-for="feature in variant?.activeFeatures ?? []" :key="feature" n="green">
             {{ feature }}
-          </span>
-          <span v-if="!variant?.activeFeatures.length" class="empty">None</span>
+          </NBadge>
+          <span v-if="!variant?.activeFeatures.length" text-sm op50>None</span>
         </div>
       </div>
     </div>
-  </section>
+  </NCard>
 </template>

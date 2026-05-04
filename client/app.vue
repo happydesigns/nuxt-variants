@@ -18,8 +18,13 @@ const { connected, currentVariant, data, error, pending, selected } = useVariant
           <VariantOverview :variant="currentVariant" />
 
           <section class="grid">
-            <ConfigPanel title="Resolved Config" :value="currentVariant?.resolvedConfig ?? {}" />
             <ConfigPanel
+              icon="i-carbon-code"
+              title="Resolved Config"
+              :value="currentVariant?.resolvedConfig ?? {}"
+            />
+            <ConfigPanel
+              icon="i-carbon-layers"
               title="Config Layers"
               :value="{ base: currentVariant?.base, app: currentVariant?.app }"
             />

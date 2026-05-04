@@ -13,45 +13,54 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <aside class="sidebar">
-    <div class="header">
-      <div class="eyebrow">Nuxt Variants</div>
-      <h1>Variant graph</h1>
-      <div class="connection" :class="{ active: connected }">
-        {{ connected ? "DevTools connected" : "Standalone view" }}
+  <aside class="sidebar n-bg-base">
+    <div class="p4 border-b n-border-base">
+      <NIconTitle icon="i-carbon-branch" text="Nuxt Variants" text-lg font-700 />
+      <div mt2>
+        <NBadge :n="connected ? 'green' : 'gray'">
+          {{ connected ? "DevTools connected" : "Standalone view" }}
+        </NBadge>
       </div>
     </div>
 
-    <div class="summary">
-      <div class="metric">
-        <strong>{{ data.variants.length }}</strong>
-        <span>variants</span>
-      </div>
-      <div class="metric">
-        <strong>{{ Object.keys(data.graph).length }}</strong>
-        <span>graph nodes</span>
-      </div>
-      <div class="metric">
-        <strong>{{ data.diagnostics.length }}</strong>
-        <span>diagnostics</span>
-      </div>
+    <div class="grid grid-cols-3 gap2 p3 border-b n-border-base">
+      <NCard
+        v-for="metric in [
+          { label: 'variants', value: data.variants.length },
+          { label: 'graph nodes', value: Object.keys(data.graph).length },
+          { label: 'diagnostics', value: data.diagnostics.length },
+        ]"
+        :key="metric.label"
+        class="px3 py2"
+      >
+        <div text-lg font-700>
+          {{ metric.value }}
+        </div>
+        <div text-xs op60>
+          {{ metric.label }}
+        </div>
+      </NCard>
     </div>
 
-    <div class="variant-list">
-      <button
+    <div class="flex flex-col gap1 p2">
+      <NButton
         v-for="variant in data.variants"
         :key="variant.name"
-        class="variant-button"
-        :class="{ active: variant.name === selected }"
+        :n="variant.name === selected ? 'green' : 'gray'"
+        class="variant-nav"
         type="button"
         @click="emit('update:selected', variant.name)"
       >
-        <span class="variant-name">
-          <span>{{ variant.name }}</span>
-          <span>{{ variant.extends.length }}</span>
+        <span class="min-w-0 flex flex-col items-start">
+          <span class="w-full flex items-center justify-between gap3 font-700">
+            <span truncate>{{ variant.name }}</span>
+            <NBadge n="gray">
+              {{ variant.extends.length }}
+            </NBadge>
+          </span>
+          <span text-xs op60>{{ variant.configKeys.length }} config keys</span>
         </span>
-        <span class="variant-meta">{{ variant.configKeys.length }} config keys</span>
-      </button>
+      </NButton>
     </div>
   </aside>
 </template>

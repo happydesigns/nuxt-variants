@@ -6,15 +6,14 @@ defineProps<{
 </script>
 
 <template>
-  <div v-if="pending" class="panel">
-    <div class="panel-body">
-      <p class="empty">Loading variants...</p>
+  <NCard v-if="pending" class="p4">
+    <div class="flex items-center gap3 op70">
+      <NLoading />
+      <span>Loading variants...</span>
     </div>
-  </div>
+  </NCard>
 
-  <div v-else-if="error" class="panel">
-    <div class="panel-body">
-      <p class="diagnostic">{{ error }}</p>
-    </div>
-  </div>
+  <NTip v-else-if="error" icon="i-carbon-warning">
+    {{ error }}
+  </NTip>
 </template>

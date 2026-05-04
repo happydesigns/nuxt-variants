@@ -21,9 +21,9 @@ Completed on this branch:
   `extends` chains.
 - `active: false` semantics for resolved config and feature checks.
 - A Nuxt DevTools inspector served from a root Nuxt `client/` iframe app. The
-  client uses `@nuxt/devtools-kit/iframe-client` and split Vue components for
-  variants, inheritance, config layers, resolved config, active features, and
-  diagnostics.
+  client uses `@nuxt/devtools-kit/iframe-client`, `@nuxt/devtools-ui-kit`, and
+  split Vue components for variants, inheritance, config layers, resolved
+  config, active features, and diagnostics.
 
 Recommended next track: plan any further module features at a high level before
 implementation. Good candidates are typed authoring helpers for registry

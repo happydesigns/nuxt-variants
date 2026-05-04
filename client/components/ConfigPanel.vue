@@ -1,21 +1,20 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
+  icon: string;
   title: string;
   value: unknown;
 }>();
 
-function format(value: unknown) {
-  return JSON.stringify(value, null, 2);
-}
+const code = computed(() => JSON.stringify(props.value, null, 2));
 </script>
 
 <template>
-  <div class="panel">
-    <div class="panel-head">
-      <h2>{{ title }}</h2>
+  <NCard>
+    <div class="border-b n-border-base p4">
+      <NIconTitle :icon="icon" :text="title" text-lg />
     </div>
-    <div class="panel-body">
-      <pre>{{ format(value) }}</pre>
+    <div class="p4">
+      <NCodeBlock :code="code" lang="json" />
     </div>
-  </div>
+  </NCard>
 </template>
