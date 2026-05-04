@@ -1,0 +1,95 @@
+---
+title: API
+description: Reference composables, schema helpers, module options, and virtual modules.
+---
+
+# API
+
+## Module Options
+
+::field-group
+::field{name="registry" type="Record<string, VariantDefinition>"}
+Build-time variant definitions. Defaults to an empty object.
+::
+
+::field{name="configKey" type="string"}
+Key used in `app.config` for runtime overrides. Defaults to `variants`.
+::
+::
+
+## `useVariant(name)`
+
+Resolves one variant and returns its merged config plus a feature inheritance
+checker.
+
+```ts
+const { config, has } = useVariant("article");
+const hasHero = has("hero");
+```
+
+## `useVariants()`
+
+Returns a computed list of variants from both `nuxt.config` and `app.config`.
+
+```ts
+const variants = useVariants();
+```
+
+Each entry has:
+
+```ts
+interface VariantEntry {
+  name: string;
+  extends: string[];
+  configKeys: string[];
+}
+```
+
+## `mergeVariantSchemas(activeVariants, registry, graph?)`
+
+Merges Nuxt Content schemas for the active variants and their inherited
+features.
+
+```ts [content.config.ts]
+import { defineCollection } from "@nuxt/content";
+import { z } from "zod";
+import { mergeVariantSchemas, type SchemaRegistry } from "@happydesigns/nuxt-variants/schemas";
+
+const variantSchemas: SchemaRegistry = {
+  seo: z.object({ seoTitle: z.string() }),
+  article: z.object({ authorName: z.string() }),
+};
+
+export const collections = {
+  blog: defineCollection({
+    type: "page",
+    source: "blog/**",
+    schema: mergeVariantSchemas(["article"], variantSchemas),
+  }),
+};
+```
+
+All schemas in one merge must use the same validator library.
+
+## Virtual Modules
+
+### `#nuxt-variants`
+
+Generated type module for `CustomVariantRegistry` and `VariantConfigOf`.
+
+```ts
+import type { VariantConfigOf } from "#nuxt-variants";
+type ArticleConfig = VariantConfigOf<"article">;
+```
+
+### `#variants-graph`
+
+Build-time inheritance graph.
+
+```ts
+import { variantGraph } from "#variants-graph";
+```
+
+### `#variants-schemas`
+
+Nuxt-generated schema helper entry that is aware of the current variant graph.

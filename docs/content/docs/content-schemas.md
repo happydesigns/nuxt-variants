@@ -1,0 +1,41 @@
+---
+title: Nuxt Content Schemas
+description: Merge Zod or Valibot schemas through the same variant graph used at runtime.
+---
+
+# Nuxt Content Schemas
+
+Nuxt Content v3 can infer SQLite columns from collection schemas.
+`mergeVariantSchemas` lets a collection inherit schema fields from the same
+feature graph that drives your layouts.
+
+## Zod Example
+
+```ts [content.config.ts]
+import { defineCollection } from "@nuxt/content";
+import { z } from "zod";
+import { mergeVariantSchemas, type SchemaRegistry } from "@happydesigns/nuxt-variants/schemas";
+
+const variantSchemas: SchemaRegistry = {
+  seo: z.object({
+    seoTitle: z.string().optional(),
+    seoDescription: z.string().optional(),
+  }),
+  article: z.object({
+    authorName: z.string(),
+    authorUrl: z.string().url().optional(),
+  }),
+};
+
+export const collections = {
+  blog: defineCollection({
+    type: "page",
+    source: "blog/**",
+    schema: mergeVariantSchemas(["article"], variantSchemas),
+  }),
+};
+```
+
+::caution
+Do not mix Zod and Valibot schemas in the same `mergeVariantSchemas` call.
+::
