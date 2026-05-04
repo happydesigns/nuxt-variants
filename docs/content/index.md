@@ -61,6 +61,18 @@ Compose named feature configs, resolve deeply merged layout behavior, and keep c
 
     ::::u-page-card
     ---
+    icon: i-lucide-monitor-cog
+    to: /docs/concepts#devtools-inspector
+    ---
+    #title
+    DevTools inspector
+
+    #description
+    Inspect variants, inherited features, config layers, resolved output, and diagnostics in Nuxt DevTools.
+    ::::
+
+    ::::u-page-card
+    ---
     icon: i-lucide-database
     to: /docs/content-schemas
     ---

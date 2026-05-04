@@ -15,11 +15,18 @@ Adaptive Teamflow.
 Review the `codex/explore-module-improvements` branch and decide whether to
 open a PR or continue with the next improvement track.
 
-Recommended next track: plan a Nuxt DevTools extension that visualizes variants,
-inheritance, app/base config layers, resolved config, and `has()` results. Treat
-this as a high-risk public/dependency/UI change: write the high-level design
-first, verify current Nuxt DevTools extension conventions, then stop for
-operator approval before implementation.
+Completed on this branch:
+
+- Variant diagnostics for unknown parents, circular inheritance, and replaced
+  `extends` chains.
+- `active: false` semantics for resolved config and feature checks.
+- A Nuxt DevTools inspector for variants, inheritance, config layers, resolved
+  config, active features, and diagnostics.
+
+Recommended next track: plan any further module features at a high level before
+implementation. Good candidates are typed authoring helpers for registry
+definitions or stronger validation ergonomics, but treat them as public-contract
+work that needs operator approval before code changes.
 
 ## Prompt For Next Chat
 

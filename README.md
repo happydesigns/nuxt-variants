@@ -30,6 +30,7 @@ Nuxt Variants keeps those decisions in one registry:
 - Auto-generated TypeScript types through `#nuxt-variants`.
 - Build-time virtual graph through `#variants-graph`.
 - Build-time diagnostics for unknown parents, inheritance cycles, and replaced parent chains.
+- Nuxt DevTools tab for inspecting variants, inheritance, config layers, and resolved output during development.
 - Graph-aware Nuxt Content schema helper through `@happydesigns/nuxt-variants/schemas`.
 
 ## Quick Setup
@@ -244,6 +245,11 @@ Virtual modules:
 - `#variants-graph` exposes `variantGraph` and `variantDiagnostics`.
 - `#variants-schemas` exposes graph-aware schema helpers inside Nuxt's Vite pipeline. Use the package `schemas` export from `content.config.ts`.
 
+Development tooling:
+
+- The Nuxt DevTools tab named `Nuxt Variants` shows the current variant list, inheritance graph, active features, base/app config layers, resolved config, and diagnostics.
+- The backing inspector route is registered only in Nuxt dev and test environments.
+
 ## Merge Rules
 
 For a variant's own config, `app.config.ts` wins over `nuxt.config.ts`.
@@ -278,7 +284,7 @@ During Nuxt prepare, Nuxt Variants warns about registry graph problems:
 - circular inheritance chains
 - `app.config` entries that replace an existing `nuxt.config` `extends` chain
 
-The same warnings are available as `variantDiagnostics` from `#variants-graph`, which is useful for tooling and DevTools integrations.
+The same warnings are available as `variantDiagnostics` from `#variants-graph` and in the Nuxt DevTools inspector.
 
 ## Playground And Documentation
 
