@@ -85,9 +85,17 @@ export function variantHasFeature(
   overrideRegistry: VariantRegistry,
   visited = new Set<string>(),
 ): boolean {
-  if (variantName === featureName) return true;
   if (visited.has(variantName)) return false;
   visited.add(variantName);
+
+  const baseEntry = baseRegistry[variantName];
+  const overrideEntry = overrideRegistry[variantName];
+  if (!baseEntry && !overrideEntry) return false;
+
+  const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
+  if (isActive === false) return false;
+
+  if (variantName === featureName) return true;
 
   return getVariantExtends(variantName, baseRegistry, overrideRegistry).some((parent) =>
     variantHasFeature(parent, featureName, baseRegistry, overrideRegistry, new Set(visited)),

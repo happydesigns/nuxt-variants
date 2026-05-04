@@ -7,6 +7,8 @@ import {
   addTemplate,
   createResolver,
 } from "@nuxt/kit";
+import { collectVariantDiagnostics } from "./runtime/utils/diagnostics";
+import type { VariantRegistry } from "./runtime/utils/variants";
 
 /** A single variant entry as it appears in either the base registry or appConfig overrides. */
 interface VariantEntry {
@@ -74,6 +76,16 @@ export default defineNuxtModule<ModuleOptions>({
           : Array.isArray(extendsValue)
             ? extendsValue
             : [extendsValue];
+    }
+
+    const diagnostics = collectVariantDiagnostics(
+      baseRegistry as VariantRegistry,
+      appRegistry as VariantRegistry,
+    );
+
+    for (const diagnostic of diagnostics) {
+      // The diagnostics are also emitted as virtual-module data below so tooling can render them.
+      console.warn(`[nuxt-variants] ${diagnostic.message}`);
     }
 
     /** Converts a JS config object into a TypeScript type literal string (widened to primitives). */
@@ -236,8 +248,17 @@ declare module 'vue-router' {
 
     const graphMjsPath = join(nuxt.options.buildDir, "variants-graph.mjs");
     const graphDmtsPath = join(nuxt.options.buildDir, "variants-graph.d.mts");
-    const graphContent = `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};\n`;
-    const graphDtsContent = `export declare const variantGraph: Record<string, string[]>;\n`;
+    const graphContent = [
+      `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};`,
+      `export const variantDiagnostics = ${JSON.stringify(diagnostics, null, 2)};`,
+      "",
+    ].join("\n");
+    const graphDtsContent = [
+      `export interface VariantDiagnostic { code: "unknown-parent" | "circular-extends" | "override-extends"; severity: "warning"; variant: string; parent?: string; path?: string[]; message: string }`,
+      `export declare const variantGraph: Record<string, string[]>;`,
+      `export declare const variantDiagnostics: VariantDiagnostic[];`,
+      "",
+    ].join("\n");
 
     const schemasMjsPath = join(nuxt.options.buildDir, "variants-schemas.mjs");
     const schemasDmtsPath = join(nuxt.options.buildDir, "variants-schemas.d.mts");

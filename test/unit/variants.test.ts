@@ -5,6 +5,7 @@ import {
   variantHasFeature,
   type VariantRegistry,
 } from "../../src/runtime/utils/variants";
+import { collectVariantDiagnostics } from "../../src/runtime/utils/diagnostics";
 
 const baseRegistry: VariantRegistry = {
   seo: { config: { indexed: true, titleTemplate: "%s - Site" } },
@@ -22,8 +23,12 @@ const baseRegistry: VariantRegistry = {
   },
   inactive: {
     active: false,
+    extends: ["seo"],
     config: { hidden: true },
   },
+  loopA: { extends: ["loopB"], config: {} },
+  loopB: { extends: ["loopA"], config: {} },
+  broken: { extends: ["missing"], config: {} },
 };
 
 const appRegistry: VariantRegistry = {
@@ -73,7 +78,8 @@ describe("variant runtime utilities", () => {
     expect(variantHasFeature("article", "seo", baseRegistry, appRegistry)).toBe(true);
     expect(variantHasFeature("editorial", "seo", baseRegistry, appRegistry)).toBe(false);
     expect(variantHasFeature("editorial", "hero", baseRegistry, appRegistry)).toBe(true);
-    expect(variantHasFeature("inactive", "inactive", baseRegistry, appRegistry)).toBe(true);
+    expect(variantHasFeature("inactive", "inactive", baseRegistry, appRegistry)).toBe(false);
+    expect(variantHasFeature("inactive", "seo", baseRegistry, appRegistry)).toBe(false);
   });
 
   it("lists variants from both registries with normalized extends and config keys", () => {
@@ -82,8 +88,43 @@ describe("variant runtime utilities", () => {
       { name: "hero", extends: [], configKeys: ["height", "slots"] },
       { name: "article", extends: ["seo", "hero"], configKeys: ["hasDate", "slots", "authorBox"] },
       { name: "editorial", extends: ["hero"], configKeys: ["tone"] },
-      { name: "inactive", extends: [], configKeys: ["hidden"] },
+      { name: "inactive", extends: ["seo"], configKeys: ["hidden"] },
+      { name: "loopA", extends: ["loopB"], configKeys: [] },
+      { name: "loopB", extends: ["loopA"], configKeys: [] },
+      { name: "broken", extends: ["missing"], configKeys: [] },
       { name: "preview", extends: [], configKeys: ["previewMode"] },
+    ]);
+  });
+
+  it("collects diagnostics for unknown parents, cycles, and app extends replacements", () => {
+    expect(collectVariantDiagnostics(baseRegistry, appRegistry)).toEqual([
+      {
+        code: "unknown-parent",
+        severity: "warning",
+        variant: "broken",
+        parent: "missing",
+        message: 'Variant "broken" extends unknown variant "missing".',
+      },
+      {
+        code: "circular-extends",
+        severity: "warning",
+        variant: "loopA",
+        path: ["loopA", "loopB", "loopA"],
+        message: "Variant inheritance cycle detected: loopA -> loopB -> loopA.",
+      },
+      {
+        code: "circular-extends",
+        severity: "warning",
+        variant: "loopB",
+        path: ["loopB", "loopA", "loopB"],
+        message: "Variant inheritance cycle detected: loopB -> loopA -> loopB.",
+      },
+      {
+        code: "override-extends",
+        severity: "warning",
+        variant: "editorial",
+        message: 'App config for variant "editorial" replaces the base extends chain.',
+      },
     ]);
   });
 });
