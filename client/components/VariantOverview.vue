@@ -5,7 +5,7 @@ const props = defineProps<{
   variant?: VariantEntry;
 }>();
 
-const parents = computed(() => props.variant?.extends ?? []);
+const extendedVariants = computed(() => props.variant?.extends ?? []);
 </script>
 
 <template>
@@ -13,16 +13,16 @@ const parents = computed(() => props.variant?.extends ?? []);
     <div class="composition-panel">
       <div class="composition-head">
         <h2>Composition</h2>
-        <p>Parent variants merge first. The selected variant is applied last.</p>
+        <p>Variants listed in extends merge first. The selected variant is applied last.</p>
       </div>
 
       <div class="composition-row">
-        <span class="composition-label">Parents</span>
+        <span class="composition-label">Extends</span>
         <div class="flex flex-wrap gap2">
-          <NBadge v-for="parent in parents" :key="parent" n="gray">
-            {{ parent }}
+          <NBadge v-for="extendedVariant in extendedVariants" :key="extendedVariant" n="gray">
+            {{ extendedVariant }}
           </NBadge>
-          <span v-if="!parents.length" class="muted">None</span>
+          <span v-if="!extendedVariants.length" class="muted">None</span>
         </div>
       </div>
 

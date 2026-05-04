@@ -37,7 +37,7 @@ const currentVariantSummary = computed(() => {
     return `Merges ${formatList(variant.extends)} before ${variant.name}. Final config has ${configText}.`;
   }
 
-  return `Base variant with no parents. Final config has ${configText}.`;
+  return `Does not extend another variant. Final config has ${configText}.`;
 });
 
 const currentConfigKeyCount = computed(() =>
@@ -63,7 +63,7 @@ const currentConfigKeyCount = computed(() =>
             <div class="header-badges">
               <NBadge n="gray">
                 {{ currentVariant?.extends.length ?? 0 }}
-                {{ plural(currentVariant?.extends.length ?? 0, "parent") }}
+                extends
               </NBadge>
               <NBadge n="gray">
                 {{ currentConfigKeyCount }}

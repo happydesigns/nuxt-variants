@@ -21,7 +21,7 @@ function variantMeta(variant: VariantEntry) {
     return `${keyText} / base`;
   }
 
-  return `${keyText} / ${variant.extends.length} ${plural(variant.extends.length, "parent")}`;
+  return `${keyText} / extends ${variant.extends.length}`;
 }
 </script>
 
