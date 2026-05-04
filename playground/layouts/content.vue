@@ -24,27 +24,27 @@ const heroHeights: Record<string, string> = {
 
 <template>
   <div class="min-h-screen bg-default flex flex-col">
-    <!-- Top bar -->
-    <div class="border-b border-default flex divide-x divide-default h-11 shrink-0">
+    <div
+      class="border-b border-default flex flex-col sm:flex-row sm:divide-x divide-default shrink-0"
+    >
       <NuxtLink
         to="/"
-        class="flex items-center px-5 text-xs font-mono text-muted hover:text-highlighted hover:bg-muted transition-colors no-underline shrink-0"
+        class="flex items-center px-5 h-11 text-xs font-mono text-muted hover:text-highlighted hover:bg-muted transition-colors no-underline shrink-0"
       >
-        ← variants
+        &lt;- Nuxt Variants
       </NuxtLink>
-      <div class="flex items-center px-5 gap-1.5 shrink-0">
+      <div class="flex items-center px-5 h-11 gap-1.5 shrink-0">
         <span class="font-mono text-xs text-muted">layout</span>
         <span class="text-muted text-xs">/</span>
         <span class="font-mono text-xs text-highlighted">content</span>
       </div>
-      <div class="flex items-center px-5 gap-1.5">
+      <div class="flex items-center px-5 h-11 gap-1.5">
         <span class="font-mono text-xs text-muted">variant</span>
         <span class="text-muted text-xs">/</span>
         <span class="font-mono text-xs text-primary font-semibold">{{ variantName }}</span>
       </div>
     </div>
 
-    <!-- Breadcrumbs -->
     <div
       v-if="hasBreadcrumbs"
       class="border-b border-default px-5 py-2 flex items-center gap-1.5 font-mono text-xs bg-muted"
@@ -54,7 +54,6 @@ const heroHeights: Record<string, string> = {
       <span class="text-highlighted">{{ variantName }}</span>
     </div>
 
-    <!-- Hero -->
     <div
       v-if="hasHero"
       class="border-b border-default relative overflow-hidden shrink-0 bg-terminal"
@@ -78,10 +77,10 @@ const heroHeights: Record<string, string> = {
       >
         <div :class="config.heroAlign === 'center' ? 'text-center' : ''">
           <p class="font-mono text-[10px] text-white/50 mb-2 uppercase tracking-widest m-0">
-            height:{{ config.heroHeight }} &nbsp;·&nbsp; overlay:{{
+            height:{{ config.heroHeight }} &nbsp;|&nbsp; overlay:{{
               config.heroOverlay
             }}
-            &nbsp;·&nbsp; align:{{ config.heroAlign }}
+            &nbsp;|&nbsp; align:{{ config.heroAlign }}
           </p>
           <slot name="hero-title">
             <h1 class="text-4xl font-bold text-white m-0 tracking-tight">{{ pageTitle }}</h1>
@@ -91,16 +90,12 @@ const heroHeights: Record<string, string> = {
       </div>
     </div>
 
-    <!-- Body: sidebar | main | toc -->
-    <div class="flex divide-x divide-default flex-1 min-h-64">
-      <!-- Sidebar -->
+    <div class="flex flex-col lg:flex-row lg:divide-x divide-default flex-1 min-h-64">
       <aside
         v-if="hasSidebar"
-        class="shrink-0 bg-muted flex flex-col"
-        :style="{
-          order: config.sidebarPosition === 'left' ? -1 : 1,
-          width: `${config.sidebarWidth}px`,
-        }"
+        class="shrink-0 bg-muted flex flex-col border-b lg:border-b-0 border-default"
+        :class="config.sidebarPosition === 'left' ? 'lg:order-first' : 'lg:order-last'"
+        :style="{ width: `${config.sidebarWidth}px`, maxWidth: '100%' }"
       >
         <div class="border-b border-default px-5 py-3">
           <span class="font-mono text-[10px] text-muted uppercase tracking-widest">Sidebar</span>
@@ -113,7 +108,7 @@ const heroHeights: Record<string, string> = {
               ['collapsible', config.sidebarCollapsible],
             ]"
             :key="k"
-            class="flex items-center justify-between"
+            class="flex items-center justify-between gap-4"
           >
             <span class="font-mono text-xs text-muted">{{ k }}</span>
             <span class="font-mono text-xs text-highlighted">{{ v }}</span>
@@ -122,15 +117,13 @@ const heroHeights: Record<string, string> = {
         </div>
       </aside>
 
-      <!-- Main -->
-      <main class="flex-1 p-8 min-w-0">
+      <main class="flex-1 p-6 sm:p-8 min-w-0">
         <slot />
       </main>
 
-      <!-- TOC -->
       <aside
         v-if="hasToc"
-        class="w-52 shrink-0 bg-muted flex flex-col"
+        class="w-full lg:w-52 shrink-0 bg-muted flex flex-col border-t lg:border-t-0 border-default"
         :style="{ position: config.tocSticky ? 'sticky' : 'static', top: 0 }"
       >
         <div class="border-b border-default px-5 py-3">
@@ -156,12 +149,12 @@ const heroHeights: Record<string, string> = {
             <span
               v-if="((config.tocMaxDepth as number) ?? 1) >= 2"
               class="font-mono text-xs text-dimmed pl-3"
-              >↳ Subsection 1.1</span
+              >-&gt; Subsection 1.1</span
             >
             <span
               v-if="((config.tocMaxDepth as number) ?? 1) >= 3"
               class="font-mono text-xs text-dimmed pl-6"
-              >↳ Deep 1.1.1</span
+              >-&gt; Deep 1.1.1</span
             >
             <span class="font-mono text-xs text-muted">Section 2</span>
           </div>
@@ -170,10 +163,8 @@ const heroHeights: Record<string, string> = {
       </aside>
     </div>
 
-    <!-- Debug panel -->
     <div class="border-t border-default bg-terminal shrink-0">
-      <!-- Header row -->
-      <div class="border-b border-white/10 flex divide-x divide-white/10">
+      <div class="border-b border-white/10 flex flex-col xl:flex-row xl:divide-x divide-white/10">
         <div class="px-5 py-3 shrink-0">
           <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest"
             >Resolved config</span
@@ -182,9 +173,9 @@ const heroHeights: Record<string, string> = {
         <div class="px-5 py-3 flex items-center gap-2 flex-1">
           <span class="font-mono text-xs text-primary">{{ variantName }}</span>
         </div>
-        <div class="px-5 py-3 flex items-center gap-2 shrink-0">
+        <div class="px-5 py-3 flex items-center gap-2 shrink-0 flex-wrap">
           <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest mr-2"
-            >flags</span
+            >active features</span
           >
           <span
             v-for="[name, active] in [
@@ -195,40 +186,38 @@ const heroHeights: Record<string, string> = {
             ]"
             :key="String(name)"
             :class="active ? 'text-success border-success/30' : 'text-white/40 border-white/10'"
-            class="font-mono text-[10px] px-2 py-0.5 border rounded-sm ml-1"
+            class="font-mono text-[10px] px-2 py-0.5 border rounded-sm"
           >
-            {{ active ? "✓" : "✗" }} {{ name }}
+            {{ active ? "yes" : "no" }} {{ name }}
           </span>
         </div>
       </div>
 
-      <!-- Config rows -->
-      <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] divide-x divide-white/5">
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] divide-x divide-white/5">
         <div
           v-for="(value, key) in config"
           :key="key"
           class="flex items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition-colors gap-4"
         >
           <span class="font-mono text-xs text-white/50 shrink-0 w-36">{{ key }}</span>
-          <span class="font-mono text-xs text-white/85">{{ value }}</span>
+          <span class="font-mono text-xs text-white/85 break-all">{{ value }}</span>
         </div>
       </div>
 
-      <!-- TOC defaults (if applicable) -->
       <template v-if="hasToc">
         <div class="border-t border-white/10 px-5 py-3">
           <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest"
             >toc feature defaults</span
           >
         </div>
-        <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] divide-x divide-white/5">
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] divide-x divide-white/5">
           <div
             v-for="(value, key) in tocConfig"
             :key="key"
             class="flex items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition-colors gap-4"
           >
             <span class="font-mono text-xs text-white/50 shrink-0 w-36">{{ key }}</span>
-            <span class="font-mono text-xs text-white/85">{{ value }}</span>
+            <span class="font-mono text-xs text-white/85 break-all">{{ value }}</span>
           </div>
         </div>
       </template>

@@ -26,14 +26,14 @@ const { config } = useVariant("article");
         <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default"
           >toc</code
         >
-        — no cast needed.
+        - no cast needed.
       </p>
     </div>
 
     <div class="border border-default rounded-sm overflow-hidden">
-      <div class="px-4 py-2.5 border-b border-default bg-muted flex items-center gap-2">
+      <div class="px-4 py-2.5 border-b border-default bg-muted flex items-center gap-2 flex-wrap">
         <span class="font-mono text-xs text-dimmed uppercase tracking-widest"
-          >app.config override</span
+          >runtime override</span
         >
         <span
           class="font-mono text-[10px] px-1.5 py-0.5 bg-warning/10 text-warning border border-warning/20 rounded-sm"
@@ -41,9 +41,11 @@ const { config } = useVariant("article");
         >
       </div>
       <p class="text-xs text-muted leading-relaxed px-4 py-3 m-0">
-        <code class="font-mono">app.config.ts</code> extends the article chain to also include
-        <code class="font-mono">toc</code>, and overrides
-        <code class="font-mono">authorBox</code> from <code class="font-mono">true</code> →
+        <code class="font-mono">nuxt.config.ts</code> composes the article chain from
+        <code class="font-mono">breadcrumbs</code>, <code class="font-mono">hero</code>,
+        <code class="font-mono">seo</code>, and <code class="font-mono">toc</code>.
+        <code class="font-mono">app.config.ts</code> then overrides
+        <code class="font-mono">authorBox</code> from <code class="font-mono">true</code> to
         <code class="font-mono">false</code>.
       </p>
     </div>
@@ -56,10 +58,10 @@ const { config } = useVariant("article");
         <div
           v-for="[key, value] in Object.entries(config)"
           :key="key"
-          class="flex items-center px-4 py-2.5 hover:bg-muted transition-colors"
+          class="flex items-center px-4 py-2.5 hover:bg-muted transition-colors gap-4"
         >
           <span class="font-mono text-xs text-toned w-48 shrink-0">{{ key }}</span>
-          <span class="font-mono text-xs text-highlighted">{{ value }}</span>
+          <span class="font-mono text-xs text-highlighted break-all">{{ value }}</span>
         </div>
       </div>
     </div>

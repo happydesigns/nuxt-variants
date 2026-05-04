@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   modules: ["../src/module", "@nuxt/content", "@nuxt/ui"],
   devtools: { enabled: true },
-  compatibilityDate: "latest",
+  compatibilityDate: "2026-05-04",
   css: ["~/assets/css/main.css"],
 
   variants: {
@@ -16,9 +16,25 @@ export default defineNuxtConfig({
 
       hero: {
         config: {
-          heroHeight: "md" as const,
+          heroHeight: "md",
           heroOverlay: false,
-          heroAlign: "left" as const,
+          heroAlign: "left",
+        },
+      },
+
+      toc: {
+        config: {
+          tocMaxDepth: 2,
+          tocSticky: false,
+          tocTitle: "On this page",
+        },
+      },
+
+      sidebar: {
+        config: {
+          sidebarPosition: "right",
+          sidebarWidth: 260,
+          sidebarCollapsible: false,
         },
       },
 
@@ -29,10 +45,10 @@ export default defineNuxtConfig({
       },
 
       article: {
-        extends: ["breadcrumbs", "hero", "seo"],
+        extends: ["breadcrumbs", "hero", "seo", "toc"],
         config: {
-          heroHeight: "sm" as const,
-          heroAlign: "left" as const,
+          heroHeight: "sm",
+          heroAlign: "left",
           authorBox: true,
         },
       },
@@ -40,19 +56,19 @@ export default defineNuxtConfig({
       event: {
         extends: ["breadcrumbs", "hero"],
         config: {
-          heroHeight: "lg" as const,
+          heroHeight: "lg",
           heroOverlay: true,
-          heroAlign: "center" as const,
+          heroAlign: "center",
         },
       },
 
       landing: {
         extends: ["hero", "sidebar"],
         config: {
-          heroHeight: "xl" as const,
+          heroHeight: "xl",
           heroOverlay: true,
-          heroAlign: "center" as const,
-          sidebarPosition: "left" as const,
+          heroAlign: "center",
+          sidebarPosition: "left",
           sidebarCollapsible: true,
         },
       },

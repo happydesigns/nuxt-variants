@@ -13,15 +13,8 @@ const { config } = useVariant("event");
         <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default"
           >useVariant('event')</code
         >
-        with a literal string. TypeScript infers the merged type across
-        <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default"
-          >breadcrumbs</code
-        >
-        and
-        <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default"
-          >hero</code
-        >
-        — no cast needed.
+        with a literal string. The route inherits breadcrumbs and hero defaults, then overrides the
+        hero height, alignment, and overlay for a campaign-style page.
       </p>
     </div>
 
@@ -33,10 +26,10 @@ const { config } = useVariant("event");
         <div
           v-for="[key, value] in Object.entries(config)"
           :key="key"
-          class="flex items-center px-4 py-2.5 hover:bg-muted transition-colors"
+          class="flex items-center px-4 py-2.5 hover:bg-muted transition-colors gap-4"
         >
           <span class="font-mono text-xs text-toned w-48 shrink-0">{{ key }}</span>
-          <span class="font-mono text-xs text-highlighted">{{ value }}</span>
+          <span class="font-mono text-xs text-highlighted break-all">{{ value }}</span>
         </div>
       </div>
     </div>
