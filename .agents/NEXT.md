@@ -20,6 +20,9 @@ Completed on this branch:
 - Variant diagnostics for unknown parents, circular inheritance, and replaced
   `extends` chains.
 - `active: false` semantics for resolved config and feature checks.
+- The docs Nuxt config clears invalid Vite dependency pre-bundle includes from
+  inherited MDC modules, which keeps local Docus startup logs focused on real
+  issues.
 - A Nuxt DevTools inspector served from a root Nuxt `client/` iframe app. The
   client uses `@nuxt/devtools-kit/iframe-client`, `@nuxt/devtools-ui-kit`, and
   split Vue components for variants, inheritance, config layers, resolved
