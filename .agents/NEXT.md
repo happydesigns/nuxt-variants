@@ -22,8 +22,8 @@ Completed on this branch:
 - `active: false` semantics for resolved config and feature checks.
 - Module option typing now accepts the documented `active: false` registry
   entry shape.
-- CI now pins pnpm 9.15.4 through `packageManager` so GitHub Actions on
-  Node 20 does not resolve pnpm 11.
+- CI now runs on Node 22.13 and pins pnpm 11.0.9 through `packageManager` so
+  GitHub Actions uses the current package-manager/runtime pairing.
 - The docs Nuxt config clears invalid Vite dependency pre-bundle includes from
   inherited MDC modules, which keeps local Docus startup logs focused on real
   issues.
