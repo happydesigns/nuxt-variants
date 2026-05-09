@@ -1,4 +1,5 @@
 import { describe, it, expectTypeOf } from "vitest";
+import type { ModuleOptions } from "../src/module";
 
 type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (
   x: infer I,
@@ -37,5 +38,21 @@ describe("AnyVariantConfig (string / unknown key fallback type)", () => {
     type EmptyConfig = AnyVariantConfigFor<EmptyRegistry>;
 
     expectTypeOf<EmptyConfig>().toEqualTypeOf<Record<string, unknown>>();
+  });
+});
+
+describe("ModuleOptions registry entry contract", () => {
+  type RegistryEntryInput = ModuleOptions["registry"][string];
+
+  it("accepts the documented active flag on full entries", () => {
+    expectTypeOf<{
+      active: false;
+      extends: ["seo"];
+      config: { hidden: true };
+    }>().toMatchTypeOf<RegistryEntryInput>();
+  });
+
+  it("keeps array shorthand entries accepted", () => {
+    expectTypeOf<["seo", "hero"]>().toMatchTypeOf<RegistryEntryInput>();
   });
 });

@@ -12,9 +12,35 @@ Adaptive Teamflow.
 
 ## Current Next Step
 
-Review the documentation scaffold and decide whether to plan module or
-playground changes. Do not change module behavior until the operator approves a
-high-level plan.
+Review the `codex/explore-module-improvements` PR and decide whether to merge
+or request follow-up changes.
+
+Completed on this branch:
+
+- Variant diagnostics for unknown parents, circular inheritance, and replaced
+  `extends` chains.
+- `active: false` semantics for resolved config and feature checks.
+- Module option typing now accepts the documented `active: false` registry
+  entry shape.
+- CI now runs on Node 22.13 and pins pnpm 11.0.9 through `packageManager` so
+  GitHub Actions uses the current package-manager/runtime pairing.
+- The docs Nuxt config clears invalid Vite dependency pre-bundle includes from
+  inherited MDC modules, which keeps local Docus startup logs focused on real
+  issues.
+- A Nuxt DevTools inspector served from a root Nuxt `client/` iframe app. The
+  client uses `@nuxt/devtools-kit/iframe-client`, `@nuxt/devtools-ui-kit`, and
+  split Vue components for variants, inheritance, config layers, resolved
+  config, active features, and diagnostics. The sidebar is the only variant
+  selector. The main panel focuses on a dynamic selected-variant summary, clear
+  inheritance and feature sections, highlighted JSON config inspection, and
+  validation issues only when issues exist. The inspector shows one composition
+  view because feature checks resolve from the `extends` chain plus the selected
+  variant itself.
+
+Recommended next track after PR review: plan any further module features at a
+high level before implementation. Good candidates are typed authoring helpers
+for registry definitions or stronger validation ergonomics, but treat them as
+public-contract work that needs operator approval before code changes.
 
 ## Prompt For Next Chat
 

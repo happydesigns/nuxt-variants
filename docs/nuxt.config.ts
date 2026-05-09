@@ -4,4 +4,9 @@ export default defineNuxtConfig({
   site: {
     name: "Nuxt Variants",
   },
+  vite: {
+    optimizeDeps: {
+      include: [],
+    },
+  },
 });

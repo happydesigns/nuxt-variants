@@ -1,19 +1,15 @@
 import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from "vue";
 import { useRuntimeConfig, useAppConfig } from "#app";
-import { defuReplaceArray } from "../utils/merge";
+import {
+  resolveVariantConfig,
+  variantHasFeature,
+  type VariantRegistryEntry,
+  type VariantRegistry,
+} from "../utils/variants";
 import type { CustomVariantRegistry } from "#nuxt-variants";
 
 export type { CustomVariantRegistry };
-
-/**
- * Describes a single variant entry in the registry.
- * @template T The shape of the configuration object this variant produces.
- */
-export interface VariantDefinition<T> {
-  extends?: string | string[];
-  active?: boolean;
-  config: Partial<T>;
-}
+export type VariantDefinition<T = unknown> = VariantRegistryEntry<T>;
 
 type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (
   x: infer I,
@@ -66,81 +62,22 @@ export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<unk
 
   function getRegistries() {
     const configKey = runtimeConfig.public.variantsConfigKey as string;
-    const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as Record<
-      string,
-      VariantDefinition<unknown>
-    >;
-    const overrideRegistry = ((appConfig as Record<string, unknown>)[configKey] ?? {}) as Record<
-      string,
-      VariantDefinition<unknown>
-    >;
+    const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as VariantRegistry;
+    const overrideRegistry = ((appConfig as Record<string, unknown>)[configKey] ??
+      {}) as VariantRegistry;
     return { baseRegistry, overrideRegistry };
-  }
-
-  function resolve(
-    variantName: string,
-    baseRegistry: Record<string, VariantDefinition<unknown>>,
-    overrideRegistry: Record<string, VariantDefinition<unknown>>,
-    visited: Set<string>,
-  ): Record<string, unknown> {
-    if (visited.has(variantName)) return {};
-    visited.add(variantName);
-
-    const baseEntry = baseRegistry[variantName];
-    const overrideEntry = overrideRegistry[variantName];
-
-    if (!baseEntry && !overrideEntry) return {};
-
-    const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
-    if (isActive === false) return {};
-
-    const extendsFrom = overrideEntry?.extends ?? baseEntry?.extends;
-    const parentNames =
-      extendsFrom === undefined ? [] : Array.isArray(extendsFrom) ? extendsFrom : [extendsFrom];
-
-    const resolvedParents = parentNames.reduceRight<Record<string, unknown>>(
-      (acc, parentName) =>
-        defuReplaceArray(
-          acc,
-          resolve(parentName, baseRegistry, overrideRegistry, new Set(visited)),
-        ),
-      {},
-    );
-
-    const mergedConfig = defuReplaceArray(
-      {},
-      (overrideEntry?.config ?? {}) as Record<string, unknown>,
-      (baseEntry?.config ?? {}) as Record<string, unknown>,
-    );
-
-    return defuReplaceArray({}, mergedConfig, resolvedParents);
   }
 
   const config = computed(() => {
     const { baseRegistry, overrideRegistry } = getRegistries();
-    return resolve(toValue(name) as string, baseRegistry, overrideRegistry, new Set()) as unknown;
+    return resolveVariantConfig(toValue(name) as string, baseRegistry, overrideRegistry) as unknown;
   });
 
   function has(featureName: MaybeRefOrGetter<string>): ComputedRef<boolean> {
     return computed(() => {
       const { baseRegistry, overrideRegistry } = getRegistries();
       const target = toValue(featureName);
-
-      function check(variantName: string, visited: Set<string>): boolean {
-        if (variantName === target) return true;
-        if (visited.has(variantName)) return false;
-        visited.add(variantName);
-
-        const baseEntry = baseRegistry[variantName];
-        const overrideEntry = overrideRegistry[variantName];
-        const extendsFrom = overrideEntry?.extends ?? baseEntry?.extends;
-        const parents =
-          extendsFrom === undefined ? [] : Array.isArray(extendsFrom) ? extendsFrom : [extendsFrom];
-
-        return parents.some((parent) => check(parent, new Set(visited)));
-      }
-
-      return check(toValue(name) as string, new Set());
+      return variantHasFeature(toValue(name) as string, target, baseRegistry, overrideRegistry);
     });
   }
 

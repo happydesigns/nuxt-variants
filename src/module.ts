@@ -5,25 +5,35 @@ import {
   addImportsDir,
   addTypeTemplate,
   addTemplate,
+  addServerHandler,
   createResolver,
 } from "@nuxt/kit";
+import { addCustomTab } from "@nuxt/devtools-kit";
+import { collectVariantDiagnostics } from "./runtime/utils/diagnostics";
+import {
+  listVariantEntries,
+  resolveVariantConfig,
+  variantHasFeature,
+  type VariantRegistry,
+} from "./runtime/utils/variants";
 
 /** A single variant entry as it appears in either the base registry or appConfig overrides. */
 interface VariantEntry {
   extends?: string | string[];
+  active?: boolean;
   config?: Record<string, unknown>;
   [key: string]: unknown;
 }
 
 /**
  * A registry entry. Can be:
- * - A full entry object: `{ extends?: string | string[]; config?: {...} }`
+ * - A full entry object: `{ extends?: string | string[]; active?: boolean; config?: {...} }`
  * - An array of strings — shorthand for `{ extends: [...] }` with no config
  * - An empty object `{}` — feature with no config and no extends
  */
 type RegistryEntryInput =
   | string[]
-  | { extends?: string | string[]; config?: Record<string, unknown> };
+  | { extends?: string | string[]; active?: boolean; config?: Record<string, unknown> };
 
 export interface ModuleOptions {
   registry: Record<string, RegistryEntryInput>;
@@ -74,6 +84,56 @@ export default defineNuxtModule<ModuleOptions>({
           : Array.isArray(extendsValue)
             ? extendsValue
             : [extendsValue];
+    }
+
+    const diagnostics = collectVariantDiagnostics(
+      baseRegistry as VariantRegistry,
+      appRegistry as VariantRegistry,
+    );
+    const devtoolsEnabled = nuxt.options.dev || process.env.NODE_ENV === "test";
+    const sourceClientPath = resolver.resolve("../client/.output/public");
+    const builtClientPath = resolver.resolve("./client");
+    const devtoolsClientPath = existsSync(join(sourceClientPath, "index.html"))
+      ? sourceClientPath
+      : builtClientPath;
+
+    for (const diagnostic of diagnostics) {
+      // The diagnostics are also emitted as virtual-module data below so tooling can render them.
+      console.warn(`[nuxt-variants] ${diagnostic.message}`);
+    }
+
+    if (devtoolsEnabled) {
+      const variantEntries = listVariantEntries(
+        baseRegistry as VariantRegistry,
+        appRegistry as VariantRegistry,
+      );
+      const devtoolsData = {
+        configKey: options.configKey,
+        variants: variantEntries.map((entry) => ({
+          ...entry,
+          base: baseRegistry[entry.name] ?? null,
+          app: appRegistry[entry.name] ?? null,
+          resolvedConfig: resolveVariantConfig(
+            entry.name,
+            baseRegistry as VariantRegistry,
+            appRegistry as VariantRegistry,
+          ),
+          activeFeatures: [...allRegistryKeys].filter((feature) =>
+            variantHasFeature(
+              entry.name,
+              feature,
+              baseRegistry as VariantRegistry,
+              appRegistry as VariantRegistry,
+            ),
+          ),
+        })),
+        graph: variantGraph,
+        diagnostics,
+      };
+      Object.assign(nuxt.options.runtimeConfig, {
+        variantDevtoolsData: devtoolsData,
+        variantDevtoolsClientPath: devtoolsClientPath,
+      });
     }
 
     /** Converts a JS config object into a TypeScript type literal string (widened to primitives). */
@@ -163,26 +223,28 @@ export default defineNuxtModule<ModuleOptions>({
             const configShape = serializeConfigShape(
               ((entry as VariantEntry).config as Record<string, unknown>) ?? {},
             );
-            return `  ${key}: { config: ${configShape} }`;
+            return `  ${JSON.stringify(key)}: { config: ${configShape} }`;
           })
           .join("\n");
 
-        const registryKeys = Object.keys(baseRegistry);
+        const registryKeys = [...allRegistryKeys];
         const entries = registryKeys
           .map((key) => {
             // Include configs from self + all transitive ancestors so that
             // useVariant('article') returns a type that includes inherited properties.
             const chain = getAncestors(key);
             const configType = chain
-              .map((k) => {
+              .map((k, index) => {
                 // Use `infer` pattern rather than `extends keyof` — TypeScript reliably
                 // evaluates infer-based conditionals even when the base type is itself
                 // a conditional type, whereas `K extends keyof ConditionalType` can
                 // fail to resolve and fall to the else branch (producing never).
-                return `_VariantConfig<_AppVariants extends { ${k}: infer _E${k} } ? _E${k} : _RegistryVariants extends { ${k}: infer _E${k} } ? _E${k} : never>`;
+                const prop = JSON.stringify(k);
+                return `_VariantConfig<_RegistryVariants extends Record<${prop}, infer _R${index}> ? _R${index} : never>
+    & _VariantConfig<_AppVariants extends Record<${prop}, infer _A${index}> ? _A${index} : never>`;
               })
               .join("\n    & ");
-            return `  ${key}: ${configType}`;
+            return `  ${JSON.stringify(key)}: ${configType}`;
           })
           .join("\n");
 
@@ -194,15 +256,25 @@ declare global {
   const defineAppConfig: <C extends AppConfigInput>(config: C) => C
 }
 
-type _VariantConfig<T> = T extends { config?: infer C } ? NonNullable<C> : {}
 type _AppVariants = ${appVariantsType}
 type _RegistryVariants = {
 ${registryVariantsEntries}
 }
 
-export interface CustomVariantRegistry {
+type _VariantConfig<T> = [T] extends [never] ? {} : T extends { config?: infer C } ? NonNullable<C> : {}
+type _AppVariantConfig<K extends keyof _AppVariants> = _VariantConfig<
+  _AppVariants extends Record<K, infer _A> ? _A : never
+>
+
+type _GeneratedVariantRegistry = {
 ${entries}
 }
+
+type _AppOnlyVariantRegistry = {
+  [K in Exclude<keyof _AppVariants, keyof _GeneratedVariantRegistry>]: _AppVariantConfig<K>
+}
+
+export type CustomVariantRegistry = _GeneratedVariantRegistry & _AppOnlyVariantRegistry
 
 /** The resolved (merged) config type for a variant key. */
 export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<CustomVariantRegistry[K]>
@@ -224,8 +296,17 @@ declare module 'vue-router' {
 
     const graphMjsPath = join(nuxt.options.buildDir, "variants-graph.mjs");
     const graphDmtsPath = join(nuxt.options.buildDir, "variants-graph.d.mts");
-    const graphContent = `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};\n`;
-    const graphDtsContent = `export declare const variantGraph: Record<string, string[]>;\n`;
+    const graphContent = [
+      `export const variantGraph = ${JSON.stringify(variantGraph, null, 2)};`,
+      `export const variantDiagnostics = ${JSON.stringify(diagnostics, null, 2)};`,
+      "",
+    ].join("\n");
+    const graphDtsContent = [
+      `export interface VariantDiagnostic { code: "unknown-parent" | "circular-extends" | "override-extends"; severity: "warning"; variant: string; parent?: string; path?: string[]; message: string }`,
+      `export declare const variantGraph: Record<string, string[]>;`,
+      `export declare const variantDiagnostics: VariantDiagnostic[];`,
+      "",
+    ].join("\n");
 
     const schemasMjsPath = join(nuxt.options.buildDir, "variants-schemas.mjs");
     const schemasDmtsPath = join(nuxt.options.buildDir, "variants-schemas.d.mts");
@@ -271,6 +352,35 @@ declare module 'vue-router' {
       references.push({ path: graphDmtsPath });
       references.push({ path: schemasDmtsPath });
     });
+
+    if (devtoolsEnabled) {
+      addServerHandler({
+        route: "/__nuxt-variants/devtools",
+        handler: resolver.resolve("./runtime/server/devtools.get"),
+      });
+      addServerHandler({
+        route: "/__nuxt-variants/devtools/data.json",
+        handler: resolver.resolve("./runtime/server/devtools-data.get"),
+      });
+      addServerHandler({
+        route: "/__nuxt-variants/devtools/**",
+        handler: resolver.resolve("./runtime/server/devtools.get"),
+      });
+
+      addCustomTab(
+        {
+          name: "nuxt-variants",
+          title: "Nuxt Variants",
+          icon: "i-lucide-git-branch",
+          category: "app",
+          view: {
+            type: "iframe",
+            src: "/__nuxt-variants/devtools",
+          },
+        },
+        nuxt,
+      );
+    }
 
     addImportsDir(resolver.resolve("./runtime/composables"));
     addImportsDir(resolver.resolve("./runtime/utils"));

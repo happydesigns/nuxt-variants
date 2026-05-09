@@ -2,8 +2,16 @@ import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
 import { setup, $fetch } from "@nuxt/test-utils/e2e";
 
+function fetchText(path: string): Promise<string> {
+  return $fetch(path) as Promise<string>;
+}
+
+async function fetchJson<T>(path: string): Promise<T> {
+  return (await $fetch(path)) as T;
+}
+
 function extractJson(html: string, id: string): unknown {
-  const match = html.match(new RegExp(`id="${id}">([\\s\\S]*?)<\\/`));
+  const match = html.match(new RegExp(`id="${id}"[^>]*>([\\s\\S]*?)<\\/`));
   if (!match) throw new Error(`Element #${id} not found in HTML`);
   const decoded = match[1]!
     .trim()
@@ -22,7 +30,7 @@ describe("nuxt-variants e2e", async () => {
 
   describe("useVariant() config resolution", () => {
     it("returns own config for a base feature variant", async () => {
-      const html = await $fetch<string>("/variant/seo");
+      const html = await fetchText("/variant/seo");
       expect(extractJson(html, "config")).toEqual({
         indexed: true,
         seoScore: 90,
@@ -30,7 +38,7 @@ describe("nuxt-variants e2e", async () => {
     });
 
     it("merges own config with all inherited ancestor configs", async () => {
-      const html = await $fetch<string>("/variant/article");
+      const html = await fetchText("/variant/article");
       expect(extractJson(html, "config")).toEqual({
         hasDate: false,
         theme: { color: "green", density: "comfortable", tokens: ["article"] },
@@ -44,7 +52,7 @@ describe("nuxt-variants e2e", async () => {
     });
 
     it("app.config override wins over nuxt.config base entry", async () => {
-      const html = await $fetch<string>("/variant/article");
+      const html = await fetchText("/variant/article");
       const config = extractJson(html, "config") as Record<string, unknown>;
       expect(config.hasDate).toBe(false);
       expect(config.theme).toEqual({
@@ -56,7 +64,7 @@ describe("nuxt-variants e2e", async () => {
     });
 
     it("resolves shorthand array registry entry", async () => {
-      const html = await $fetch<string>("/variant/event");
+      const html = await fetchText("/variant/event");
       expect(extractJson(html, "config")).toEqual({
         indexed: true,
         seoScore: 90,
@@ -66,7 +74,7 @@ describe("nuxt-variants e2e", async () => {
     });
 
     it("normalizes string extends input", async () => {
-      const html = await $fetch<string>("/variant/gallery");
+      const html = await fetchText("/variant/gallery");
       expect(extractJson(html, "config")).toEqual({
         layout: "gallery",
         fullscreen: true,
@@ -75,7 +83,7 @@ describe("nuxt-variants e2e", async () => {
     });
 
     it("app.config replaces the extends chain for a base variant", async () => {
-      const html = await $fetch<string>("/variant/editorial");
+      const html = await fetchText("/variant/editorial");
       expect(extractJson(html, "config")).toEqual({
         tone: "app",
         fullscreen: true,
@@ -86,13 +94,13 @@ describe("nuxt-variants e2e", async () => {
     });
 
     it("resolves app.config-only variant not in nuxt.config registry", async () => {
-      const html = await $fetch<string>("/variant/extra");
+      const html = await fetchText("/variant/extra");
       expect(extractJson(html, "config")).toEqual({ custom: 42 });
     });
 
     it("returns empty config for inactive and unknown variants", async () => {
-      const inactive = await $fetch<string>("/variant/inactive");
-      const unknown = await $fetch<string>("/variant/nonexistent");
+      const inactive = await fetchText("/variant/inactive");
+      const unknown = await fetchText("/variant/nonexistent");
       expect(extractJson(inactive, "config")).toEqual({});
       expect(extractJson(unknown, "config")).toEqual({});
     });
@@ -100,25 +108,25 @@ describe("nuxt-variants e2e", async () => {
 
   describe("useVariant() has()", () => {
     it("returns true when the variant is the queried feature itself", async () => {
-      const html = await $fetch<string>("/variant/seo");
+      const html = await fetchText("/variant/seo");
       expect(extractJson(html, "has-seo")).toBe(true);
     });
 
     it("returns false when variant does not extend the queried feature", async () => {
-      const html = await $fetch<string>("/variant/seo");
+      const html = await fetchText("/variant/seo");
       expect(extractJson(html, "has-hero")).toBe(false);
     });
 
     it("detects direct and transitive parents", async () => {
-      const html = await $fetch<string>("/variant/article");
+      const html = await fetchText("/variant/article");
       expect(extractJson(html, "has-seo")).toBe(true);
       expect(extractJson(html, "has-hero")).toBe(true);
       expect(extractJson(html, "has-design")).toBe(true);
     });
 
     it("detects parents from shorthand and string extends entries", async () => {
-      const event = await $fetch<string>("/variant/event");
-      const gallery = await $fetch<string>("/variant/gallery");
+      const event = await fetchText("/variant/event");
+      const gallery = await fetchText("/variant/gallery");
       expect(extractJson(event, "has-seo")).toBe(true);
       expect(extractJson(event, "has-hero")).toBe(true);
       expect(extractJson(gallery, "has-hero")).toBe(true);
@@ -127,7 +135,7 @@ describe("nuxt-variants e2e", async () => {
 
   describe("useVariants()", () => {
     it("lists variants from both nuxt.config registry and app.config", async () => {
-      const html = await $fetch<string>("/variants");
+      const html = await fetchText("/variants");
       const variants = extractJson(html, "variants") as Array<{ name: string }>;
       const names = variants.map((v) => v.name);
 
@@ -145,7 +153,7 @@ describe("nuxt-variants e2e", async () => {
     });
 
     it("normalizes extends arrays and lets app.config replace base extends", async () => {
-      const html = await $fetch<string>("/variants");
+      const html = await fetchText("/variants");
       const variants = extractJson(html, "variants") as Array<{
         name: string;
         extends: string[];
@@ -163,7 +171,7 @@ describe("nuxt-variants e2e", async () => {
     });
 
     it("lists configKeys from both base and app registries", async () => {
-      const html = await $fetch<string>("/variants");
+      const html = await fetchText("/variants");
       const variants = extractJson(html, "variants") as Array<{
         name: string;
         configKeys: string[];
@@ -174,6 +182,33 @@ describe("nuxt-variants e2e", async () => {
       expect(find("article").configKeys).toEqual(["hasDate", "theme", "slots", "collision"]);
       expect(find("editorial").configKeys).toEqual(["tone"]);
       expect(find("extra").configKeys).toEqual(["custom"]);
+    });
+  });
+
+  describe("Nuxt DevTools", () => {
+    it("serves the client app and variant inspector data in dev", async () => {
+      const html = await fetchText("/__nuxt-variants/devtools");
+      expect(html).toContain("<title>Nuxt Variants DevTools</title>");
+      expect(html).toContain('id="__nuxt"');
+      expect(html).toContain('data-nuxt-data="nuxt-app"');
+      expect(html).toContain('baseURL:"/__nuxt-variants/devtools/"');
+
+      const data = await fetchJson<{
+        configKey: string;
+        variants: Array<{ name: string; activeFeatures: string[] }>;
+        diagnostics: unknown[];
+      }>("/__nuxt-variants/devtools/data.json");
+
+      expect(data.configKey).toBe("variants");
+      expect(data.diagnostics).toEqual([]);
+      expect(data.variants.find((variant) => variant.name === "article")).toMatchObject({
+        activeFeatures: ["seo", "hero", "design", "article"],
+      });
+
+      const scriptPath = html.match(/src="([^"]+\/_nuxt\/[^"]+\.js)"/)?.[1];
+      expect(scriptPath).toBeTruthy();
+      const client = await fetchText(scriptPath!);
+      expect(client).toContain("__nuxt");
     });
   });
 });

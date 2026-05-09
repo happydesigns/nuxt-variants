@@ -30,5 +30,11 @@ export default defineAppConfig({
         sidebarCollapsible: true,
       },
     },
+
+    preview: {
+      config: {
+        previewMode: true,
+      },
+    },
   },
 });

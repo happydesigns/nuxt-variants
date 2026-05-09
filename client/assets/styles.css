@@ -1,0 +1,306 @@
+html,
+body,
+#__nuxt {
+  min-height: 100vh;
+}
+
+body {
+  margin: 0;
+  background: rgb(15 17 19);
+}
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(17rem, 19rem) 1fr;
+}
+
+.sidebar {
+  min-height: 100vh;
+  overflow: auto;
+  border-right: 1px solid rgb(46 52 58);
+}
+
+.sidebar-head {
+  padding: 1.25rem;
+  border-bottom: 1px solid rgb(46 52 58);
+}
+
+.sidebar-head h2,
+.title-block h1,
+.panel-head h2,
+.composition-head h2,
+.composition-head p {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.sidebar-head h2 {
+  font-size: 1.125rem;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.sidebar-head p,
+.title-block p,
+.panel-head p,
+.composition-head p,
+.muted {
+  margin: 0;
+  color: rgb(150 158 166);
+}
+
+.sidebar-head p {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+}
+
+.sidebar-health {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgb(46 52 58);
+  color: rgb(134 239 172);
+  font-size: 0.8125rem;
+}
+
+.sidebar-health.has-issues {
+  color: rgb(251 191 36);
+}
+
+.variant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+}
+
+.content {
+  padding: 1.5rem 1.75rem 2rem;
+  display: grid;
+  gap: 1.125rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.main-header {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+}
+
+.title-block {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.title-block h1 {
+  font-size: 1.875rem;
+  line-height: 1.2;
+  font-weight: 750;
+}
+
+.title-block p {
+  max-width: 46rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.header-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.variant-nav {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+}
+
+.variant-nav:hover {
+  border-color: rgb(45 49 48);
+  background: rgb(22 23 23);
+}
+
+.variant-nav.is-active {
+  border-color: rgb(63 70 66);
+  background: rgb(24 25 24);
+}
+
+.variant-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.variant-meta {
+  color: rgb(150 158 166);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.composition-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.composition-head {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.composition-head h2 {
+  color: rgb(210 216 222);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.composition-head p {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.composition-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.composition-label {
+  color: rgb(150 158 166);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.9;
+  text-transform: uppercase;
+}
+
+.panel-head {
+  padding: 1rem;
+  border-bottom: 1px solid rgb(46 52 58);
+}
+
+.panel-head h2 {
+  font-size: 1rem;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.panel-head p {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.panel-body {
+  padding: 1rem;
+}
+
+.issues-panel {
+  border-color: rgb(120 76 0);
+}
+
+.json-code {
+  margin: 0;
+  overflow: auto;
+  border-radius: 6px;
+  background: rgb(11 13 15);
+  color: rgb(226 232 240);
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+.json-code code {
+  display: block;
+  min-width: max-content;
+  padding: 0.875rem 0;
+}
+
+.json-line {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr;
+  min-height: 1.35rem;
+}
+
+.json-line-number {
+  padding-right: 0.75rem;
+  color: rgb(93 104 116);
+  text-align: right;
+  user-select: none;
+}
+
+.json-line-content {
+  padding-right: 1rem;
+  white-space: pre;
+}
+
+.json-key {
+  color: rgb(125 211 252);
+}
+
+.json-string {
+  color: rgb(134 239 172);
+}
+
+.json-number {
+  color: rgb(253 186 116);
+}
+
+.json-boolean {
+  color: rgb(196 181 253);
+}
+
+.json-null {
+  color: rgb(148 163 184);
+}
+
+@media (max-width: 820px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    min-height: auto;
+    border-right: 0;
+    border-bottom: 1px solid rgb(46 52 58);
+  }
+
+  .main-header {
+    padding-top: 0;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .composition-row {
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+}

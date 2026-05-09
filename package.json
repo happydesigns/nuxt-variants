@@ -36,8 +36,9 @@
     "access": "public"
   },
   "scripts": {
-    "prepack": "nuxt-module-build build",
-    "prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt prepare playground",
+    "build:client": "node scripts/build-client.mjs",
+    "prepack": "nuxt-module-build build && pnpm build:client",
+    "prepare": "nuxt-module-build build --stub && pnpm build:client && nuxt-module-build prepare && nuxt prepare playground",
     "dev": "pnpm prepare && nuxt dev playground",
     "dev:build": "nuxt build playground",
     "docs": "pnpm docs:dev",
@@ -46,16 +47,18 @@
     "release": "pnpm lint:check && pnpm typecheck && pnpm test && pnpm prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "oxfmt && oxlint .",
     "lint:check": "oxfmt --check && oxlint .",
-    "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
+    "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit && cd ../client && vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit && cd ../client && vue-tsc --noEmit"
   },
   "dependencies": {
+    "@nuxt/devtools-kit": "3.2.4",
     "@nuxt/kit": "^4.4.2"
   },
   "devDependencies": {
     "@nuxt/devtools": "^3.2.4",
+    "@nuxt/devtools-ui-kit": "3.2.4",
     "@nuxt/module-builder": "^1.0.2",
     "@nuxt/schema": "^4.4.2",
     "@nuxt/test-utils": "^4.0.0",
@@ -72,5 +75,6 @@
     "vitest": "^4.1.2",
     "vue-tsc": "^3.2.6",
     "zod": "^4.3.6"
-  }
+  },
+  "packageManager": "pnpm@11.0.9"
 }
