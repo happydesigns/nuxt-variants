@@ -12,14 +12,16 @@ Adaptive Teamflow.
 
 ## Current Next Step
 
-Review the `codex/explore-module-improvements` branch and decide whether to
-open a PR or continue with the next improvement track.
+Review the `codex/explore-module-improvements` PR and decide whether to merge
+or request follow-up changes.
 
 Completed on this branch:
 
 - Variant diagnostics for unknown parents, circular inheritance, and replaced
   `extends` chains.
 - `active: false` semantics for resolved config and feature checks.
+- Module option typing now accepts the documented `active: false` registry
+  entry shape.
 - The docs Nuxt config clears invalid Vite dependency pre-bundle includes from
   inherited MDC modules, which keeps local Docus startup logs focused on real
   issues.
@@ -33,10 +35,10 @@ Completed on this branch:
   view because feature checks resolve from the `extends` chain plus the selected
   variant itself.
 
-Recommended next track: plan any further module features at a high level before
-implementation. Good candidates are typed authoring helpers for registry
-definitions or stronger validation ergonomics, but treat them as public-contract
-work that needs operator approval before code changes.
+Recommended next track after PR review: plan any further module features at a
+high level before implementation. Good candidates are typed authoring helpers
+for registry definitions or stronger validation ergonomics, but treat them as
+public-contract work that needs operator approval before code changes.
 
 ## Prompt For Next Chat
 

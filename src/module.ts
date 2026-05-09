@@ -20,19 +20,20 @@ import {
 /** A single variant entry as it appears in either the base registry or appConfig overrides. */
 interface VariantEntry {
   extends?: string | string[];
+  active?: boolean;
   config?: Record<string, unknown>;
   [key: string]: unknown;
 }
 
 /**
  * A registry entry. Can be:
- * - A full entry object: `{ extends?: string | string[]; config?: {...} }`
+ * - A full entry object: `{ extends?: string | string[]; active?: boolean; config?: {...} }`
  * - An array of strings — shorthand for `{ extends: [...] }` with no config
  * - An empty object `{}` — feature with no config and no extends
  */
 type RegistryEntryInput =
   | string[]
-  | { extends?: string | string[]; config?: Record<string, unknown> };
+  | { extends?: string | string[]; active?: boolean; config?: Record<string, unknown> };
 
 export interface ModuleOptions {
   registry: Record<string, RegistryEntryInput>;
