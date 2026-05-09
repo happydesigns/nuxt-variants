@@ -1,14 +1,21 @@
 ---
 title: Nuxt Variants
-description: Centralized, deeply merged layout variant configuration for Nuxt applications.
+description: Build one shared Nuxt layout and drive page-specific behavior from a typed variant graph.
 ---
 
 ::u-page-hero
+---
+ui:
+  container: py-14 sm:py-16 lg:py-20 gap-8
+  title: text-4xl sm:text-6xl lg:text-7xl text-pretty tracking-tight font-bold text-highlighted
+  description: text-base sm:text-lg/8 text-muted max-w-3xl mx-auto
+  footer: mt-8
+---
 #title
-Nuxt Variants
+One Nuxt layout. Many page shapes.
 
 #description
-Compose named feature configs, resolve deeply merged layout behavior, and keep content schema fields aligned with the same variant graph.
+Nuxt Variants keeps layout capabilities in a flat registry, composes them with `extends`, and gives your pages a deeply merged config that can also drive Nuxt Content schemas and DevTools inspection.
 
 #links
   :::u-button
@@ -24,16 +31,20 @@ Compose named feature configs, resolve deeply merged layout behavior, and keep c
   :::u-button
   ---
   color: neutral
-  icon: i-lucide-code
+  icon: i-lucide-layout-template
   size: xl
-  to: /docs/api
+  to: /docs/examples
   variant: outline
   ---
-  API reference
+  See examples
   :::
 ::
 
 ::u-page-section
+---
+title: For content sites where layouts should not multiply
+description: Share the structure once, then let each route select the capabilities it needs.
+---
   :::u-page-grid
     ::::u-page-card
     ---
@@ -41,10 +52,10 @@ Compose named feature configs, resolve deeply merged layout behavior, and keep c
     to: /docs/concepts
     ---
     #title
-    Feature composition
+    Compose features
 
     #description
-    Split layout capabilities into reusable feature entries, then compose page variants with `extends`.
+    Model reusable capabilities like breadcrumbs, hero, SEO, sidebar, or table of contents as registry entries.
     ::::
 
     ::::u-page-card
@@ -53,22 +64,10 @@ Compose named feature configs, resolve deeply merged layout behavior, and keep c
     to: /docs/api
     ---
     #title
-    Runtime resolution
+    Resolve behavior
 
     #description
-    Read merged variant config with `useVariant` and check inherited feature presence with `has`.
-    ::::
-
-    ::::u-page-card
-    ---
-    icon: i-lucide-monitor-cog
-    to: /docs/concepts#devtools-inspector
-    ---
-    #title
-    DevTools inspector
-
-    #description
-    Inspect variants, inherited features, config layers, resolved output, and diagnostics in Nuxt DevTools.
+    Call `useVariant` in one layout to receive merged config and feature checks for the current page.
     ::::
 
     ::::u-page-card
@@ -77,31 +76,122 @@ Compose named feature configs, resolve deeply merged layout behavior, and keep c
     to: /docs/content-schemas
     ---
     #title
-    Content schemas
+    Reuse the graph
 
     #description
-    Merge Zod or Valibot schemas through the same graph that drives layout behavior.
+    Merge Zod or Valibot schemas through the same inheritance graph that controls the layout.
     ::::
   :::
 ::
 
 ::u-page-section
 ---
-title: Why Nuxt Variants?
-description: Nuxt layouts are good at sharing structure, but content-heavy sites often need pages to switch individual capabilities on and off without duplicating entire layouts.
+title: See the graph resolve
+description: The registry defines reusable feature defaults, pages select a named variant, and the layout consumes one resolved result.
 ---
-  :::u-page-grid
-    ::::u-page-card
-    ---
-    icon: i-lucide-panels-top-left
-    ---
-    #title
-    One layout, many page shapes
+  :::landing-showcase
+    ::::code-tree{default-value="nuxt.config.ts"}
+    ```ts [nuxt.config.ts]
+    export default defineNuxtConfig({
+      modules: ["@happydesigns/nuxt-variants"],
+      variants: {
+        registry: {
+          breadcrumbs: {
+            config: {
+              breadcrumbSeparator: " / ",
+              breadcrumbShowHome: true,
+            },
+          },
+          hero: {
+            config: {
+              heroHeight: "md",
+              heroAlign: "left",
+              heroOverlay: false,
+            },
+          },
+          seo: {
+            config: {
+              titleTemplate: "%s - Guides",
+            },
+          },
+          toc: {
+            config: {
+              toc: "right",
+            },
+          },
+          article: {
+            extends: ["breadcrumbs", "hero", "seo", "toc"],
+            config: {
+              heroHeight: "sm",
+              authorBox: true,
+            },
+          },
+        },
+      },
+    });
+    ```
 
-    #description
-    Model article, landing, event, and product page behavior through config instead of creating a layout for every combination.
+    ```ts [app.config.ts]
+    export default defineAppConfig({
+      variants: {
+        article: {
+          config: {
+            heroAlign: "center",
+            relatedLimit: 4,
+          },
+        },
+      },
+    });
+    ```
+
+    ```vue [pages/blog/article.vue]
+    <script setup lang="ts">
+    definePageMeta({
+      layout: "content",
+      variant: "article",
+    });
+    </script>
+    ```
+
+    ```vue [layouts/content.vue]
+    <script setup lang="ts">
+    const route = useRoute();
+    const variantName = computed(() => route.meta.variant ?? "article");
+
+    const { config, has } = useVariant(variantName);
+    const showBreadcrumbs = has("breadcrumbs");
+    const showToc = has("toc");
+    </script>
+
+    <template>
+      <BreadcrumbBar
+        v-if="showBreadcrumbs"
+        :separator="config.breadcrumbSeparator"
+      />
+
+      <HeroSection
+        :align="config.heroAlign"
+        :height="config.heroHeight"
+        :overlay="config.heroOverlay"
+      />
+
+      <ArticleToc v-if="showToc" />
+      <slot />
+    </template>
+    ```
     ::::
 
+    ::::variant-flow-demo
+    ::::
+  :::
+::
+
+::u-page-section
+---
+title: Built for the parts that usually drift
+description: "Nuxt Variants is deliberately small: it owns layout behavior configuration and leaves rendering, styling, and content authoring to Nuxt."
+---
+  :::u-page-grid
     ::::u-page-card
     ---
     icon: i-lucide-sliders-horizontal
@@ -110,18 +200,75 @@ description: Nuxt layouts are good at sharing structure, but content-heavy sites
     Runtime overrides
 
     #description
-    Let `app.config` override build-time defaults for editorial tuning without changing the module registry.
+    Let `app.config.ts` tune values without duplicating layout files or changing the original registry.
     ::::
 
     ::::u-page-card
     ---
     icon: i-lucide-braces
+    to: /docs/typescript
     ---
     #title
-    Typed helpers
+    Generated types
 
     #description
-    Use generated variant types and virtual modules so layouts can consume config with predictable TypeScript support.
+    Use generated variant config types and optional module augmentation when you need narrower literal unions.
+    ::::
+
+    ::::u-page-card
+    ---
+    icon: i-lucide-monitor-cog
+    to: /docs/concepts#devtools-inspector
+    ---
+    #title
+    Transparent debugging
+
+    #description
+    Inspect variants, inheritance, active features, config layers, resolved output, and diagnostics in Nuxt DevTools.
+    ::::
+  :::
+::
+
+::u-page-section
+---
+title: Start with the right guide
+description: Pick the entry point that matches what you need to understand next.
+---
+  :::u-page-grid
+    ::::u-page-card
+    ---
+    icon: i-lucide-rocket
+    to: /docs/getting-started
+    ---
+    #title
+    Install and define a registry
+
+    #description
+    Add the module, create your first feature entries, and resolve a variant in a layout.
+    ::::
+
+    ::::u-page-card
+    ---
+    icon: i-lucide-book-open
+    to: /docs/concepts
+    ---
+    #title
+    Understand the model
+
+    #description
+    Learn how feature entries, page variants, inheritance, merge order, and diagnostics fit together.
+    ::::
+
+    ::::u-page-card
+    ---
+    icon: i-lucide-code-xml
+    to: /docs/api
+    ---
+    #title
+    Check the API
+
+    #description
+    Reference module options, composables, virtual modules, schema helpers, and DevTools behavior.
     ::::
   :::
 ::

@@ -12,35 +12,26 @@ Adaptive Teamflow.
 
 ## Current Next Step
 
-Review the `codex/explore-module-improvements` PR and decide whether to merge
-or request follow-up changes.
+Review the `codex/docs-landing-page-polish` branch and decide whether to open a
+PR, request copy/design follow-up, or merge it.
 
 Completed on this branch:
 
-- Variant diagnostics for unknown parents, circular inheritance, and replaced
-  `extends` chains.
-- `active: false` semantics for resolved config and feature checks.
-- Module option typing now accepts the documented `active: false` registry
-  entry shape.
-- CI now runs on Node 22.13 and pins pnpm 11.0.9 through `packageManager` so
-  GitHub Actions uses the current package-manager/runtime pairing.
-- The docs Nuxt config clears invalid Vite dependency pre-bundle includes from
-  inherited MDC modules, which keeps local Docus startup logs focused on real
-  issues.
-- A Nuxt DevTools inspector served from a root Nuxt `client/` iframe app. The
-  client uses `@nuxt/devtools-kit/iframe-client`, `@nuxt/devtools-ui-kit`, and
-  split Vue components for variants, inheritance, config layers, resolved
-  config, active features, and diagnostics. The sidebar is the only variant
-  selector. The main panel focuses on a dynamic selected-variant summary, clear
-  inheritance and feature sections, highlighted JSON config inspection, and
-  validation issues only when issues exist. The inspector shows one composition
-  view because feature checks resolve from the `extends` chain plus the selected
-  variant itself.
+- Reworked the Docus landing page around the core product promise: one shared
+  Nuxt layout, many page shapes.
+- Used Docus/Nuxt UI landing primitives (`UPageHero`, `UPageSection`,
+  `UPageGrid`, `UPageCard`) with tighter hero spacing so the first viewport
+  leads into the next section.
+- Added a CodeTree-based example that shows a valid registry, page meta, layout
+  consumption, and runtime `app.config.ts` overrides without changing the
+  inheritance chain.
+- Added a small interactive resolver preview component for switching between
+  article, landing, and event variants.
+- Added a lightweight content wrapper component so the CodeTree and resolver
+  preview sit side by side on desktop and stack naturally on smaller screens.
 
-Recommended next track after PR review: plan any further module features at a
-high level before implementation. Good candidates are typed authoring helpers
-for registry definitions or stronger validation ergonomics, but treat them as
-public-contract work that needs operator approval before code changes.
+Recommended next track: visual review the docs landing page at
+`http://localhost:3102/`, then open a PR when the page direction is approved.
 
 ## Prompt For Next Chat
 
@@ -65,6 +56,7 @@ Coordinate the next workflow step from .agents/NEXT.md.
 
 Rules:
 - The module is already working; do not change runtime behavior without first writing a high-level plan and getting operator approval.
+- The current branch is docs-only landing page polish. Keep any follow-up scoped to docs/content or docs app components unless the operator explicitly approves broader changes.
 - Use Adaptive Teamflow unless .agents/NEXT.md or the operator selects another mode.
 - Classify each task with the risk classifier before delegation; if unclear, choose the higher-risk path.
 - Use fresh role-specific contexts for Implementer, Reviewer, Integrator, Planner, or Architect work when available.
