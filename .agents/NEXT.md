@@ -24,6 +24,8 @@ Completed on this branch:
 - Added a Docus `ProseCodeTree` workbench through its structured `items` API so
   the landing page uses the official CodeTree component without reintroducing
   the previous slot warning.
+- Kept the CodeTree on its default three-column layout so the file tree and
+  code pane stay aligned with the standard component behavior.
 - Added a combined CodeTree and variant resolver demo for article, landing, and
   event variants.
 - Replaced more hand-rolled landing sections with Nuxt UI primitives such as

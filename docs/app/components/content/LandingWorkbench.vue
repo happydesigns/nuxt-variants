@@ -234,7 +234,7 @@ const codeTreeItems = codeFiles.map((file) => ({
         default-value="nuxt.config.ts"
         expand-all
         :ui="{
-          root: 'my-0 min-h-[480px] rounded-none border-0 lg:h-[520px] lg:grid-cols-[220px_minmax(0,1fr)]',
+          root: 'my-0 min-h-[480px] rounded-none border-0 lg:h-[520px]',
           list: 'bg-muted/30',
           content:
             'bg-elevated/40 lg:border-r border-default [&>div]:overflow-y-auto [&>div>div]:border-0',
