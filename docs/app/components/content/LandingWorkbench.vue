@@ -227,21 +227,21 @@ const codeTreeItems = codeFiles.map((file) => ({
       </div>
     </div>
 
-    <div class="grid lg:grid-cols-[minmax(0,1fr)_360px]">
+    <div class="grid items-stretch lg:grid-cols-[minmax(0,1fr)_360px]">
       <ProseCodeTree
         v-model="selectedFileName"
         :items="codeTreeItems"
         default-value="nuxt.config.ts"
         expand-all
         :ui="{
-          root: 'my-0 min-h-[480px] rounded-none border-0 lg:h-[520px]',
+          root: 'my-0 h-full min-h-[480px] rounded-none border-0 lg:h-full',
           list: 'bg-muted/30',
           content:
             'bg-elevated/40 lg:border-r border-default [&>div]:overflow-y-auto [&>div>div]:border-0',
         }"
       />
 
-      <section class="bg-default p-4 lg:min-h-[520px]">
+      <section class="h-full bg-default p-4">
         <div class="mb-4">
           <p class="text-xs font-medium uppercase tracking-wide text-primary">Resolved page</p>
           <h3 class="mt-1 text-xl font-semibold text-highlighted">{{ selectedVariant.label }}</h3>

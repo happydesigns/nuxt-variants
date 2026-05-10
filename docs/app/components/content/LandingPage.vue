@@ -3,18 +3,31 @@ const outcomes = [
   {
     icon: "i-lucide-route",
     title: "Pages choose a name",
-    description: "Route meta selects `article`, `landing`, `event`, or any variant your app owns.",
+    description: [
+      "Route meta selects ",
+      { code: "article" },
+      ", ",
+      { code: "landing" },
+      ", ",
+      { code: "event" },
+      ", or any variant your app owns.",
+    ],
   },
   {
     icon: "i-lucide-git-merge",
     title: "The graph composes features",
-    description:
-      "`extends` pulls in breadcrumbs, hero, SEO, sidebar, schemas, and local overrides.",
+    description: [
+      { code: "extends" },
+      " pulls in breadcrumbs, hero, SEO, sidebar, schemas, and local overrides.",
+    ],
   },
   {
     icon: "i-lucide-panel-top",
     title: "Layouts consume one result",
-    description: "`useVariant` returns the merged config and feature checks for the current page.",
+    description: [
+      { code: "useVariant" },
+      " returns the merged config and feature checks for the current page.",
+    ],
   },
 ];
 
@@ -62,7 +75,7 @@ const guideLinks = [
   <div class="overflow-hidden">
     <UPageHero
       headline="Typed layout variants for Nuxt"
-      title="Stop multiplying layouts."
+      title="Modularize your Nuxt layouts."
       description="Define reusable layout capabilities once, compose them into named page variants, and let one Nuxt layout resolve the behavior each route needs."
       :ui="{
         container: 'py-12 sm:py-16 lg:py-20 gap-10',
@@ -129,7 +142,6 @@ const guideLinks = [
             v-for="(outcome, index) in outcomes"
             :key="outcome.title"
             :icon="outcome.icon"
-            :description="outcome.description"
             orientation="horizontal"
             :ui="{
               root: 'rounded-xl border border-default bg-default p-4',
@@ -143,6 +155,18 @@ const guideLinks = [
             <template #title>
               <span class="mr-2 text-xs font-medium text-muted">0{{ index + 1 }}</span>
               {{ outcome.title }}
+            </template>
+
+            <template #description>
+              <span v-for="(part, partIndex) in outcome.description" :key="partIndex">
+                <code
+                  v-if="typeof part !== 'string'"
+                  class="rounded-md border border-default bg-muted px-1.5 py-0.5 font-mono text-xs text-highlighted"
+                >
+                  {{ part.code }}
+                </code>
+                <template v-else>{{ part }}</template>
+              </span>
             </template>
           </UPageFeature>
         </div>

@@ -26,6 +26,10 @@ Completed on this branch:
   the previous slot warning.
 - Kept the CodeTree on its default three-column layout so the file tree and
   code pane stay aligned with the standard component behavior.
+- Let the CodeTree stretch to the resolver panel height so the hero workbench
+  reads as one balanced surface.
+- Changed the hero title to positive copy and rendered mental-model code terms
+  as actual inline code instead of Markdown backticks inside prop strings.
 - Added a combined CodeTree and variant resolver demo for article, landing, and
   event variants.
 - Replaced more hand-rolled landing sections with Nuxt UI primitives such as
