@@ -1,20 +1,39 @@
 <script setup lang="ts">
-import { defineComponent, h, markRaw } from "vue";
-import { ProsePre } from "#components";
+const props = withDefaults(
+  defineProps<{
+    graphLabel?: string;
+    resolvedLabel?: string;
+    extendsLabel?: string;
+    featureChecksLabel?: string;
+    configLabel?: string;
+    articleLabel?: string;
+    articleSummary?: string;
+    landingLabel?: string;
+    landingSummary?: string;
+    eventLabel?: string;
+    eventSummary?: string;
+  }>(),
+  {
+    graphLabel: "variant graph resolves at runtime",
+    resolvedLabel: "Resolved page",
+    extendsLabel: "Extends",
+    featureChecksLabel: "Feature checks",
+    configLabel: "Resolved config",
+    articleLabel: "Article",
+    articleSummary: "Long-form content with navigation, metadata, and reading aids.",
+    landingLabel: "Landing",
+    landingSummary: "Campaign pages with a larger hero and focused calls to action.",
+    eventLabel: "Event",
+    eventSummary: "Time-bound pages with shared hero behavior and event-specific data.",
+  },
+);
 
-interface CodeFile {
-  name: string;
-  language: string;
-  code: string;
-}
-
-const variants = [
+const variants = computed(() => [
   {
     name: "article",
-    label: "Article",
-    path: "pages/blog/[slug].vue",
+    label: props.articleLabel,
     extends: ["breadcrumbs", "hero", "seo", "toc"],
-    summary: "Long-form content with navigation, metadata, and reading aids.",
+    summary: props.articleSummary,
     config: {
       heroHeight: "sm",
       heroAlign: "center",
@@ -25,10 +44,9 @@ const variants = [
   },
   {
     name: "landing",
-    label: "Landing",
-    path: "pages/index.vue",
+    label: props.landingLabel,
     extends: ["hero", "seo"],
-    summary: "Campaign pages with a larger hero and focused calls to action.",
+    summary: props.landingSummary,
     config: {
       heroHeight: "xl",
       heroAlign: "center",
@@ -38,10 +56,9 @@ const variants = [
   },
   {
     name: "event",
-    label: "Event",
-    path: "pages/events/[slug].vue",
+    label: props.eventLabel,
     extends: ["breadcrumbs", "hero", "seo"],
-    summary: "Time-bound pages with shared hero behavior and event-specific data.",
+    summary: props.eventSummary,
     config: {
       heroHeight: "md",
       heroAlign: "left",
@@ -49,85 +66,14 @@ const variants = [
       titleTemplate: "%s - Events",
     },
   },
-];
-
-const scriptCloseTag = `</${"script"}>`;
-
-const codeFiles = [
-  {
-    name: "nuxt.config.ts",
-    language: "ts",
-    code: `export default defineNuxtConfig({
-  modules: ["@happydesigns/nuxt-variants"],
-  variants: {
-    registry: {
-      breadcrumbs: {
-        config: { separator: " / ", showHome: true },
-      },
-      hero: {
-        config: { heroHeight: "md", heroAlign: "left" },
-      },
-      seo: {
-        config: { titleTemplate: "%s - Guides" },
-      },
-      toc: {
-        config: { toc: "right" },
-      },
-      article: {
-        extends: ["breadcrumbs", "hero", "seo", "toc"],
-        config: { heroHeight: "sm", authorBox: true },
-      },
-    },
-  },
-});`,
-  },
-  {
-    name: "app.config.ts",
-    language: "ts",
-    code: `export default defineAppConfig({
-  variants: {
-    article: {
-      config: {
-        heroAlign: "center",
-        relatedLimit: 4,
-      },
-    },
-  },
-});`,
-  },
-  {
-    name: "pages/blog/[slug].vue",
-    language: "vue",
-    code: `<script setup lang="ts">
-definePageMeta({
-  layout: "content",
-  variant: "article",
-});
-${scriptCloseTag}`,
-  },
-  {
-    name: "layouts/content.vue",
-    language: "vue",
-    code: `<script setup lang="ts">
-const route = useRoute();
-const variant = computed(() => route.meta.variant ?? "article");
-const { config, has } = useVariant(variant);
-${scriptCloseTag}
-
-<template>
-  <BreadcrumbBar v-if="has('breadcrumbs')" />
-  <HeroSection :height="config.heroHeight" :align="config.heroAlign" />
-  <ArticleToc v-if="has('toc')" />
-  <slot />
-</template>`,
-  },
-] satisfies CodeFile[];
+]);
 
 const selectedVariantName = ref("article");
-const selectedFileName = ref<string | undefined>("nuxt.config.ts");
 
 const selectedVariant = computed(
-  () => variants.find((variant) => variant.name === selectedVariantName.value) ?? variants[0],
+  () =>
+    variants.value.find((variant) => variant.name === selectedVariantName.value) ??
+    variants.value[0],
 );
 
 const activeFeatures = computed(() => [
@@ -141,74 +87,6 @@ const configRows = computed(() =>
     value: typeof value === "string" ? value : JSON.stringify(value),
   })),
 );
-
-const tokenPattern =
-  /(&quot;[^&]*?&quot;|\b(?:export|default|const|return|true|false)\b|\b(?:defineNuxtConfig|defineAppConfig|definePageMeta|useRoute|computed|useVariant)\b|&lt;\/?[A-Za-z][^&\s]*|\b[A-Za-z_$][\w$]*(?=\s*:))/g;
-
-const escapeHtml = (value: string) =>
-  value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-
-const highlightCode = (value: string) =>
-  escapeHtml(value).replace(tokenPattern, (token) => {
-    if (token.startsWith("&quot;")) {
-      return `<span class="text-primary">${token}</span>`;
-    }
-
-    if (token === "true" || token === "false") {
-      return `<span class="text-warning">${token}</span>`;
-    }
-
-    if (token.startsWith("&lt;")) {
-      return `<span class="text-primary">${token}</span>`;
-    }
-
-    if (
-      /^[a-zA-Z_$][\w$]*$/.test(token) &&
-      !["export", "default", "const", "return"].includes(token)
-    ) {
-      return `<span class="text-info">${token}</span>`;
-    }
-
-    return `<span class="text-secondary">${token}</span>`;
-  });
-
-const createCodeTreeComponent = (file: CodeFile) =>
-  markRaw(
-    defineComponent({
-      name: `LandingWorkbenchCode${file.name.replace(/\W+/g, "")}`,
-      setup() {
-        return () =>
-          h(
-            ProsePre,
-            {
-              code: file.code,
-              filename: file.name,
-              language: file.language,
-              ui: {
-                root: "my-0 h-full rounded-none border-0",
-                base: "h-full min-h-[386px] overflow-auto rounded-none border-0 bg-transparent text-[13px] leading-6",
-              },
-            },
-            {
-              default: () =>
-                h("code", {
-                  class: "font-mono",
-                  innerHTML: highlightCode(file.code),
-                }),
-            },
-          );
-      },
-    }),
-  );
-
-const codeTreeItems = codeFiles.map((file) => ({
-  label: file.name,
-  component: createCodeTreeComponent(file),
-}));
 </script>
 
 <template>
@@ -223,27 +101,20 @@ const codeTreeItems = codeFiles.map((file) => ({
       </div>
       <div class="hidden items-center gap-2 text-xs text-muted sm:flex">
         <UIcon name="i-lucide-git-branch" class="size-4" />
-        variant graph resolves at runtime
+        {{ graphLabel }}
       </div>
     </div>
 
     <div class="grid items-stretch lg:grid-cols-[minmax(0,1fr)_360px]">
-      <ProseCodeTree
-        v-model="selectedFileName"
-        :items="codeTreeItems"
-        default-value="nuxt.config.ts"
-        expand-all
-        :ui="{
-          root: 'my-0 h-full min-h-[480px] rounded-none border-0 lg:h-full',
-          list: 'bg-muted/30',
-          content:
-            'bg-elevated/40 lg:border-r border-default [&>div]:overflow-y-auto [&>div>div]:border-0',
-        }"
-      />
+      <div class="landing-workbench-code min-w-0">
+        <slot name="code" />
+      </div>
 
       <section class="h-full bg-default p-4">
         <div class="mb-4">
-          <p class="text-xs font-medium uppercase tracking-wide text-primary">Resolved page</p>
+          <p class="text-xs font-medium uppercase tracking-wide text-primary">
+            {{ resolvedLabel }}
+          </p>
           <h3 class="mt-1 text-xl font-semibold text-highlighted">{{ selectedVariant.label }}</h3>
           <p class="mt-1 text-sm text-muted">{{ selectedVariant.summary }}</p>
         </div>
@@ -268,7 +139,9 @@ const codeTreeItems = codeFiles.map((file) => ({
 
         <div class="space-y-4">
           <div>
-            <p class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">Extends</p>
+            <p class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
+              {{ extendsLabel }}
+            </p>
             <div class="flex flex-wrap items-center gap-2">
               <span
                 v-for="feature in selectedVariant.extends"
@@ -286,7 +159,7 @@ const codeTreeItems = codeFiles.map((file) => ({
 
           <div>
             <p class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
-              Feature checks
+              {{ featureChecksLabel }}
             </p>
             <div class="grid grid-cols-2 gap-2">
               <span
@@ -301,7 +174,7 @@ const codeTreeItems = codeFiles.map((file) => ({
 
           <div class="rounded-xl border border-default bg-muted/30 p-3">
             <p class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
-              Resolved config
+              {{ configLabel }}
             </p>
             <dl class="space-y-2 text-sm">
               <div
@@ -319,3 +192,18 @@ const codeTreeItems = codeFiles.map((file) => ({
     </div>
   </div>
 </template>
+
+<style scoped>
+.landing-workbench-code :deep(> div) {
+  margin: 0;
+  height: 100%;
+  min-height: 480px;
+  border-width: 0;
+  border-radius: 0;
+}
+
+.landing-workbench-code :deep(pre) {
+  font-size: 13px;
+  line-height: 1.5rem;
+}
+</style>

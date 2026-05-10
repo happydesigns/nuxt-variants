@@ -19,13 +19,12 @@ Completed on this branch:
 
 - Reworked the Docus landing page around the core product promise: one shared
   Nuxt layout, many page shapes.
-- Moved the landing page from a long Markdown/card composition into focused
-  Vue components so the page can use Nuxt UI landing primitives more cleanly.
-- Added a Docus `ProseCodeTree` workbench through its structured `items` API so
-  the landing page uses the official CodeTree component without reintroducing
-  the previous slot warning.
-- Kept the CodeTree on its default three-column layout so the file tree and
-  code pane stay aligned with the standard component behavior.
+- Moved landing page copy and structure back into `docs/content/index.md` so
+  the page is easier to translate with content files.
+- Moved the CodeTree content into Markdown so Docus/MDC owns Shiki syntax
+  highlighting instead of a custom regex highlighter.
+- Kept the CodeTree on its standard Markdown component path so the file tree,
+  code pane, copy button, icons, and highlighting come from Docus.
 - Let the CodeTree stretch to the resolver panel height so the hero workbench
   reads as one balanced surface.
 - Changed the hero title to positive copy and rendered mental-model code terms
@@ -69,9 +68,12 @@ Rules:
 - Classify each task with the risk classifier before delegation; if unclear, choose the higher-risk path.
 - Use fresh role-specific contexts for Implementer, Reviewer, Integrator, Planner, or Architect work when available.
 - Stop for operator approval before module features, public contracts, dependencies with broad impact, or breaking changes.
-- The landing page now uses `docs/app/components/content/LandingPage.vue` and
-  `docs/app/components/content/LandingWorkbench.vue`; keep further landing
-  polish in those files unless a broader docs structure change is approved.
+- The landing page structure now lives in `docs/content/index.md`, with focused
+  interactive/support components in
+  `docs/app/components/content/LandingWorkbench.vue`,
+  `docs/app/components/content/LandingMentalModel.vue`, and
+  `docs/app/components/content/LandingFeature.vue`; keep further landing polish
+  in those files unless a broader docs structure change is approved.
 
 When you stop, summarize:
 - role chats or sub-agents run
