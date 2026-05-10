@@ -20,17 +20,21 @@ const outcomes = [
 
 const surfaces = [
   {
-    label: "Layout behavior",
-    detail:
+    icon: "i-lucide-layout-panel-left",
+    title: "Layout behavior",
+    description:
       "Switch hero size, breadcrumbs, sidebar placement, TOC, and editorial chrome without cloning layouts.",
   },
   {
-    label: "Content schemas",
-    detail: "Keep Nuxt Content fields aligned with the same variant graph that powers rendering.",
+    icon: "i-lucide-database",
+    title: "Content schemas",
+    description:
+      "Keep Nuxt Content fields aligned with the same variant graph that powers rendering.",
   },
   {
-    label: "Debugging",
-    detail:
+    icon: "i-lucide-monitor-cog",
+    title: "Debugging",
+    description:
       "Inspect inheritance, config layers, resolved output, and diagnostics in Nuxt DevTools.",
   },
 ];
@@ -121,24 +125,26 @@ const guideLinks = [
         </div>
 
         <div class="grid gap-3">
-          <div
+          <UPageFeature
             v-for="(outcome, index) in outcomes"
             :key="outcome.title"
-            class="group relative flex gap-4 rounded-xl border border-default bg-default p-4"
+            :icon="outcome.icon"
+            :description="outcome.description"
+            orientation="horizontal"
+            :ui="{
+              root: 'rounded-xl border border-default bg-default p-4',
+              leading:
+                'flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary',
+              leadingIcon: 'size-5',
+              title: 'font-semibold text-highlighted',
+              description: 'text-sm leading-6 text-muted',
+            }"
           >
-            <div
-              class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary"
-            >
-              <UIcon :name="outcome.icon" class="size-5" />
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-medium text-muted">0{{ index + 1 }}</span>
-                <h3 class="font-semibold text-highlighted">{{ outcome.title }}</h3>
-              </div>
-              <p class="mt-1 text-sm leading-6 text-muted">{{ outcome.description }}</p>
-            </div>
-          </div>
+            <template #title>
+              <span class="mr-2 text-xs font-medium text-muted">0{{ index + 1 }}</span>
+              {{ outcome.title }}
+            </template>
+          </UPageFeature>
         </div>
       </div>
     </UPageSection>
@@ -146,22 +152,15 @@ const guideLinks = [
     <UPageSection
       title="One graph, three places it pays off."
       description="The module stays deliberately small: it owns variant configuration and leaves rendering, styling, and content authoring to Nuxt."
+      :features="surfaces"
       :ui="{
         container: 'py-12 sm:py-16 lg:py-20 gap-10',
         title: 'text-3xl sm:text-5xl text-pretty tracking-tight font-bold text-highlighted',
         description: 'text-base sm:text-lg text-muted max-w-3xl mx-auto',
-        body: 'mt-10',
+        features:
+          'mx-auto max-w-6xl gap-px overflow-hidden rounded-2xl border border-default bg-default sm:grid-cols-3 [&>*]:bg-muted/20 [&>*]:p-6',
       }"
-    >
-      <div
-        class="mx-auto grid max-w-6xl gap-px overflow-hidden rounded-2xl border border-default bg-default sm:grid-cols-3"
-      >
-        <div v-for="surface in surfaces" :key="surface.label" class="bg-muted/20 p-6">
-          <h3 class="text-lg font-semibold text-highlighted">{{ surface.label }}</h3>
-          <p class="mt-3 text-sm leading-6 text-muted">{{ surface.detail }}</p>
-        </div>
-      </div>
-    </UPageSection>
+    />
 
     <UPageSection
       :ui="{

@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import { defineComponent, h, markRaw } from "vue";
+import { ProsePre } from "#components";
+
+interface CodeFile {
+  name: string;
+  language: string;
+  code: string;
+}
+
 const variants = [
   {
     name: "article",
@@ -47,7 +56,7 @@ const scriptCloseTag = `</${"script"}>`;
 const codeFiles = [
   {
     name: "nuxt.config.ts",
-    icon: "i-lucide-file-cog",
+    language: "ts",
     code: `export default defineNuxtConfig({
   modules: ["@happydesigns/nuxt-variants"],
   variants: {
@@ -74,7 +83,7 @@ const codeFiles = [
   },
   {
     name: "app.config.ts",
-    icon: "i-lucide-file-code-2",
+    language: "ts",
     code: `export default defineAppConfig({
   variants: {
     article: {
@@ -88,7 +97,7 @@ const codeFiles = [
   },
   {
     name: "pages/blog/[slug].vue",
-    icon: "i-lucide-file-code-2",
+    language: "vue",
     code: `<script setup lang="ts">
 definePageMeta({
   layout: "content",
@@ -98,7 +107,7 @@ ${scriptCloseTag}`,
   },
   {
     name: "layouts/content.vue",
-    icon: "i-lucide-file-code-2",
+    language: "vue",
     code: `<script setup lang="ts">
 const route = useRoute();
 const variant = computed(() => route.meta.variant ?? "article");
@@ -112,17 +121,13 @@ ${scriptCloseTag}
   <slot />
 </template>`,
   },
-];
+] satisfies CodeFile[];
 
 const selectedVariantName = ref("article");
-const selectedFileName = ref("nuxt.config.ts");
+const selectedFileName = ref<string | undefined>("nuxt.config.ts");
 
 const selectedVariant = computed(
   () => variants.find((variant) => variant.name === selectedVariantName.value) ?? variants[0],
-);
-
-const selectedFile = computed(
-  () => codeFiles.find((file) => file.name === selectedFileName.value) ?? codeFiles[0],
 );
 
 const activeFeatures = computed(() => [
@@ -171,7 +176,39 @@ const highlightCode = (value: string) =>
     return `<span class="text-secondary">${token}</span>`;
   });
 
-const highlightedCode = computed(() => highlightCode(selectedFile.value.code));
+const createCodeTreeComponent = (file: CodeFile) =>
+  markRaw(
+    defineComponent({
+      name: `LandingWorkbenchCode${file.name.replace(/\W+/g, "")}`,
+      setup() {
+        return () =>
+          h(
+            ProsePre,
+            {
+              code: file.code,
+              filename: file.name,
+              language: file.language,
+              ui: {
+                root: "my-0 h-full rounded-none border-0",
+                base: "h-full min-h-[386px] overflow-auto rounded-none border-0 bg-transparent text-[13px] leading-6",
+              },
+            },
+            {
+              default: () =>
+                h("code", {
+                  class: "font-mono",
+                  innerHTML: highlightCode(file.code),
+                }),
+            },
+          );
+      },
+    }),
+  );
+
+const codeTreeItems = codeFiles.map((file) => ({
+  label: file.name,
+  component: createCodeTreeComponent(file),
+}));
 </script>
 
 <template>
@@ -190,45 +227,21 @@ const highlightedCode = computed(() => highlightCode(selectedFile.value.code));
       </div>
     </div>
 
-    <div class="grid lg:grid-cols-[220px_minmax(0,1fr)_360px]">
-      <aside class="border-b border-default bg-muted/30 p-3 lg:border-b-0 lg:border-r">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-muted">Project</p>
-        <div class="space-y-1">
-          <button
-            v-for="file in codeFiles"
-            :key="file.name"
-            type="button"
-            class="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition"
-            :class="
-              selectedFileName === file.name
-                ? 'bg-default text-highlighted shadow-sm ring-1 ring-default'
-                : 'text-muted hover:bg-default/70 hover:text-highlighted'
-            "
-            @click="selectedFileName = file.name"
-          >
-            <UIcon :name="file.icon" class="size-4 shrink-0" />
-            <span class="truncate">{{ file.name }}</span>
-          </button>
-        </div>
-      </aside>
+    <div class="grid lg:grid-cols-[minmax(0,1fr)_360px]">
+      <ProseCodeTree
+        v-model="selectedFileName"
+        :items="codeTreeItems"
+        default-value="nuxt.config.ts"
+        expand-all
+        :ui="{
+          root: 'my-0 min-h-[480px] rounded-none border-0 lg:h-[520px] lg:grid-cols-[220px_minmax(0,1fr)]',
+          list: 'bg-muted/30',
+          content:
+            'bg-elevated/40 lg:border-r border-default [&>div]:overflow-y-auto [&>div>div]:border-0',
+        }"
+      />
 
-      <section
-        class="min-h-[440px] border-b border-default bg-elevated/40 lg:border-b-0 lg:border-r"
-      >
-        <div class="flex items-center justify-between border-b border-default px-4 py-3">
-          <div class="flex items-center gap-2 text-sm font-medium text-highlighted">
-            <UIcon :name="selectedFile.icon" class="size-4" />
-            {{ selectedFile.name }}
-          </div>
-          <span class="rounded-md bg-muted px-2 py-1 text-xs text-muted">typed config</span>
-        </div>
-
-        <pre
-          class="h-[386px] overflow-auto p-4 text-[13px] leading-6 text-highlighted"
-        ><code v-html="highlightedCode" /></pre>
-      </section>
-
-      <section class="bg-default p-4">
+      <section class="bg-default p-4 lg:min-h-[520px]">
         <div class="mb-4">
           <p class="text-xs font-medium uppercase tracking-wide text-primary">Resolved page</p>
           <h3 class="mt-1 text-xl font-semibold text-highlighted">{{ selectedVariant.label }}</h3>

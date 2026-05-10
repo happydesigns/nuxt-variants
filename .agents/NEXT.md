@@ -21,11 +21,13 @@ Completed on this branch:
   Nuxt layout, many page shapes.
 - Moved the landing page from a long Markdown/card composition into focused
   Vue components so the page can use Nuxt UI landing primitives more cleanly.
-- Replaced the Docus `CodeTree` wrapper with a custom interactive workbench to
-  avoid the `ProseCodeTree` slot warning and keep the hero demo visually
-  stronger.
-- Added a combined file-tree, highlighted code panel, and variant resolver demo
-  for article, landing, and event variants.
+- Added a Docus `ProseCodeTree` workbench through its structured `items` API so
+  the landing page uses the official CodeTree component without reintroducing
+  the previous slot warning.
+- Added a combined CodeTree and variant resolver demo for article, landing, and
+  event variants.
+- Replaced more hand-rolled landing sections with Nuxt UI primitives such as
+  `UPageFeature` and `UPageSection` features where the component model fits.
 - Tightened the narrative structure around the mental model, payoff surfaces,
   and guide entry points.
 
