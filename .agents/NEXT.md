@@ -35,6 +35,8 @@ Completed on this branch:
   `UPageFeature` and `UPageSection` features where the component model fits.
 - Added `docs/tsconfig.json` so editors resolve Docus/Nuxt generated types and
   auto-imports for docs Vue components.
+- Changed `lint` to a non-mutating check and moved formatting writes to
+  `lint:fix`.
 - Tightened the narrative structure around the mental model, payoff surfaces,
   and guide entry points.
 
