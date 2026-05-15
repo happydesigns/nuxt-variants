@@ -70,11 +70,22 @@ const variants = computed(() => [
 
 const selectedVariantName = ref("article");
 
-const selectedVariant = computed(
-  () =>
-    variants.value.find((variant) => variant.name === selectedVariantName.value) ??
-    variants.value[0],
-);
+const selectedVariant = computed(() => {
+  const matchedVariant = variants.value.find(
+    (variant) => variant.name === selectedVariantName.value,
+  );
+  const fallbackVariant = variants.value[0];
+
+  if (matchedVariant) {
+    return matchedVariant;
+  }
+
+  if (fallbackVariant) {
+    return fallbackVariant;
+  }
+
+  throw new Error("Landing workbench needs at least one variant.");
+});
 
 const activeFeatures = computed(() => [
   ...selectedVariant.value.extends,

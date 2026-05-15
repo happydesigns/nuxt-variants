@@ -33,6 +33,8 @@ Completed on this branch:
   event variants.
 - Replaced more hand-rolled landing sections with Nuxt UI primitives such as
   `UPageFeature` and `UPageSection` features where the component model fits.
+- Added `docs/tsconfig.json` so editors resolve Docus/Nuxt generated types and
+  auto-imports for docs Vue components.
 - Tightened the narrative structure around the mental model, payoff surfaces,
   and guide entry points.
 
