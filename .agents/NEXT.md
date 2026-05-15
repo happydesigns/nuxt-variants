@@ -37,6 +37,7 @@ Completed on this branch:
   auto-imports for docs Vue components.
 - Changed `lint` to a non-mutating check and moved formatting writes to
   `lint:fix`.
+- Added Git line-ending attributes so tracked text files stay LF on Windows.
 - Tightened the narrative structure around the mental model, payoff surfaces,
   and guide entry points.
 
