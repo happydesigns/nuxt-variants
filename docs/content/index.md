@@ -12,19 +12,14 @@ links:
   - label: Get started
     to: /docs/getting-started
     color: primary
-    size: xl
+    size: lg
     trailingIcon: i-lucide-arrow-right
   - label: View examples
     to: /docs/examples
     color: neutral
     icon: i-lucide-layout-template
-    size: xl
-    variant: outline
-ui:
-  container: "py-12 sm:py-16 lg:py-20 gap-10"
-  title: "text-5xl sm:text-7xl lg:text-8xl text-pretty tracking-tight font-bold text-highlighted"
-  description: "text-base sm:text-xl/8 text-muted max-w-3xl mx-auto"
-  footer: "mt-8"
+    size: lg
+    variant: subtle
 ---
 
 ::landing-workbench
@@ -114,56 +109,47 @@ const { config, has } = useVariant(variant);
 ::
 
 ::landing-mental-model
-
-#eyebrow
-The mental model
-
-#title
-A page variant is a composed feature set.
-
-#description
-Nuxt Variants keeps the app-specific decisions out of the layout file. The layout stays stable; page types carry the configuration.
+---
+eyebrow: The mental model
+title: One layout can serve every page type.
+description: Nuxt Variants keeps app-specific decisions out of the layout file. Features stay small, page variants compose them, and the layout consumes one resolved result.
+---
 
 ::landing-feature{icon="i-lucide-route" number="01" title="Pages choose a name"}
 Route meta selects `article`, `landing`, `event`, or any variant your app owns.
 ::
 
 ::landing-feature{icon="i-lucide-git-merge" number="02" title="The graph composes features"}
-`extends` pulls in breadcrumbs, hero, SEO, sidebar, schemas, and local overrides.
+`extends` composes reusable feature variants such as breadcrumbs, hero, SEO, TOC, schemas, and local overrides.
 ::
 
 ::landing-feature{icon="i-lucide-panel-top" number="03" title="Layouts consume one result"}
-`useVariant` returns the merged config and feature checks for the current page.
+`useVariant` returns the merged config and feature checks for the current route.
 ::
 
 ::
 
 ::u-page-section
 ---
-title: One graph, three places it pays off.
-description: The module stays deliberately small. It owns variant configuration and leaves rendering, styling, and content authoring to Nuxt.
+title: Where the graph pays off.
+description: Nuxt Variants owns page-level configuration and leaves rendering, styling, and content authoring to Nuxt.
 features:
   - icon: i-lucide-layout-panel-left
-    title: Layout behavior
+    title: Shared layout behavior
     description: Switch hero size, breadcrumbs, sidebar placement, TOC, and editorial chrome without cloning layouts.
   - icon: i-lucide-database
-    title: Content schemas
+    title: Content-aware schemas
     description: Keep Nuxt Content fields aligned with the same variant graph that powers rendering.
   - icon: i-lucide-monitor-cog
-    title: Debugging
+    title: Transparent debugging
     description: Inspect inheritance, config layers, resolved output, and diagnostics in Nuxt DevTools.
-ui:
-  container: "py-12 sm:py-16 lg:py-20 gap-10"
-  title: "text-3xl sm:text-5xl text-pretty tracking-tight font-bold text-highlighted"
-  description: "text-base sm:text-lg text-muted max-w-3xl mx-auto"
-  features: "mx-auto max-w-6xl gap-px overflow-hidden rounded-2xl border border-default bg-default sm:grid-cols-3 [&>*]:bg-muted/20 [&>*]:p-6"
 ---
 ::
 
-::u-page-cta
+::u-page-c-t-a
 ---
-title: Build the first variant graph in minutes.
-description: Next step
+title: Create your first variant graph.
+description: Install the module, define a registry, and move page-specific behavior out of your layout.
 orientation: horizontal
 variant: subtle
 links:
@@ -188,7 +174,5 @@ links:
     variant: subtle
     size: lg
     trailingIcon: i-lucide-arrow-right
-ui:
-  root: "mx-auto my-12 max-w-5xl"
 ---
 ::

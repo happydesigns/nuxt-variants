@@ -11,8 +11,8 @@ defineProps<{
     :icon="icon"
     orientation="horizontal"
     :ui="{
-      root: 'rounded-xl border border-default bg-default p-4',
-      leading: 'flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary',
+      root: 'rounded-xl border border-default bg-default p-5 sm:p-6',
+      leading: 'flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted text-primary',
       leadingIcon: 'size-5',
       title: 'font-semibold text-highlighted',
       description: 'text-sm leading-6 text-muted [&_p]:m-0',
