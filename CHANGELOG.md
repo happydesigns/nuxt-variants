@@ -1,5 +1,91 @@
 # Changelog
 
+## v0.0.6
+
+[compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.5...v0.0.6)
+
+### 🚀 Enhancements
+
+- **types:** Expose all registry keys on AnyVariantConfig for unknown-key useVariant calls ([0b1fb0b](https://github.com/happydesigns/nuxt-variants/commit/0b1fb0b))
+- Add variant diagnostics ([b8087b5](https://github.com/happydesigns/nuxt-variants/commit/b8087b5))
+- Add nuxt variants devtools ([e22e489](https://github.com/happydesigns/nuxt-variants/commit/e22e489))
+
+### 🩹 Fixes
+
+- **types:** Make mergeVariantSchemas return concrete schema type via overloads ([dc9b474](https://github.com/happydesigns/nuxt-variants/commit/dc9b474))
+- **types:** Infer variant registry intersections ([39a1a8f](https://github.com/happydesigns/nuxt-variants/commit/39a1a8f))
+- Merge generated app variant types ([cd2010d](https://github.com/happydesigns/nuxt-variants/commit/cd2010d))
+- Avoid variant definition auto-import collision ([63c2329](https://github.com/happydesigns/nuxt-variants/commit/63c2329))
+- Redirect stale docs playground routes ([e8a3f05](https://github.com/happydesigns/nuxt-variants/commit/e8a3f05))
+- Serve devtools from client app ([b521b59](https://github.com/happydesigns/nuxt-variants/commit/b521b59))
+- Convert devtools client to nuxt app ([29b6e7c](https://github.com/happydesigns/nuxt-variants/commit/29b6e7c))
+- Accept inactive variant option type ([04d279f](https://github.com/happydesigns/nuxt-variants/commit/04d279f))
+- Keep docs code tree layout aligned ([ee572ad](https://github.com/happydesigns/nuxt-variants/commit/ee572ad))
+- Add docs type project ([77b18a3](https://github.com/happydesigns/nuxt-variants/commit/77b18a3))
+- **types:** Include known variant config fields ([361b403](https://github.com/happydesigns/nuxt-variants/commit/361b403))
+
+### 💅 Refactors
+
+- Centralize variant resolution ([f89b8b1](https://github.com/happydesigns/nuxt-variants/commit/f89b8b1))
+- Split devtools client components ([38cfbbf](https://github.com/happydesigns/nuxt-variants/commit/38cfbbf))
+- Align devtools client with ui kit ([c19222a](https://github.com/happydesigns/nuxt-variants/commit/c19222a))
+- Simplify devtools variant layout ([4a15bde](https://github.com/happydesigns/nuxt-variants/commit/4a15bde))
+- Clarify devtools inspector ui ([01768f0](https://github.com/happydesigns/nuxt-variants/commit/01768f0))
+- Clarify devtools feature terminology ([92a0cff](https://github.com/happydesigns/nuxt-variants/commit/92a0cff))
+- Simplify devtools composition view ([824573d](https://github.com/happydesigns/nuxt-variants/commit/824573d))
+- Use extends terminology in devtools ([8da181d](https://github.com/happydesigns/nuxt-variants/commit/8da181d))
+
+### 📖 Documentation
+
+- **readme:** Fix Nuxt badge ([5f51b83](https://github.com/happydesigns/nuxt-variants/commit/5f51b83))
+- Add agent workflow template ([b7803e2](https://github.com/happydesigns/nuxt-variants/commit/b7803e2))
+- Add docus site ([8098ffa](https://github.com/happydesigns/nuxt-variants/commit/8098ffa))
+- Fix docus rendering ([0f7791f](https://github.com/happydesigns/nuxt-variants/commit/0f7791f))
+- Improve docus landing ([fd16788](https://github.com/happydesigns/nuxt-variants/commit/fd16788))
+- Clarify installation examples ([d625308](https://github.com/happydesigns/nuxt-variants/commit/d625308))
+- Polish playground examples ([350f1bc](https://github.com/happydesigns/nuxt-variants/commit/350f1bc))
+- Refresh readme overview ([22d58fd](https://github.com/happydesigns/nuxt-variants/commit/22d58fd))
+- Document diagnostics and inactive variants ([838da6e](https://github.com/happydesigns/nuxt-variants/commit/838da6e))
+- Document devtools inspector ([1f761d6](https://github.com/happydesigns/nuxt-variants/commit/1f761d6))
+- Polish landing page ([a643851](https://github.com/happydesigns/nuxt-variants/commit/a643851))
+- Redesign landing page ([b47249a](https://github.com/happydesigns/nuxt-variants/commit/b47249a))
+- Use nuxt ui landing primitives ([138775e](https://github.com/happydesigns/nuxt-variants/commit/138775e))
+- Polish landing hero workbench ([5b4bef8](https://github.com/happydesigns/nuxt-variants/commit/5b4bef8))
+- Move landing content into markdown ([e6eb5ff](https://github.com/happydesigns/nuxt-variants/commit/e6eb5ff))
+- Remove agent workflow references ([ca394f7](https://github.com/happydesigns/nuxt-variants/commit/ca394f7))
+- Polish landing page ([b3ccdf0](https://github.com/happydesigns/nuxt-variants/commit/b3ccdf0))
+- Clarify variant feature checks ([1bba84b](https://github.com/happydesigns/nuxt-variants/commit/1bba84b))
+
+### 🏡 Chore
+
+- Rename package from @h4designs/nuxt-variants to @happydesigns/nuxt-variants ([8042102](https://github.com/happydesigns/nuxt-variants/commit/8042102))
+- Ignore docus content formatting ([80fa8df](https://github.com/happydesigns/nuxt-variants/commit/80fa8df))
+- Remove unused runtime plugin ([2b605c8](https://github.com/happydesigns/nuxt-variants/commit/2b605c8))
+- Exclude docs from root typecheck ([11d6819](https://github.com/happydesigns/nuxt-variants/commit/11d6819))
+- Update next improvement track ([a7d4383](https://github.com/happydesigns/nuxt-variants/commit/a7d4383))
+- Quiet docs dependency prebundle warning ([c93cd23](https://github.com/happydesigns/nuxt-variants/commit/c93cd23))
+- Make lint check only ([dae51a4](https://github.com/happydesigns/nuxt-variants/commit/dae51a4))
+- Enforce lf line endings ([d735099](https://github.com/happydesigns/nuxt-variants/commit/d735099))
+- Remove .agents folder ([7dfc269](https://github.com/happydesigns/nuxt-variants/commit/7dfc269))
+- Fix release package lifecycle ([63a2c1e](https://github.com/happydesigns/nuxt-variants/commit/63a2c1e))
+
+### ✅ Tests
+
+- Expand variant coverage ([576147e](https://github.com/happydesigns/nuxt-variants/commit/576147e))
+
+### 🎨 Styles
+
+- Format schema overloads ([f3bccb0](https://github.com/happydesigns/nuxt-variants/commit/f3bccb0))
+
+### 🤖 CI
+
+- Pin pnpm version ([9031500](https://github.com/happydesigns/nuxt-variants/commit/9031500))
+- Align workflow with node 22 ([3cf2bb1](https://github.com/happydesigns/nuxt-variants/commit/3cf2bb1))
+
+### ❤️ Contributors
+
+- Jan Fröhlich ([@janfrl](https://github.com/janfrl))
+
 ## v0.0.5
 
 [compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.4...v0.0.5)
