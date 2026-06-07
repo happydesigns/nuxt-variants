@@ -12,8 +12,8 @@ in normal project documentation such as `README.md`, `docs/`,
 `ARCHITECTURE.md`, `DESIGN.md`, `SECURITY.md`, `API.md`, `DEPLOYMENT.md`, or
 `DOMAIN_MODEL.md`.
 
-Use `.agents/` only for operational planning, task state, role prompts, review
-notes, and temporary workflow material.
+Avoid assistant-specific workflow folders unless they are explicitly part of the
+project setup.
 
 ## Scope and Change Size
 

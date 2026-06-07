@@ -1,127 +1,178 @@
 ---
 title: Nuxt Variants
-description: Centralized, deeply merged layout variant configuration for Nuxt applications.
+description: Build one shared Nuxt layout and drive page-specific behavior from a typed variant graph.
 ---
 
 ::u-page-hero
-#title
-Nuxt Variants
+---
+headline: Typed layout variants for Nuxt
+title: Modularize your Nuxt layouts.
+description: Define reusable layout capabilities once, compose them into named page variants, and let one Nuxt layout resolve the behavior each route needs.
+links:
+  - label: Get started
+    to: /docs/getting-started
+    color: primary
+    size: lg
+    trailingIcon: i-lucide-arrow-right
+  - label: View examples
+    to: /docs/examples
+    color: neutral
+    icon: i-lucide-layout-template
+    size: lg
+    variant: subtle
+---
 
-#description
-Compose named feature configs, resolve deeply merged layout behavior, and keep content schema fields aligned with the same variant graph.
+::landing-workbench
+---
+graphLabel: variant graph resolves at runtime
+resolvedLabel: Resolved page
+extendsLabel: Extends
+featureChecksLabel: Feature checks
+configLabel: Resolved config
+articleLabel: Article
+articleSummary: Long-form content with navigation, metadata, and reading aids.
+landingLabel: Landing
+landingSummary: Campaign pages with a larger hero and focused calls to action.
+eventLabel: Event
+eventSummary: Time-bound pages with shared hero behavior and event-specific data.
+---
 
-#links
-  :::u-button
-  ---
-  color: primary
-  size: xl
-  to: /docs/getting-started
-  trailing-icon: i-lucide-arrow-right
-  ---
-  Get started
-  :::
+#code
+:::code-tree{default-value="nuxt.config.ts" expand-all}
 
-  :::u-button
-  ---
-  color: neutral
-  icon: i-lucide-code
-  size: xl
-  to: /docs/api
-  variant: outline
-  ---
-  API reference
-  :::
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  modules: ["@happydesigns/nuxt-variants"],
+  variants: {
+    registry: {
+      breadcrumbs: {
+        config: { separator: " / ", showHome: true },
+      },
+      hero: {
+        config: { heroHeight: "md", heroAlign: "left" },
+      },
+      seo: {
+        config: { titleTemplate: "%s - Guides" },
+      },
+      toc: {
+        config: { toc: "right" },
+      },
+      article: {
+        extends: ["breadcrumbs", "hero", "seo", "toc"],
+        config: { heroHeight: "sm", authorBox: true },
+      },
+    },
+  },
+});
+```
+
+```ts [app.config.ts]
+export default defineAppConfig({
+  variants: {
+    article: {
+      config: {
+        heroAlign: "center",
+        relatedLimit: 4,
+      },
+    },
+  },
+});
+```
+
+```vue [pages/blog/[slug].vue]
+<script setup lang="ts">
+definePageMeta({
+  layout: "content",
+  variant: "article",
+});
+</script>
+```
+
+```vue [layouts/content.vue]
+<script setup lang="ts">
+const route = useRoute();
+const variant = computed(() => route.meta.variant ?? "article");
+const { config, has } = useVariant(variant);
+</script>
+
+<template>
+  <BreadcrumbBar v-if="has('breadcrumbs')" />
+  <HeroSection :height="config.heroHeight" :align="config.heroAlign" />
+  <ArticleToc v-if="has('toc')" />
+  <slot />
+</template>
+```
+
+:::
+::
+
+::
+
+::landing-mental-model
+---
+eyebrow: The mental model
+title: One layout can serve every page type.
+description: Nuxt Variants keeps app-specific decisions out of the layout file. Features stay small, page variants compose them, and the layout consumes one resolved result.
+---
+
+::landing-feature{icon="i-lucide-route" number="01" title="Pages choose a name"}
+Route meta selects `article`, `landing`, `event`, or any variant your app owns.
+::
+
+::landing-feature{icon="i-lucide-git-merge" number="02" title="The graph composes features"}
+`extends` composes reusable feature variants such as breadcrumbs, hero, SEO, TOC, schemas, and local overrides.
+::
+
+::landing-feature{icon="i-lucide-panel-top" number="03" title="Layouts consume one result"}
+`useVariant` returns the merged config and feature checks for the current route.
+::
+
 ::
 
 ::u-page-section
-  :::u-page-grid
-    ::::u-page-card
-    ---
-    icon: i-lucide-git-branch
+---
+title: Where the graph pays off.
+description: Nuxt Variants owns page-level configuration and leaves rendering, styling, and content authoring to Nuxt.
+features:
+  - icon: i-lucide-layout-panel-left
+    title: Shared layout behavior
+    description: Switch hero size, breadcrumbs, sidebar placement, TOC, and editorial chrome without cloning layouts.
+  - icon: i-lucide-database
+    title: Content-aware schemas
+    description: Keep Nuxt Content fields aligned with the same variant graph that powers rendering.
+  - icon: i-lucide-monitor-cog
+    title: Transparent debugging
+    description: Inspect inheritance, config layers, resolved output, and diagnostics in Nuxt DevTools.
+---
+::
+
+::u-page-c-t-a
+---
+title: Create your first variant graph.
+description: Install the module, define a registry, and move page-specific behavior out of your layout.
+orientation: horizontal
+variant: subtle
+links:
+  - label: Install the module
+    to: /docs/getting-started
+    icon: i-lucide-rocket
+    color: neutral
+    variant: subtle
+    size: lg
+    trailingIcon: i-lucide-arrow-right
+  - label: Understand the model
     to: /docs/concepts
-    ---
-    #title
-    Feature composition
-
-    #description
-    Split layout capabilities into reusable feature entries, then compose page variants with `extends`.
-    ::::
-
-    ::::u-page-card
-    ---
-    icon: i-lucide-settings-2
+    icon: i-lucide-book-open
+    color: neutral
+    variant: subtle
+    size: lg
+    trailingIcon: i-lucide-arrow-right
+  - label: Reference the API
     to: /docs/api
-    ---
-    #title
-    Runtime resolution
-
-    #description
-    Read merged variant config with `useVariant` and check inherited feature presence with `has`.
-    ::::
-
-    ::::u-page-card
-    ---
-    icon: i-lucide-monitor-cog
-    to: /docs/concepts#devtools-inspector
-    ---
-    #title
-    DevTools inspector
-
-    #description
-    Inspect variants, inherited features, config layers, resolved output, and diagnostics in Nuxt DevTools.
-    ::::
-
-    ::::u-page-card
-    ---
-    icon: i-lucide-database
-    to: /docs/content-schemas
-    ---
-    #title
-    Content schemas
-
-    #description
-    Merge Zod or Valibot schemas through the same graph that drives layout behavior.
-    ::::
-  :::
-::
-
-::u-page-section
+    icon: i-lucide-code-xml
+    color: neutral
+    variant: subtle
+    size: lg
+    trailingIcon: i-lucide-arrow-right
 ---
-title: Why Nuxt Variants?
-description: Nuxt layouts are good at sharing structure, but content-heavy sites often need pages to switch individual capabilities on and off without duplicating entire layouts.
----
-  :::u-page-grid
-    ::::u-page-card
-    ---
-    icon: i-lucide-panels-top-left
-    ---
-    #title
-    One layout, many page shapes
-
-    #description
-    Model article, landing, event, and product page behavior through config instead of creating a layout for every combination.
-    ::::
-
-    ::::u-page-card
-    ---
-    icon: i-lucide-sliders-horizontal
-    ---
-    #title
-    Runtime overrides
-
-    #description
-    Let `app.config` override build-time defaults for editorial tuning without changing the module registry.
-    ::::
-
-    ::::u-page-card
-    ---
-    icon: i-lucide-braces
-    ---
-    #title
-    Typed helpers
-
-    #description
-    Use generated variant types and virtual modules so layouts can consume config with predictable TypeScript support.
-    ::::
-  :::
 ::
