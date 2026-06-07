@@ -21,6 +21,10 @@ type AnyVariantConfig = keyof CustomVariantRegistry extends never
   ? Record<string, unknown>
   : Partial<UnionToIntersection<CustomVariantRegistry[keyof CustomVariantRegistry]>>;
 
+type KnownVariantConfig = keyof CustomVariantRegistry extends never
+  ? Record<string, unknown>
+  : Partial<UnionToIntersection<CustomVariantRegistry[keyof CustomVariantRegistry]>>;
+
 /**
  * The resolved config type for a variant key (or union of keys).
  *
@@ -29,7 +33,7 @@ type AnyVariantConfig = keyof CustomVariantRegistry extends never
  * // → Partial<ArticleConfig>
  */
 export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<
-  UnionToIntersection<CustomVariantRegistry[K]>
+  KnownVariantConfig & UnionToIntersection<CustomVariantRegistry[K]>
 >;
 
 export interface UseVariantReturn<TConfig> {
