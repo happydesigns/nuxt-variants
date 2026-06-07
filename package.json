@@ -38,8 +38,8 @@
   "scripts": {
     "build:client": "node scripts/build-client.mjs",
     "prepack": "nuxt-module-build build && pnpm build:client",
-    "prepare": "nuxt-module-build build --stub && pnpm build:client && nuxt-module-build prepare && nuxt prepare playground",
-    "dev": "pnpm prepare && nuxt dev playground",
+    "dev:prepare": "nuxt-module-build build --stub && pnpm build:client && nuxt-module-build prepare && nuxt prepare playground",
+    "dev": "pnpm dev:prepare && nuxt dev playground",
     "dev:build": "nuxt build playground",
     "docs": "pnpm docs:dev",
     "docs:dev": "pnpm --dir docs dev",
