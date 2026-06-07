@@ -93,12 +93,14 @@ definePageMeta({
 const route = useRoute();
 const variant = computed(() => route.meta.variant ?? "article");
 const { config, has } = useVariant(variant);
+const hasBreadcrumbs = has("breadcrumbs");
+const hasToc = has("toc");
 </script>
 
 <template>
-  <BreadcrumbBar v-if="has('breadcrumbs')" />
+  <BreadcrumbBar v-if="hasBreadcrumbs" />
   <HeroSection :height="config.heroHeight" :align="config.heroAlign" />
-  <ArticleToc v-if="has('toc')" />
+  <ArticleToc v-if="hasToc" />
   <slot />
 </template>
 ```
