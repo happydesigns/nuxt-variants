@@ -288,7 +288,7 @@ The same warnings are available as `variantDiagnostics` from `#variants-graph` a
 
 ## Playground And Documentation
 
-Use Node.js 22.13 or newer. The repository pins pnpm through
+Use Node.js 22.19+, 24.11+, or 26+. The repository pins pnpm through
 `packageManager`, so Corepack and CI use the same package manager version.
 
 ```bash
