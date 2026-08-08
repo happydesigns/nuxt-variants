@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.1.1
+
+[compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.1.0...v0.1.1)
+
+### 🚀 Enhancements
+
+- **types:** Support explicit variant config overrides ([9590cf4](https://github.com/happydesigns/nuxt-variants/commit/9590cf4))
+- **schemas:** Add bound variant schema resolver ([18cedaa](https://github.com/happydesigns/nuxt-variants/commit/18cedaa))
+
+### 📖 Documentation
+
+- Align guides with current public contracts ([9ad2a5d](https://github.com/happydesigns/nuxt-variants/commit/9ad2a5d))
+- Explain variants through real ui patterns ([c9d2230](https://github.com/happydesigns/nuxt-variants/commit/c9d2230))
+
+### 🏡 Chore
+
+- Lint ([30ef51c](https://github.com/happydesigns/nuxt-variants/commit/30ef51c))
+
+### ❤️ Contributors
+
+- Jan Fröhlich ([@janfrl](https://github.com/janfrl))
+
 ## v0.1.0
 
 [compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.6...v0.1.0)
