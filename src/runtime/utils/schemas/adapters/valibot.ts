@@ -11,7 +11,7 @@ function getV(): typeof v {
     return _require("valibot") as typeof v;
   } catch {
     throw new Error(
-      "[nuxt-content-traits] Valibot schema detected but valibot is not installed. " +
+      "[nuxt-variants] Valibot schema detected but valibot is not installed. " +
         "Run: npm install valibot",
     );
   }

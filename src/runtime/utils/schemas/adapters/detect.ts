@@ -16,7 +16,7 @@ export function detectAdapter(schema: AnyObjectSchema): SchemaAdapter {
   if (isZodSchema(schema)) return zodAdapter as SchemaAdapter;
   if (isValibotSchema(schema)) return valibotAdapter as SchemaAdapter;
   throw new Error(
-    "[nuxt-content-traits] Unrecognized schema type. " +
+    "[nuxt-variants] Unrecognized schema type. " +
       "Supported validators: Zod v4, Valibot. " +
       "Ensure your schema is created with z.object() or v.object().",
   );
