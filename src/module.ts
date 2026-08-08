@@ -210,8 +210,10 @@ export default defineNuxtModule<ModuleOptions>({
                 // a conditional type, whereas `K extends keyof ConditionalType` can
                 // fail to resolve and fall to the else branch (producing never).
                 const prop = JSON.stringify(k);
-                return `_VariantConfig<_RegistryVariants extends Record<${prop}, infer _R${index}> ? _R${index} : never>
-    & _VariantConfig<_AppVariants extends Record<${prop}, infer _A${index}> ? _A${index} : never>`;
+                return `_VariantConfigWithOverride<${prop},
+      _VariantConfig<_RegistryVariants extends Record<${prop}, infer _R${index}> ? _R${index} : never>
+      & _VariantConfig<_AppVariants extends Record<${prop}, infer _A${index}> ? _A${index} : never>
+    >`;
               })
               .join("\n    & ");
             return `  ${JSON.stringify(key)}: ${configType}`;
@@ -236,15 +238,33 @@ type _AppVariantConfig<K extends keyof _AppVariants> = _VariantConfig<
   _AppVariants extends Record<K, infer _A> ? _A : never
 >
 
+/** Optional consumer-defined refinements for inferred variant config types. */
+export interface CustomVariantOverrides {}
+type _VariantConfigWithOverride<K extends PropertyKey, T> =
+  K extends keyof CustomVariantOverrides ? CustomVariantOverrides[K] : T
+
 type _GeneratedVariantRegistry = {
 ${entries}
 }
 
 type _AppOnlyVariantRegistry = {
-  [K in Exclude<keyof _AppVariants, keyof _GeneratedVariantRegistry>]: _AppVariantConfig<K>
+  [K in Exclude<keyof _AppVariants, keyof _GeneratedVariantRegistry>]: _VariantConfigWithOverride<
+    K,
+    _AppVariantConfig<K>
+  >
 }
 
-export type CustomVariantRegistry = _GeneratedVariantRegistry & _AppOnlyVariantRegistry
+type _OverrideOnlyVariantRegistry = {
+  [K in Exclude<
+    keyof CustomVariantOverrides,
+    keyof _GeneratedVariantRegistry | keyof _AppOnlyVariantRegistry
+  >]: CustomVariantOverrides[K]
+}
+
+export type CustomVariantRegistry =
+  & _GeneratedVariantRegistry
+  & _AppOnlyVariantRegistry
+  & _OverrideOnlyVariantRegistry
 
 type _KeysOfUnion<U> = U extends unknown ? keyof U : never
 type _ValueForKey<U, K extends PropertyKey> = U extends unknown

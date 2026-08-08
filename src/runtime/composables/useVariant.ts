@@ -43,8 +43,8 @@ export interface UseVariantReturn<TConfig> {
   /** The active variant and its complete active inheritance chain. */
   features: ComputedRef<ReadonlySet<string>>;
   /**
-   * Returns a computed ref that is `true` if this variant directly or
-   * transitively extends the given feature name.
+   * Returns a computed ref that is `true` if this is the selected variant or
+   * if it directly or transitively extends the given feature name.
    */
   has: (featureName: MaybeRefOrGetter<string>) => ComputedRef<boolean>;
 }
@@ -57,7 +57,7 @@ export interface UseVariantReturn<TConfig> {
  * const { config, has } = useVariant('blog')
  * has('seo')   // ComputedRef<true>
  *
- * @param name - The variant key to resolve, typed against `CustomVariantRegistry` when augmented.
+ * @param name - The variant key to resolve, typed against the generated registry and optional `CustomVariantOverrides`.
  */
 export function useVariant<K extends keyof CustomVariantRegistry>(
   name: MaybeRefOrGetter<K>,
