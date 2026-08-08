@@ -11,19 +11,20 @@ import type { CustomVariantRegistry } from "#nuxt-variants";
 export type { CustomVariantRegistry };
 export type VariantDefinition<T = unknown> = VariantRegistryEntry<T>;
 
-type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (
-  x: infer I,
-) => void
-  ? I
+type KeysOfUnion<U> = U extends unknown ? keyof U : never;
+type ValueForKey<U, K extends PropertyKey> = U extends unknown
+  ? K extends keyof U
+    ? U[K]
+    : never
   : never;
+
+export type MergeVariantConfigUnion<U> = {
+  [K in KeysOfUnion<U>]?: ValueForKey<U, K>;
+};
 
 type AnyVariantConfig = keyof CustomVariantRegistry extends never
   ? Record<string, unknown>
-  : Partial<UnionToIntersection<CustomVariantRegistry[keyof CustomVariantRegistry]>>;
-
-type KnownVariantConfig = keyof CustomVariantRegistry extends never
-  ? Record<string, unknown>
-  : Partial<UnionToIntersection<CustomVariantRegistry[keyof CustomVariantRegistry]>>;
+  : MergeVariantConfigUnion<CustomVariantRegistry[keyof CustomVariantRegistry]>;
 
 /**
  * The resolved config type for a variant key (or union of keys).
@@ -32,8 +33,8 @@ type KnownVariantConfig = keyof CustomVariantRegistry extends never
  * type Config = VariantConfigOf<'article'>
  * // → Partial<ArticleConfig>
  */
-export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<
-  KnownVariantConfig & UnionToIntersection<CustomVariantRegistry[K]>
+export type VariantConfigOf<K extends keyof CustomVariantRegistry> = MergeVariantConfigUnion<
+  CustomVariantRegistry[K]
 >;
 
 export interface UseVariantReturn<TConfig> {

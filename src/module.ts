@@ -10,6 +10,7 @@ import {
 } from "@nuxt/kit";
 import { addCustomTab } from "@nuxt/devtools-kit";
 import { collectVariantDiagnostics } from "./runtime/utils/diagnostics";
+import { serializeConfigShape } from "./utils/type-serialization";
 import {
   listVariantEntries,
   resolveVariantConfig,
@@ -136,34 +137,6 @@ export default defineNuxtModule<ModuleOptions>({
       });
     }
 
-    /** Converts a JS config object into a TypeScript type literal string (widened to primitives). */
-    function serializeConfigShape(config: Record<string, unknown>): string {
-      const entries = Object.entries(config).map(([k, v]) => {
-        let t: string;
-        if (v === null) t = "null";
-        else if (Array.isArray(v)) t = "unknown[]";
-        else
-          switch (typeof v) {
-            case "string":
-              t = "string";
-              break;
-            case "number":
-              t = "number";
-              break;
-            case "boolean":
-              t = "boolean";
-              break;
-            case "object":
-              t = serializeConfigShape(v as Record<string, unknown>);
-              break;
-            default:
-              t = "unknown";
-          }
-        return `${k}: ${t}`;
-      });
-      return entries.length ? `{ ${entries.join("; ")} }` : "{}";
-    }
-
     /** Returns the key itself plus all transitive ancestors, deduped, in resolution order. */
     function getAncestors(key: string, visited = new Set<string>()): string[] {
       if (visited.has(key)) return [];
@@ -276,8 +249,18 @@ type _AppOnlyVariantRegistry = {
 
 export type CustomVariantRegistry = _GeneratedVariantRegistry & _AppOnlyVariantRegistry
 
+type _KeysOfUnion<U> = U extends unknown ? keyof U : never
+type _ValueForKey<U, K extends PropertyKey> = U extends unknown
+  ? K extends keyof U ? U[K] : never
+  : never
+type _MergeVariantConfigUnion<U> = {
+  [K in _KeysOfUnion<U>]?: _ValueForKey<U, K>
+}
+
 /** The resolved (merged) config type for a variant key. */
-export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<CustomVariantRegistry[K]>
+export type VariantConfigOf<K extends keyof CustomVariantRegistry> = _MergeVariantConfigUnion<
+  CustomVariantRegistry[K]
+>
 
 declare module 'vue-router' {
   interface RouteMeta {
