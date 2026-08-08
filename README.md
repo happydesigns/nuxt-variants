@@ -35,6 +35,9 @@ Nuxt Variants keeps those decisions in one registry:
 
 ## Quick Setup
 
+Use Node.js 22.19 or newer on the 22.x release line, Node.js 24.11 or newer on
+the 24.x release line, or Node.js 26+.
+
 ```bash
 npx nuxt module add @happydesigns/nuxt-variants
 ```
@@ -229,11 +232,14 @@ import type { VariantConfigOf } from "#nuxt-variants";
 type ArticleConfig = VariantConfigOf<"article">;
 ```
 
-Generated config values are widened to primitive types. If you need narrower literal unions, augment `CustomVariantRegistry`:
+Generated config values are widened to primitive types. If you need narrower
+literal unions, augment `CustomVariantOverrides` in a module declaration:
 
 ```ts
+export {};
+
 declare module "#nuxt-variants" {
-  interface CustomVariantRegistry {
+  interface CustomVariantOverrides {
     hero: {
       heroHeight: "sm" | "md" | "lg" | "xl";
       heroOverlay: boolean;
@@ -243,13 +249,19 @@ declare module "#nuxt-variants" {
 }
 ```
 
+An override replaces the inferred config type for that registry entry and is
+also applied when another variant inherits the entry. It changes TypeScript
+types only; runtime values still come from `nuxt.config.ts` and
+`app.config.ts`.
+
 ## API Overview
 
 `useVariant(name)` returns `{ config, features, has }`.
 
 - `config` is a `ComputedRef` of the fully merged config.
 - `features` is a `ComputedRef<ReadonlySet<string>>` resolved once per reactive change.
-- `has(featureName)` returns a `ComputedRef<boolean>` for direct or transitive inheritance.
+- `has(featureName)` returns a `ComputedRef<boolean>` when the selected variant
+  is that feature or inherits it directly or transitively.
 - `name` and `featureName` can be strings, refs, computed refs, or getters.
 - `active: false` disables both resolved config and `has()` checks for that variant.
 
@@ -278,7 +290,10 @@ Development tooling:
 
 For a variant's own config, `app.config.ts` wins over `nuxt.config.ts`.
 
-For inheritance, parents are resolved first, then the child variant overrides them. Arrays are replaced:
+For every registry entry, `app.config.ts` overrides `nuxt.config.ts`. Across the
+inheritance graph, parents are resolved first and the child overrides them. If
+multiple parents define the same value, the later parent in `extends` wins.
+Arrays are replaced:
 
 ```ts
 base: {
@@ -312,8 +327,8 @@ The same warnings are available as `variantDiagnostics` from `#variants-graph` a
 
 ## Playground And Documentation
 
-Use Node.js 22.19+, 24.11+, or 26+. The repository pins pnpm through
-`packageManager`, so Corepack and CI use the same package manager version.
+The repository pins pnpm through `packageManager`, so Corepack and CI use the
+same package manager version.
 
 ```bash
 pnpm install
@@ -331,9 +346,11 @@ The Docus documentation source lives in [`docs/`](/docs). See [`CONTRIBUTING.md`
 ## Local Checks
 
 ```bash
+pnpm dev:prepare
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm prepack
 pnpm dev:build
 pnpm docs:build
 ```
