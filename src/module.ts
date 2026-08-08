@@ -10,6 +10,7 @@ import {
 } from "@nuxt/kit";
 import { addCustomTab } from "@nuxt/devtools-kit";
 import { collectVariantDiagnostics } from "./runtime/utils/diagnostics";
+import { createVariantGraph } from "./runtime/utils/graph";
 import { serializeConfigShape } from "./utils/type-serialization";
 import {
   listVariantEntries,
@@ -75,17 +76,14 @@ export default defineNuxtModule<ModuleOptions>({
     >;
 
     const allRegistryKeys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)]);
-    const variantGraph: Record<string, string[]> = {};
-
-    for (const key of allRegistryKeys) {
-      const extendsValue = appRegistry[key]?.extends ?? baseRegistry[key]?.extends;
-      variantGraph[key] =
-        extendsValue === undefined
-          ? []
-          : Array.isArray(extendsValue)
-            ? extendsValue
-            : [extendsValue];
-    }
+    const variantGraph = createVariantGraph(
+      Object.fromEntries(
+        [...allRegistryKeys].map((key) => [
+          key,
+          { extends: appRegistry[key]?.extends ?? baseRegistry[key]?.extends },
+        ]),
+      ),
+    );
 
     const diagnostics = collectVariantDiagnostics(
       baseRegistry as VariantRegistry,
