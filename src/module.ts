@@ -290,10 +290,6 @@ declare module 'vue-router' {
 
     nuxt.options.alias["#nuxt-variants"] = `${nuxt.options.buildDir}/types/nuxt-variants`;
 
-    // Inject graph into globalThis so utilities like mergeVariantSchemas
-    // can find it automatically even when called in content.config.ts
-    (globalThis as any).__NUXT_VARIANTS_GRAPH__ = variantGraph;
-
     const graphMjsPath = join(nuxt.options.buildDir, "variants-graph.mjs");
     const graphDmtsPath = join(nuxt.options.buildDir, "variants-graph.d.mts");
     const graphContent = [
@@ -314,17 +310,17 @@ declare module 'vue-router' {
       [
         `import { mergeVariantSchemas as _merge } from "@happydesigns/nuxt-variants/schemas";`,
         `const _graph = ${JSON.stringify(variantGraph, null, 2)};`,
-        `export function mergeVariantSchemas(activeVariants, registry) {`,
-        `  return _merge(activeVariants, registry, _graph);`,
+        `export function mergeVariantSchemas(activeVariants, registry, options) {`,
+        `  return _merge(activeVariants, registry, _graph, options);`,
         `}`,
         `export { zodAdapter, valibotAdapter, detectAdapter } from "@happydesigns/nuxt-variants/schemas";`,
       ].join("\n") + "\n";
     const schemasDtsContent =
       [
-        `import type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
-        `export declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ZodObjectSchema | undefined>, graph?: Record<string, string[]>): ZodObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ValibotObjectSchema | undefined>, graph?: Record<string, string[]>): ValibotObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, AnyObjectSchema | undefined>, graph?: Record<string, string[]>): AnyObjectSchema;`,
+        `import type { SchemaRegistry, SchemaAdapter, MergeVariantSchemasOptions, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
+        `export declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ZodObjectSchema | undefined>, options?: MergeVariantSchemasOptions): ZodObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ValibotObjectSchema | undefined>, options?: MergeVariantSchemasOptions): ValibotObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, AnyObjectSchema | undefined>, options?: MergeVariantSchemasOptions): AnyObjectSchema;`,
         `export { zodAdapter, valibotAdapter, detectAdapter } from "@happydesigns/nuxt-variants/schemas";`,
-        `export type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
+        `export type { SchemaRegistry, SchemaAdapter, MergeVariantSchemasOptions, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
       ].join("\n") + "\n";
 
     // Write eagerly so content.config.ts can import the file at Nuxt init time,

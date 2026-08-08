@@ -1,5 +1,10 @@
 import { detectAdapter } from "./adapters/detect";
-import type { AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "./adapters/types";
+import type {
+  AnyObjectSchema,
+  SchemaAdapter,
+  ZodObjectSchema,
+  ValibotObjectSchema,
+} from "./adapters/types";
 
 /**
  * A registry mapping variant names to their object schemas.
@@ -7,6 +12,14 @@ import type { AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "./ad
  */
 export interface SchemaRegistry {
   [variantName: string]: AnyObjectSchema | undefined;
+}
+
+export interface MergeVariantSchemasOptions {
+  /**
+   * Adapter used to create a valid empty object schema when the registry does
+   * not contain any schemas from which the validator can be inferred.
+   */
+  adapter?: SchemaAdapter;
 }
 
 function resolveExtendsGraph(variants: string[], graph: Record<string, string[]>): string[] {
@@ -40,69 +53,87 @@ function resolveExtendsGraph(variants: string[], graph: Record<string, string[]>
  *
  * @param activeVariants - The variant names that are currently active.
  * @param registry - A map of variant names to their object schemas.
- * @param graph - The pre-computed variant inheritance graph. When omitted, it
- *   tries to use the global graph injected by the Nuxt module.
- * @returns The merged object schema, or an empty object schema when no
- *   registered schema is found for any of the active variants.
+ * @param graph - The pre-computed variant inheritance graph.
+ * @param options - Optional validator adapter for an entirely empty registry.
+ * @returns The merged object schema, or a valid empty object schema when no
+ *   registered schema is reachable from the active variants.
  */
 export function mergeVariantSchemas(
   activeVariants: string[],
   registry: Record<string, ZodObjectSchema | undefined>,
-  graph?: Record<string, string[]>,
+  graph: Record<string, string[]>,
+  options?: MergeVariantSchemasOptions,
 ): ZodObjectSchema;
 export function mergeVariantSchemas(
   activeVariants: string[],
   registry: Record<string, ValibotObjectSchema | undefined>,
-  graph?: Record<string, string[]>,
+  graph: Record<string, string[]>,
+  options?: MergeVariantSchemasOptions,
 ): ValibotObjectSchema;
 export function mergeVariantSchemas(
   activeVariants: string[],
   registry: Record<string, AnyObjectSchema | undefined>,
-  graph?: Record<string, string[]>,
+  graph: Record<string, string[]>,
+  options?: MergeVariantSchemasOptions,
 ): AnyObjectSchema;
 export function mergeVariantSchemas(
   activeVariants: string[],
   registry: Record<string, AnyObjectSchema | undefined>,
-  graph?: Record<string, string[]>,
+  graph: Record<string, string[]>,
+  options: MergeVariantSchemasOptions = {},
 ): AnyObjectSchema {
-  if (graph === undefined) {
-    const injected = (globalThis as any).__NUXT_VARIANTS_GRAPH__;
-    if (injected === undefined) {
+  for (const variant of activeVariants) {
+    if (!(variant in graph)) {
       throw new Error(
-        "[nuxt-variants] mergeVariantSchemas: no variant graph available. " +
-          "Either pass the graph explicitly as the third argument, or ensure the nuxt-variants " +
-          "module is listed before @nuxt/content in your modules array so the graph is " +
-          "injected into globalThis before content.config.ts is evaluated.",
+        `[nuxt-variants] mergeVariantSchemas: unknown active variant "${variant}". ` +
+          "Register the variant before using it in a collection schema.",
       );
     }
-    graph = injected as Record<string, string[]>;
   }
-  const resolvedGraph = graph as Record<string, string[]>;
-  const firstSchema = activeVariants
-    .flatMap((v) => resolveExtendsGraph([v], resolvedGraph))
+
+  for (const name of Object.keys(registry)) {
+    if (!(name in graph)) {
+      throw new Error(
+        `[nuxt-variants] mergeVariantSchemas: schema registered for unknown variant "${name}". ` +
+          "Schema registry keys must match registered variants.",
+      );
+    }
+  }
+
+  const flattened = resolveExtendsGraph(activeVariants, graph);
+  const firstSchema = flattened
     .map((name) => registry[name])
-    .find((s): s is AnyObjectSchema => s !== undefined);
+    .find((schema): schema is AnyObjectSchema => schema !== undefined);
+  const fallbackSchema = Object.values(registry).find(
+    (schema): schema is AnyObjectSchema => schema !== undefined,
+  );
+  const adapter = firstSchema
+    ? detectAdapter(firstSchema)
+    : fallbackSchema
+      ? detectAdapter(fallbackSchema)
+      : options.adapter;
 
-  if (!firstSchema) {
-    return {} as AnyObjectSchema;
+  if (!adapter) {
+    throw new Error(
+      "[nuxt-variants] mergeVariantSchemas: cannot create an empty object schema because " +
+        "the schema registry is empty. Pass a validator adapter in the fourth argument.",
+    );
   }
 
-  const adapter = detectAdapter(firstSchema);
-  let base = adapter.emptyObject() as AnyObjectSchema;
-
-  const flattened = resolveExtendsGraph(activeVariants, resolvedGraph);
-
-  for (const name of flattened) {
-    const extra = registry[name];
-    if (extra === undefined) continue;
-
-    const extraAdapter = detectAdapter(extra);
-    if (extraAdapter !== adapter) {
+  for (const [name, schema] of Object.entries(registry)) {
+    if (schema !== undefined && detectAdapter(schema) !== adapter) {
       throw new Error(
         `[nuxt-variants] Schema adapter mismatch for variant "${name}". ` +
           "All schemas in a registry must use the same validator library.",
       );
     }
+  }
+
+  let base = adapter.emptyObject() as AnyObjectSchema;
+
+  for (const name of flattened) {
+    const extra = registry[name];
+    if (extra === undefined) continue;
 
     base = adapter.merge(base, extra) as AnyObjectSchema;
   }
