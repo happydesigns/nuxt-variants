@@ -1,4 +1,6 @@
 import { detectAdapter } from "./adapters/detect";
+import { createVariantGraph } from "../graph";
+import type { VariantGraphRegistry } from "../graph";
 import type {
   AnyObjectSchema,
   SchemaAdapter,
@@ -20,6 +22,39 @@ export interface MergeVariantSchemasOptions {
    * not contain any schemas from which the validator can be inferred.
    */
   adapter?: SchemaAdapter;
+}
+
+export type VariantSchemaResolver<TSchema extends AnyObjectSchema> = (
+  activeVariants: string[],
+) => TSchema;
+
+/**
+ * Creates a schema resolver bound to one variant registry and schema registry.
+ * The inheritance graph is computed once and reused by every resolution.
+ */
+export function createVariantSchemaResolver(
+  variantRegistry: VariantGraphRegistry,
+  schemaRegistry: Record<string, ZodObjectSchema | undefined>,
+  options?: MergeVariantSchemasOptions,
+): VariantSchemaResolver<ZodObjectSchema>;
+export function createVariantSchemaResolver(
+  variantRegistry: VariantGraphRegistry,
+  schemaRegistry: Record<string, ValibotObjectSchema | undefined>,
+  options?: MergeVariantSchemasOptions,
+): VariantSchemaResolver<ValibotObjectSchema>;
+export function createVariantSchemaResolver(
+  variantRegistry: VariantGraphRegistry,
+  schemaRegistry: Record<string, AnyObjectSchema | undefined>,
+  options?: MergeVariantSchemasOptions,
+): VariantSchemaResolver<AnyObjectSchema>;
+export function createVariantSchemaResolver(
+  variantRegistry: VariantGraphRegistry,
+  schemaRegistry: Record<string, AnyObjectSchema | undefined>,
+  options: MergeVariantSchemasOptions = {},
+): VariantSchemaResolver<AnyObjectSchema> {
+  const graph = createVariantGraph(variantRegistry);
+
+  return (activeVariants) => mergeVariantSchemas(activeVariants, schemaRegistry, graph, options);
 }
 
 function resolveExtendsGraph(variants: string[], graph: Record<string, string[]>): string[] {

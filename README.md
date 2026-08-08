@@ -231,7 +231,7 @@ export default defineNuxtConfig({
 // content.config.ts
 import { defineCollection, property } from "@nuxt/content";
 import { z } from "zod";
-import { createVariantGraph, mergeVariantSchemas } from "@happydesigns/nuxt-variants/schemas";
+import { createVariantSchemaResolver } from "@happydesigns/nuxt-variants/schemas";
 import { variantRegistry } from "./variants";
 
 const variantSchemas = {
@@ -242,19 +242,20 @@ const variantSchemas = {
   }),
   toc: z.object({ toc: z.boolean().default(true) }),
 };
-const variantGraph = createVariantGraph(variantRegistry);
+const resolveVariantSchema = createVariantSchemaResolver(variantRegistry, variantSchemas);
 
 export const collections = {
   blog: defineCollection({
     type: "page",
     source: "blog/**",
-    schema: mergeVariantSchemas(["article"], variantSchemas, variantGraph),
+    schema: resolveVariantSchema(["article"]),
   }),
 };
 ```
 
-The explicit graph is required. Unknown active variants and schema registry keys
-throw immediately instead of producing an incomplete collection schema.
+The resolver builds the explicit graph once from the shared registry and reuses
+it for every collection. Unknown active variants and schema registry keys throw
+immediately instead of producing an incomplete collection schema.
 
 ## TypeScript
 

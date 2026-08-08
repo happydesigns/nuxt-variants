@@ -1,7 +1,7 @@
-export { mergeVariantSchemas } from "./resolve";
+export { createVariantSchemaResolver, mergeVariantSchemas } from "./resolve";
 export { createVariantGraph } from "../graph";
 export type { VariantGraphEntryInput, VariantGraphRegistry } from "../graph";
-export type { MergeVariantSchemasOptions, SchemaRegistry } from "./resolve";
+export type { MergeVariantSchemasOptions, SchemaRegistry, VariantSchemaResolver } from "./resolve";
 export { zodAdapter, valibotAdapter, detectAdapter } from "./adapters";
 export type {
   SchemaAdapter,

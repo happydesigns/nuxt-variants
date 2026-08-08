@@ -1,7 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { z } from "zod";
 import * as v from "valibot";
-import { mergeVariantSchemas, detectAdapter, zodAdapter, valibotAdapter } from "../../src/schemas";
+import {
+  createVariantSchemaResolver,
+  mergeVariantSchemas,
+  detectAdapter,
+  zodAdapter,
+  valibotAdapter,
+} from "../../src/schemas";
 
 describe("zodAdapter", () => {
   it("emptyObject() returns an empty Zod object with no shape keys", () => {
@@ -248,5 +254,38 @@ describe("mergeVariantSchemas graph resolution", () => {
     expect(() => mergeVariantSchemas(["article"], mixedRegistry as any, graph)).toThrow(
       /adapter mismatch/i,
     );
+  });
+});
+
+describe("createVariantSchemaResolver", () => {
+  const variantRegistry = {
+    seo: {},
+    article: { extends: "seo" },
+  };
+
+  it("binds registry inheritance and Zod schemas once", () => {
+    const resolveSchema = createVariantSchemaResolver(variantRegistry, {
+      seo: z.object({ title: z.string() }),
+      article: z.object({ date: z.date() }),
+    });
+
+    expect(Object.keys(resolveSchema(["article"]).shape)).toEqual(["title", "date"]);
+  });
+
+  it("preserves Valibot schema inference", () => {
+    const resolveSchema = createVariantSchemaResolver(variantRegistry, {
+      seo: v.object({ title: v.string() }),
+      article: v.object({ date: v.date() }),
+    });
+
+    expect(Object.keys(resolveSchema(["article"]).entries)).toEqual(["title", "date"]);
+  });
+
+  it("keeps unknown variants as configuration errors", () => {
+    const resolveSchema = createVariantSchemaResolver(variantRegistry, {
+      seo: z.object({ title: z.string() }),
+    });
+
+    expect(() => resolveSchema(["missing"])).toThrow(/unknown active variant "missing"/i);
   });
 });
