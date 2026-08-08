@@ -5,9 +5,9 @@ description: Build one shared Nuxt layout and drive page-specific behavior from 
 
 ::u-page-hero
 ---
-headline: Typed layout variants for Nuxt
-title: Modularize your Nuxt layouts.
-description: Define reusable layout capabilities once, compose them into named page variants, and let one Nuxt layout resolve the behavior each route needs.
+headline: Composable page behavior for Nuxt
+title: Share one layout without hard-coding every page type.
+description: Name reusable capabilities such as headers, tables of contents, and navigation, compose them into page variants, and resolve the result from any Nuxt layout.
 links:
   - label: Get started
     to: /docs/getting-started
@@ -31,10 +31,10 @@ featureChecksLabel: Feature checks
 configLabel: Resolved config
 articleLabel: Article
 articleSummary: Long-form content with navigation, metadata, and reading aids.
-landingLabel: Landing
-landingSummary: Campaign pages with a larger hero and focused calls to action.
+contentLabel: Content
+contentSummary: Regular content with an optional header and table of contents.
 eventLabel: Event
-eventSummary: Time-bound pages with shared hero behavior and event-specific data.
+eventSummary: Time-bound content with dates, location, and shared reading tools.
 ---
 
 #code
@@ -45,22 +45,22 @@ export default defineNuxtConfig({
   modules: ["@happydesigns/nuxt-variants"],
   variants: {
     registry: {
-      breadcrumbs: {
-        config: { separator: " / ", showHome: true },
-      },
-      hero: {
-        config: { heroHeight: "md", heroAlign: "left" },
-      },
-      seo: {
-        config: { titleTemplate: "%s - Guides" },
-      },
-      toc: {
-        config: { toc: "right" },
-      },
+      dates: {},
+      authors: {},
+      location: {},
+      header: {},
+      toc: {},
+      copyButton: {},
+      surround: {},
       article: {
-        extends: ["breadcrumbs", "hero", "seo", "toc"],
-        config: { heroHeight: "sm", authorBox: true },
+        extends: ["dates", "authors", "header", "toc", "copyButton", "surround"],
+        config: {},
       },
+      event: {
+        extends: ["dates", "location", "header", "toc", "copyButton", "surround"],
+        config: {},
+      },
+      content: ["header", "toc"],
     },
   },
 });
@@ -69,10 +69,9 @@ export default defineNuxtConfig({
 ```ts [app.config.ts]
 export default defineAppConfig({
   variants: {
-    article: {
+    copyButton: {
       config: {
-        heroAlign: "center",
-        relatedLimit: 4,
+        copyButton: { label: "Copy URL", successLabel: "Link copied" },
       },
     },
   },
@@ -93,15 +92,24 @@ definePageMeta({
 const route = useRoute();
 const variant = computed(() => route.meta.variant ?? "article");
 const { config, has } = useVariant(variant);
-const hasBreadcrumbs = has("breadcrumbs");
+const hasHeader = has("header");
 const hasToc = has("toc");
+const hasCopyButton = has("copyButton");
+const hasSurround = has("surround");
 </script>
 
 <template>
-  <BreadcrumbBar v-if="hasBreadcrumbs" />
-  <HeroSection :height="config.heroHeight" :align="config.heroAlign" />
-  <ArticleToc v-if="hasToc" />
-  <slot />
+  <UPage>
+    <UPageHeader v-if="hasHeader" />
+    <UPageBody>
+      <slot />
+      <HCopyButton v-if="hasCopyButton" v-bind="config.copyButton" />
+      <HSurround v-if="hasSurround" />
+    </UPageBody>
+    <template v-if="hasToc" #right>
+      <UContentToc />
+    </template>
+  </UPage>
 </template>
 ```
 
@@ -113,8 +121,8 @@ const hasToc = has("toc");
 ::landing-mental-model
 ---
 eyebrow: The mental model
-title: One layout can serve every page type.
-description: Nuxt Variants keeps app-specific decisions out of the layout file. Features stay small, page variants compose them, and the layout consumes one resolved result.
+title: One layout, explicit capabilities.
+description: Articles, events, and regular content can share a shell without collection-name checks or duplicated layouts. Small traits describe the differences and page variants compose them.
 ---
 
 ::landing-feature{icon="i-lucide-route" number="01" title="Pages choose a name"}
@@ -122,7 +130,7 @@ Route meta selects `article`, `landing`, `event`, or any variant your app owns.
 ::
 
 ::landing-feature{icon="i-lucide-git-merge" number="02" title="The graph composes features"}
-`extends` composes reusable feature variants such as breadcrumbs, hero, SEO, TOC, schemas, and local overrides.
+`extends` composes reusable capabilities such as headers, TOC, authors, locations, copy actions, and previous/next navigation.
 ::
 
 ::landing-feature{icon="i-lucide-panel-top" number="03" title="Layouts consume one result"}
@@ -138,7 +146,7 @@ description: Nuxt Variants owns page-level configuration and leaves rendering, s
 features:
   - icon: i-lucide-layout-panel-left
     title: Shared layout behavior
-    description: Switch hero size, breadcrumbs, sidebar placement, TOC, and editorial chrome without cloning layouts.
+    description: Share headers, TOC placement, copy actions, and previous/next navigation without cloning layouts.
   - icon: i-lucide-database
     title: Content-aware schemas
     description: Keep Nuxt Content fields aligned with the same variant graph that powers rendering.

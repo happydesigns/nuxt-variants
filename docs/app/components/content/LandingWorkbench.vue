@@ -6,10 +6,11 @@ const props = withDefaults(
     extendsLabel?: string;
     featureChecksLabel?: string;
     configLabel?: string;
+    emptyConfigLabel?: string;
     articleLabel?: string;
     articleSummary?: string;
-    landingLabel?: string;
-    landingSummary?: string;
+    contentLabel?: string;
+    contentSummary?: string;
     eventLabel?: string;
     eventSummary?: string;
   }>(),
@@ -19,12 +20,13 @@ const props = withDefaults(
     extendsLabel: "Extends",
     featureChecksLabel: "Feature checks",
     configLabel: "Resolved config",
+    emptyConfigLabel: "No additional config",
     articleLabel: "Article",
     articleSummary: "Long-form content with navigation, metadata, and reading aids.",
-    landingLabel: "Landing",
-    landingSummary: "Campaign pages with a larger hero and focused calls to action.",
+    contentLabel: "Content",
+    contentSummary: "Regular content with an optional header and table of contents.",
     eventLabel: "Event",
-    eventSummary: "Time-bound pages with shared hero behavior and event-specific data.",
+    eventSummary: "Time-bound content with dates, location, and shared reading tools.",
   },
 );
 
@@ -32,38 +34,30 @@ const variants = computed(() => [
   {
     name: "article",
     label: props.articleLabel,
-    extends: ["breadcrumbs", "hero", "seo", "toc"],
+    extends: ["dates", "authors", "header", "toc", "copyButton", "surround"],
     summary: props.articleSummary,
     config: {
-      heroHeight: "sm",
-      heroAlign: "center",
-      toc: "right",
-      authorBox: true,
-      relatedLimit: 4,
+      list: { itemsPerPage: 12 },
+      copyButton: { label: "Copy URL" },
+      surround: { show: true },
     },
   },
   {
-    name: "landing",
-    label: props.landingLabel,
-    extends: ["hero", "seo"],
-    summary: props.landingSummary,
-    config: {
-      heroHeight: "xl",
-      heroAlign: "center",
-      ctaStyle: "split",
-      titleTemplate: "%s - Product",
-    },
+    name: "content",
+    label: props.contentLabel,
+    extends: ["header", "toc"],
+    summary: props.contentSummary,
+    config: {},
   },
   {
     name: "event",
     label: props.eventLabel,
-    extends: ["breadcrumbs", "hero", "seo"],
+    extends: ["dates", "location", "header", "toc", "copyButton", "surround"],
     summary: props.eventSummary,
     config: {
-      heroHeight: "md",
-      heroAlign: "left",
-      schedule: true,
-      titleTemplate: "%s - Events",
+      list: { itemsPerPage: 12 },
+      copyButton: { label: "Copy URL" },
+      surround: { show: true },
     },
   },
 ]);
@@ -195,6 +189,9 @@ const configRows = computed(() =>
               >
                 <dt class="text-muted">{{ row.key }}</dt>
                 <dd class="font-mono text-highlighted">{{ row.value }}</dd>
+              </div>
+              <div v-if="configRows.length === 0" class="text-muted">
+                {{ emptyConfigLabel }}
               </div>
             </dl>
           </div>

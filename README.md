@@ -11,7 +11,26 @@ The package name is `@happydesigns/nuxt-variants`.
 
 ## Why Use It?
 
-Nuxt layouts are good at sharing structure, but real projects often need page-level switches for things like hero size, breadcrumbs, table of contents, sidebars, SEO defaults, and content schema fields. Without a shared registry, those switches tend to drift into duplicated layouts and one-off route logic.
+Nuxt lets a page select a layout, but it does not describe which capabilities a
+page type needs inside that layout. Consider a content site with articles,
+events, and regular pages:
+
+- all three use the same content shell;
+- articles and events show a header, table of contents, copy action, and
+  previous/next navigation;
+- articles have authors, while events have a location;
+- a short contact or overview page can use the same layout without a table of
+  contents.
+
+Without a shared model, this usually becomes duplicated layouts, checks such as
+`collection === "article"`, and separately maintained Nuxt Content schemas.
+Nuxt Variants lets the app name small capabilities such as `header`, `toc`,
+`authors`, `location`, `copyButton`, and `surround`, then compose them into
+`article`, `event`, and `content` variants.
+
+This is useful when several page or collection types share a layout but not
+all of its behavior. A small app with one layout and a few static props usually
+does not need a variant graph.
 
 Nuxt Variants keeps those decisions in one registry:
 
@@ -85,32 +104,22 @@ export default defineNuxtConfig({
   modules: ["@happydesigns/nuxt-variants"],
   variants: {
     registry: {
-      breadcrumbs: {
-        config: {
-          breadcrumbSeparator: " / ",
-          breadcrumbShowHome: true,
-        },
-      },
-      hero: {
-        config: {
-          heroHeight: "md",
-          heroOverlay: false,
-          heroAlign: "left",
-        },
-      },
-      seo: {
-        config: {
-          titleTemplate: "%s - My Site",
-        },
-      },
+      dates: {},
+      authors: {},
+      location: {},
+      header: {},
+      toc: {},
+      copyButton: {},
+      surround: {},
       article: {
-        extends: ["breadcrumbs", "hero", "seo"],
-        config: {
-          heroHeight: "sm",
-          authorBox: true,
-        },
+        extends: ["dates", "authors", "header", "toc", "copyButton", "surround"],
+        config: {},
       },
-      event: ["breadcrumbs", "hero"],
+      event: {
+        extends: ["dates", "location", "header", "toc", "copyButton", "surround"],
+        config: {},
+      },
+      content: ["header", "toc"],
     },
   },
 });
@@ -121,10 +130,12 @@ export default defineNuxtConfig({
 ```ts
 export default defineAppConfig({
   variants: {
-    article: {
+    copyButton: {
       config: {
-        heroAlign: "center",
-        authorBox: false,
+        copyButton: {
+          label: "Copy URL",
+          successLabel: "Link copied",
+        },
       },
     },
   },
@@ -144,11 +155,25 @@ definePageMeta({
 
 ### 4. Resolve The Variant In A Layout
 
+This mirrors the shared content layout in `@happydesigns/ui`. Nuxt Variants
+provides `useVariant`; the rendered Nuxt UI and `H*` components remain owned by
+the application or UI layer.
+
 ```vue
 <template>
-  <BreadcrumbBar v-if="hasBreadcrumbs" :separator="config.breadcrumbSeparator" />
-  <HeroSection :height="config.heroHeight" :overlay="config.heroOverlay" />
-  <slot />
+  <UPage>
+    <UPageHeader v-if="hasHeader" />
+
+    <UPageBody>
+      <slot />
+      <HCopyButton v-if="hasCopyButton" v-bind="config.copyButton" />
+      <HSurround v-if="hasSurround" />
+    </UPageBody>
+
+    <template v-if="hasToc" #right>
+      <UContentToc />
+    </template>
+  </UPage>
 </template>
 
 <script setup lang="ts">
@@ -156,7 +181,10 @@ const route = useRoute();
 const variantName = computed(() => route.meta.variant ?? "article");
 
 const { config, has } = useVariant(variantName);
-const hasBreadcrumbs = has("breadcrumbs");
+const hasHeader = has("header");
+const hasToc = has("toc");
+const hasCopyButton = has("copyButton");
+const hasSurround = has("surround");
 </script>
 ```
 
@@ -165,11 +193,10 @@ When the variant name is a literal, `config` is typed from the generated registr
 ```ts
 const { config, has } = useVariant("article");
 
-config.value.heroHeight;
-config.value.breadcrumbSeparator;
-config.value.authorBox;
+config.value.copyButton;
 
-has("seo").value; // true
+has("authors").value; // true
+has("location").value; // false
 ```
 
 ## Nuxt Content
@@ -182,8 +209,11 @@ need it. This avoids module-order and virtual-alias coupling.
 ```ts
 // variants.ts
 export const variantRegistry = {
-  seo: {},
-  article: { extends: ["seo"] },
+  dates: {},
+  authors: {},
+  header: {},
+  toc: {},
+  article: { extends: ["dates", "authors", "header", "toc"] },
 };
 ```
 
@@ -199,14 +229,18 @@ export default defineNuxtConfig({
 
 ```ts
 // content.config.ts
-import { defineCollection } from "@nuxt/content";
+import { defineCollection, property } from "@nuxt/content";
 import { z } from "zod";
 import { createVariantGraph, mergeVariantSchemas } from "@happydesigns/nuxt-variants/schemas";
 import { variantRegistry } from "./variants";
 
 const variantSchemas = {
-  seo: z.object({ seoTitle: z.string() }),
-  article: z.object({ authorName: z.string() }),
+  dates: z.object({ date: z.date().optional() }),
+  authors: z.object({ authors: z.array(z.string()).optional() }),
+  header: z.object({
+    header: property(z.object({})).inherit("@nuxt/ui/components/PageHeader.vue").optional(),
+  }),
+  toc: z.object({ toc: z.boolean().default(true) }),
 };
 const variantGraph = createVariantGraph(variantRegistry);
 
@@ -232,25 +266,27 @@ import type { VariantConfigOf } from "#nuxt-variants";
 type ArticleConfig = VariantConfigOf<"article">;
 ```
 
-Generated config values are widened to primitive types. If you need narrower
-literal unions, augment `CustomVariantOverrides` in a module declaration:
+Generated config values are widened to primitive types. If you need a narrower
+or library-owned type, augment `CustomVariantOverrides` in a module
+declaration. This example mirrors the typed back-button configuration used by
+`@happydesigns/ui`:
 
 ```ts
+import type { ButtonProps } from "@nuxt/ui";
+
 export {};
 
 declare module "#nuxt-variants" {
   interface CustomVariantOverrides {
-    hero: {
-      heroHeight: "sm" | "md" | "lg" | "xl";
-      heroOverlay: boolean;
-      heroAlign: "left" | "center" | "right";
+    backButton: {
+      backButton: Pick<ButtonProps, "icon" | "label" | "to">;
     };
   }
 }
 ```
 
 An override replaces the inferred config type for that registry entry and is
-also applied when another variant inherits the entry. It changes TypeScript
+also applied when `article` or another variant inherits the entry. It changes TypeScript
 types only; runtime values still come from `nuxt.config.ts` and
 `app.config.ts`.
 
