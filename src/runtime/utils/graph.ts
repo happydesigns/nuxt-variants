@@ -8,11 +8,15 @@ export type VariantGraphEntryInput =
 
 export type VariantGraphRegistry = Record<string, VariantGraphEntryInput>;
 
+function isStringArray(entry: VariantGraphEntryInput): entry is readonly string[] {
+  return Array.isArray(entry);
+}
+
 /** Builds the inheritance graph consumed by schema resolution and tooling. */
 export function createVariantGraph(registry: VariantGraphRegistry): Record<string, string[]> {
   return Object.fromEntries(
     Object.entries(registry).map(([name, entry]) => {
-      const extendsValue = "extends" in entry ? entry.extends : entry;
+      const extendsValue = isStringArray(entry) ? entry : entry.extends;
       return [
         name,
         extendsValue === undefined
