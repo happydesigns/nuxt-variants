@@ -83,23 +83,42 @@ export function variantHasFeature(
   featureName: string,
   baseRegistry: VariantRegistry,
   overrideRegistry: VariantRegistry,
-  visited = new Set<string>(),
 ): boolean {
-  if (visited.has(variantName)) return false;
+  return resolveVariantFeatures(variantName, baseRegistry, overrideRegistry).has(featureName);
+}
+
+/** Resolves the active variant and its complete active inheritance chain once. */
+export function resolveVariantFeatures(
+  variantName: string,
+  baseRegistry: VariantRegistry,
+  overrideRegistry: VariantRegistry,
+  visited = new Set<string>(),
+): ReadonlySet<string> {
+  if (visited.has(variantName)) return new Set();
   visited.add(variantName);
 
   const baseEntry = baseRegistry[variantName];
   const overrideEntry = overrideRegistry[variantName];
-  if (!baseEntry && !overrideEntry) return false;
+  if (!baseEntry && !overrideEntry) return new Set();
 
   const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
-  if (isActive === false) return false;
+  if (isActive === false) return new Set();
 
-  if (variantName === featureName) return true;
+  const features = new Set<string>();
 
-  return getVariantExtends(variantName, baseRegistry, overrideRegistry).some((parent) =>
-    variantHasFeature(parent, featureName, baseRegistry, overrideRegistry, new Set(visited)),
-  );
+  for (const parent of getVariantExtends(variantName, baseRegistry, overrideRegistry)) {
+    for (const feature of resolveVariantFeatures(
+      parent,
+      baseRegistry,
+      overrideRegistry,
+      new Set(visited),
+    )) {
+      features.add(feature);
+    }
+  }
+
+  features.add(variantName);
+  return features;
 }
 
 export function listVariantEntries(

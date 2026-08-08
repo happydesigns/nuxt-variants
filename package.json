@@ -36,9 +36,9 @@
     "access": "public"
   },
   "scripts": {
-    "build:client": "node scripts/build-client.mjs",
+    "build:client": "nuxt prepare client && node scripts/build-client.mjs",
     "prepack": "nuxt-module-build build && pnpm build:client",
-    "dev:prepare": "nuxt-module-build build --stub && pnpm build:client && nuxt-module-build prepare && nuxt prepare playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt prepare playground && pnpm build:client",
     "dev": "pnpm dev:prepare && nuxt dev playground",
     "dev:build": "nuxt build playground",
     "docs": "pnpm docs:dev",
@@ -54,28 +54,31 @@
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit && cd ../client && vue-tsc --noEmit"
   },
   "dependencies": {
-    "@nuxt/devtools-kit": "3.2.4",
-    "@nuxt/kit": "^4.4.2"
+    "@nuxt/devtools-kit": "3.4.0",
+    "@nuxt/kit": "4.5.1"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^3.2.4",
-    "@nuxt/devtools-ui-kit": "3.2.4",
-    "@nuxt/module-builder": "^1.0.2",
-    "@nuxt/schema": "^4.4.2",
-    "@nuxt/test-utils": "^4.0.0",
+    "@nuxt/devtools": "3.4.0",
+    "@nuxt/devtools-ui-kit": "3.4.0",
+    "@nuxt/module-builder": "^1.0.3",
+    "@nuxt/schema": "4.5.1",
+    "@nuxt/test-utils": "^4.1.0",
     "@types/node": "latest",
-    "@vitest/coverage-v8": "4.1.2",
+    "@vitest/coverage-v8": "4.1.10",
     "changelogen": "^0.6.2",
     "defu": "^6.1.7",
-    "nuxt": "^4.4.2",
-    "oxfmt": "^0.44.0",
-    "oxlint": "^1.59.0",
+    "nuxt": "4.5.1",
+    "oxfmt": "^0.62.0",
+    "oxlint": "^1.77.0",
     "typescript": "~6.0.2",
     "unbuild": "^3.6.1",
-    "valibot": "^1.3.1",
-    "vitest": "^4.1.2",
-    "vue-tsc": "^3.2.6",
-    "zod": "^4.3.6"
+    "valibot": "^1.4.2",
+    "vitest": "^4.1.10",
+    "vue-tsc": "^3.3.9",
+    "zod": "^4.4.3"
   },
-  "packageManager": "pnpm@11.0.9"
+  "engines": {
+    "node": "^22.19.0 || ^24.11.0 || >=26.0.0"
+  },
+  "packageManager": "pnpm@11.20.0"
 }

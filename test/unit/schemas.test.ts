@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { z } from "zod";
 import * as v from "valibot";
 import { mergeVariantSchemas, detectAdapter, zodAdapter, valibotAdapter } from "../../src/schemas";
@@ -160,15 +160,27 @@ describe("mergeVariantSchemas with Zod", () => {
     expect((merged as any).shape.shared).toBe(heroField);
   });
 
-  it("returns empty object schema when no registry entry matches", () => {
-    const merged = mergeVariantSchemas(["article"], {}, graph);
-    expect(merged).toEqual({});
+  it("returns a valid empty object schema when no reachable registry entry matches", () => {
+    const merged = mergeVariantSchemas(
+      ["article"],
+      { blog: z.object({ author: z.string() }) },
+      graph,
+    );
+    expect(merged).toBeInstanceOf(z.ZodObject);
+    expect(merged.shape).toEqual({});
   });
 
-  it("returns empty object schema for empty activeVariants array", () => {
+  it("returns a valid empty object schema for an empty activeVariants array", () => {
     const registry = { seo: z.object({ title: z.string() }) };
     const merged = mergeVariantSchemas([], registry, graph);
-    expect(merged).toEqual({});
+    expect(merged).toBeInstanceOf(z.ZodObject);
+    expect(merged.shape).toEqual({});
+  });
+
+  it("uses an explicit adapter for an entirely empty registry", () => {
+    const merged = mergeVariantSchemas([], {}, graph, { adapter: zodAdapter });
+    expect(merged).toBeInstanceOf(z.ZodObject);
+    expect(merged.shape).toEqual({});
   });
 
   it("does not infinite-loop on a circular graph and still merges reachable schemas", () => {
@@ -211,23 +223,20 @@ describe("mergeVariantSchemas with Valibot", () => {
 });
 
 describe("mergeVariantSchemas graph resolution", () => {
-  beforeEach(() => {
-    delete (globalThis as any).__NUXT_VARIANTS_GRAPH__;
+  it("throws when an active variant is unknown", () => {
+    expect(() =>
+      mergeVariantSchemas(["missing"], { seo: z.object({ title: z.string() }) }, graph),
+    ).toThrow(/unknown active variant "missing"/i);
   });
 
-  afterEach(() => {
-    delete (globalThis as any).__NUXT_VARIANTS_GRAPH__;
+  it("throws when a schema registry key is unknown", () => {
+    expect(() =>
+      mergeVariantSchemas(["seo"], { missing: z.object({ title: z.string() }) }, graph),
+    ).toThrow(/schema registered for unknown variant "missing"/i);
   });
 
-  it("falls back to globalThis graph when no explicit graph provided", () => {
-    (globalThis as any).__NUXT_VARIANTS_GRAPH__ = graph;
-    const registry = { seo: z.object({ title: z.string() }) };
-    const merged = mergeVariantSchemas(["seo"], registry);
-    expect(Object.keys((merged as any).shape)).toContain("title");
-  });
-
-  it("throws when graph is omitted and globalThis has none", () => {
-    expect(() => mergeVariantSchemas(["seo"], {})).toThrow(/no variant graph/i);
+  it("throws when an empty registry has no explicit adapter", () => {
+    expect(() => mergeVariantSchemas([], {}, graph)).toThrow(/registry is empty/i);
   });
 
   it("throws on adapter mismatch across variants", () => {

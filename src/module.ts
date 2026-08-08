@@ -10,10 +10,12 @@ import {
 } from "@nuxt/kit";
 import { addCustomTab } from "@nuxt/devtools-kit";
 import { collectVariantDiagnostics } from "./runtime/utils/diagnostics";
+import { createVariantGraph } from "./runtime/utils/graph";
+import { serializeConfigShape } from "./utils/type-serialization";
 import {
   listVariantEntries,
   resolveVariantConfig,
-  variantHasFeature,
+  resolveVariantFeatures,
   type VariantRegistry,
 } from "./runtime/utils/variants";
 
@@ -74,17 +76,14 @@ export default defineNuxtModule<ModuleOptions>({
     >;
 
     const allRegistryKeys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)]);
-    const variantGraph: Record<string, string[]> = {};
-
-    for (const key of allRegistryKeys) {
-      const extendsValue = appRegistry[key]?.extends ?? baseRegistry[key]?.extends;
-      variantGraph[key] =
-        extendsValue === undefined
-          ? []
-          : Array.isArray(extendsValue)
-            ? extendsValue
-            : [extendsValue];
-    }
+    const variantGraph = createVariantGraph(
+      Object.fromEntries(
+        [...allRegistryKeys].map((key) => [
+          key,
+          { extends: appRegistry[key]?.extends ?? baseRegistry[key]?.extends },
+        ]),
+      ),
+    );
 
     const diagnostics = collectVariantDiagnostics(
       baseRegistry as VariantRegistry,
@@ -118,14 +117,13 @@ export default defineNuxtModule<ModuleOptions>({
             baseRegistry as VariantRegistry,
             appRegistry as VariantRegistry,
           ),
-          activeFeatures: [...allRegistryKeys].filter((feature) =>
-            variantHasFeature(
+          activeFeatures: [
+            ...resolveVariantFeatures(
               entry.name,
-              feature,
               baseRegistry as VariantRegistry,
               appRegistry as VariantRegistry,
             ),
-          ),
+          ],
         })),
         graph: variantGraph,
         diagnostics,
@@ -134,34 +132,6 @@ export default defineNuxtModule<ModuleOptions>({
         variantDevtoolsData: devtoolsData,
         variantDevtoolsClientPath: devtoolsClientPath,
       });
-    }
-
-    /** Converts a JS config object into a TypeScript type literal string (widened to primitives). */
-    function serializeConfigShape(config: Record<string, unknown>): string {
-      const entries = Object.entries(config).map(([k, v]) => {
-        let t: string;
-        if (v === null) t = "null";
-        else if (Array.isArray(v)) t = "unknown[]";
-        else
-          switch (typeof v) {
-            case "string":
-              t = "string";
-              break;
-            case "number":
-              t = "number";
-              break;
-            case "boolean":
-              t = "boolean";
-              break;
-            case "object":
-              t = serializeConfigShape(v as Record<string, unknown>);
-              break;
-            default:
-              t = "unknown";
-          }
-        return `${k}: ${t}`;
-      });
-      return entries.length ? `{ ${entries.join("; ")} }` : "{}";
     }
 
     /** Returns the key itself plus all transitive ancestors, deduped, in resolution order. */
@@ -276,8 +246,18 @@ type _AppOnlyVariantRegistry = {
 
 export type CustomVariantRegistry = _GeneratedVariantRegistry & _AppOnlyVariantRegistry
 
+type _KeysOfUnion<U> = U extends unknown ? keyof U : never
+type _ValueForKey<U, K extends PropertyKey> = U extends unknown
+  ? K extends keyof U ? U[K] : never
+  : never
+type _MergeVariantConfigUnion<U> = {
+  [K in _KeysOfUnion<U>]?: _ValueForKey<U, K>
+}
+
 /** The resolved (merged) config type for a variant key. */
-export type VariantConfigOf<K extends keyof CustomVariantRegistry> = Partial<CustomVariantRegistry[K]>
+export type VariantConfigOf<K extends keyof CustomVariantRegistry> = _MergeVariantConfigUnion<
+  CustomVariantRegistry[K]
+>
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -289,10 +269,6 @@ declare module 'vue-router' {
     });
 
     nuxt.options.alias["#nuxt-variants"] = `${nuxt.options.buildDir}/types/nuxt-variants`;
-
-    // Inject graph into globalThis so utilities like mergeVariantSchemas
-    // can find it automatically even when called in content.config.ts
-    (globalThis as any).__NUXT_VARIANTS_GRAPH__ = variantGraph;
 
     const graphMjsPath = join(nuxt.options.buildDir, "variants-graph.mjs");
     const graphDmtsPath = join(nuxt.options.buildDir, "variants-graph.d.mts");
@@ -314,17 +290,17 @@ declare module 'vue-router' {
       [
         `import { mergeVariantSchemas as _merge } from "@happydesigns/nuxt-variants/schemas";`,
         `const _graph = ${JSON.stringify(variantGraph, null, 2)};`,
-        `export function mergeVariantSchemas(activeVariants, registry) {`,
-        `  return _merge(activeVariants, registry, _graph);`,
+        `export function mergeVariantSchemas(activeVariants, registry, options) {`,
+        `  return _merge(activeVariants, registry, _graph, options);`,
         `}`,
         `export { zodAdapter, valibotAdapter, detectAdapter } from "@happydesigns/nuxt-variants/schemas";`,
       ].join("\n") + "\n";
     const schemasDtsContent =
       [
-        `import type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
-        `export declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ZodObjectSchema | undefined>, graph?: Record<string, string[]>): ZodObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ValibotObjectSchema | undefined>, graph?: Record<string, string[]>): ValibotObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, AnyObjectSchema | undefined>, graph?: Record<string, string[]>): AnyObjectSchema;`,
+        `import type { SchemaRegistry, SchemaAdapter, MergeVariantSchemasOptions, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
+        `export declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ZodObjectSchema | undefined>, options?: MergeVariantSchemasOptions): ZodObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ValibotObjectSchema | undefined>, options?: MergeVariantSchemasOptions): ValibotObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, AnyObjectSchema | undefined>, options?: MergeVariantSchemasOptions): AnyObjectSchema;`,
         `export { zodAdapter, valibotAdapter, detectAdapter } from "@happydesigns/nuxt-variants/schemas";`,
-        `export type { SchemaRegistry, SchemaAdapter, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
+        `export type { SchemaRegistry, SchemaAdapter, MergeVariantSchemasOptions, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
       ].join("\n") + "\n";
 
     // Write eagerly so content.config.ts can import the file at Nuxt init time,

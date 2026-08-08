@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   listVariantEntries,
   resolveVariantConfig,
+  resolveVariantFeatures,
   variantHasFeature,
   type VariantRegistry,
 } from "../../src/runtime/utils/variants";
@@ -80,6 +81,16 @@ describe("variant runtime utilities", () => {
     expect(variantHasFeature("editorial", "hero", baseRegistry, appRegistry)).toBe(true);
     expect(variantHasFeature("inactive", "inactive", baseRegistry, appRegistry)).toBe(false);
     expect(variantHasFeature("inactive", "seo", baseRegistry, appRegistry)).toBe(false);
+  });
+
+  it("resolves each active feature once in inheritance order", () => {
+    expect([...resolveVariantFeatures("article", baseRegistry, appRegistry)]).toEqual([
+      "seo",
+      "hero",
+      "article",
+    ]);
+    expect([...resolveVariantFeatures("inactive", baseRegistry, appRegistry)]).toEqual([]);
+    expect([...resolveVariantFeatures("missing", baseRegistry, appRegistry)]).toEqual([]);
   });
 
   it("lists variants from both registries with normalized extends and config keys", () => {

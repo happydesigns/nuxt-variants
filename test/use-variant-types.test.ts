@@ -1,15 +1,10 @@
 import { describe, it, expectTypeOf } from "vitest";
 import type { ModuleOptions } from "../src/module";
-
-type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (
-  x: infer I,
-) => void
-  ? I
-  : never;
+import type { MergeVariantConfigUnion } from "../src/runtime/composables/useVariant";
 
 type AnyVariantConfigFor<Registry> = keyof Registry extends never
   ? Record<string, unknown>
-  : Partial<UnionToIntersection<Registry[keyof Registry]>>;
+  : MergeVariantConfigUnion<Registry[keyof Registry]>;
 
 describe("AnyVariantConfig (string / unknown key fallback type)", () => {
   type MockRegistry = {
@@ -38,6 +33,18 @@ describe("AnyVariantConfig (string / unknown key fallback type)", () => {
     type EmptyConfig = AnyVariantConfigFor<EmptyRegistry>;
 
     expectTypeOf<EmptyConfig>().toEqualTypeOf<Record<string, unknown>>();
+  });
+
+  it("unions conflicting field types instead of collapsing them to never", () => {
+    type ConflictingRegistry = {
+      compact: { size: number; label: string };
+      named: { size: string; visible: boolean };
+    };
+    type Config = AnyVariantConfigFor<ConflictingRegistry>;
+
+    expectTypeOf<Config["size"]>().toEqualTypeOf<string | number | undefined>();
+    expectTypeOf<Config["label"]>().toEqualTypeOf<string | undefined>();
+    expectTypeOf<Config["visible"]>().toEqualTypeOf<boolean | undefined>();
   });
 });
 

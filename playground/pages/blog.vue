@@ -34,12 +34,12 @@ const extendsSeo = has("seo");
         </div>
         <p class="text-sm text-muted leading-relaxed mb-5">
           <code class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded-sm border border-default"
-            >mergeVariantSchemas(['article'], variantSchemas)</code
+            >mergeVariantSchemas(['article'], variantSchemas, variantGraph)</code
           >
-          uses the schema helper. Because the module is listed before
-          <code class="font-mono text-xs">@nuxt/content</code>, the build-time graph is available
-          when Content evaluates the config, so the blog collection receives fields from
-          <code class="font-mono text-xs">article -&gt; seo</code>.
+          uses the schema helper with an explicit graph created from the shared variant registry.
+          The blog collection therefore receives fields from
+          <code class="font-mono text-xs">article -&gt; seo</code> without relying on module setup
+          order or process-global state.
         </p>
 
         <div class="border border-default rounded-sm overflow-hidden">

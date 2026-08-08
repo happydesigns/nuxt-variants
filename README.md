@@ -173,28 +173,51 @@ has("seo").value; // true
 
 Nuxt Variants ships `mergeVariantSchemas` for Nuxt Content v3. It walks the variant graph and produces one Zod or Valibot object schema with inherited fields included.
 
-Import the schema helper from the package inside `content.config.ts`:
+Keep the registry in a normal TypeScript file when both Nuxt and Nuxt Content
+need it. This avoids module-order and virtual-alias coupling.
 
 ```ts
+// variants.ts
+export const variantRegistry = {
+  seo: {},
+  article: { extends: ["seo"] },
+};
+```
+
+```ts
+// nuxt.config.ts
+import { variantRegistry } from "./variants";
+
+export default defineNuxtConfig({
+  modules: ["@happydesigns/nuxt-variants", "@nuxt/content"],
+  variants: { registry: variantRegistry },
+});
+```
+
+```ts
+// content.config.ts
 import { defineCollection } from "@nuxt/content";
 import { z } from "zod";
-import { mergeVariantSchemas } from "@happydesigns/nuxt-variants/schemas";
+import { createVariantGraph, mergeVariantSchemas } from "@happydesigns/nuxt-variants/schemas";
+import { variantRegistry } from "./variants";
 
 const variantSchemas = {
   seo: z.object({ seoTitle: z.string() }),
   article: z.object({ authorName: z.string() }),
 };
+const variantGraph = createVariantGraph(variantRegistry);
 
 export const collections = {
   blog: defineCollection({
     type: "page",
     source: "blog/**",
-    schema: mergeVariantSchemas(["article"], variantSchemas),
+    schema: mergeVariantSchemas(["article"], variantSchemas, variantGraph),
   }),
 };
 ```
 
-If you omit the graph argument, list Nuxt Variants before `@nuxt/content` in `modules` so the graph is available when `content.config.ts` runs. You can also pass an explicit graph as the third argument.
+The explicit graph is required. Unknown active variants and schema registry keys
+throw immediately instead of producing an incomplete collection schema.
 
 ## TypeScript
 
@@ -222,9 +245,10 @@ declare module "#nuxt-variants" {
 
 ## API Overview
 
-`useVariant(name)` returns `{ config, has }`.
+`useVariant(name)` returns `{ config, features, has }`.
 
 - `config` is a `ComputedRef` of the fully merged config.
+- `features` is a `ComputedRef<ReadonlySet<string>>` resolved once per reactive change.
 - `has(featureName)` returns a `ComputedRef<boolean>` for direct or transitive inheritance.
 - `name` and `featureName` can be strings, refs, computed refs, or getters.
 - `active: false` disables both resolved config and `has()` checks for that variant.
@@ -288,7 +312,7 @@ The same warnings are available as `variantDiagnostics` from `#variants-graph` a
 
 ## Playground And Documentation
 
-Use Node.js 22.13 or newer. The repository pins pnpm through
+Use Node.js 22.19+, 24.11+, or 26+. The repository pins pnpm through
 `packageManager`, so Corepack and CI use the same package manager version.
 
 ```bash
