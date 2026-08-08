@@ -1,5 +1,54 @@
 # Changelog
 
+## v0.1.0
+
+[compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.6...v0.1.0)
+
+### 🚀 Enhancements
+
+- **schemas:** Create graphs from shared registries ([5c1f4a1](https://github.com/happydesigns/nuxt-variants/commit/5c1f4a1))
+
+### 🔥 Performance
+
+- **runtime:** Reuse resolved variant feature sets ([f5f0972](https://github.com/happydesigns/nuxt-variants/commit/f5f0972))
+
+### 🩹 Fixes
+
+- **types:** Preserve dynamic variant config fields ([3050b35](https://github.com/happydesigns/nuxt-variants/commit/3050b35))
+- **runtime:** Preserve feature resolution order ([f68a95f](https://github.com/happydesigns/nuxt-variants/commit/f68a95f))
+- **schemas:** Normalize empty variant entries ([19c913e](https://github.com/happydesigns/nuxt-variants/commit/19c913e))
+- **errors:** Use the nuxt-variants package name ([47a7764](https://github.com/happydesigns/nuxt-variants/commit/47a7764))
+- **build:** Prepare devtools client before generation ([b41e4f0](https://github.com/happydesigns/nuxt-variants/commit/b41e4f0))
+
+### 💅 Refactors
+
+- **schemas:** ⚠️  Require explicit variant graphs ([5498f3b](https://github.com/happydesigns/nuxt-variants/commit/5498f3b))
+- **core:** Share variant graph normalization ([00ed14b](https://github.com/happydesigns/nuxt-variants/commit/00ed14b))
+
+### 📖 Documentation
+
+- Document the 0.1 migration ([b93ff3b](https://github.com/happydesigns/nuxt-variants/commit/b93ff3b))
+- **playground:** Show explicit schema graph usage ([7fa26b7](https://github.com/happydesigns/nuxt-variants/commit/7fa26b7))
+
+### 🏡 Chore
+
+- **deps:** ⚠️  Require supported Node releases ([5c824fa](https://github.com/happydesigns/nuxt-variants/commit/5c824fa))
+
+### 🤖 CI
+
+- Use dev prepare script ([26b6972](https://github.com/happydesigns/nuxt-variants/commit/26b6972))
+- Test Nuxt 4.5 on Node 24 ([b41b124](https://github.com/happydesigns/nuxt-variants/commit/b41b124))
+- Update GitHub Actions ([a178ba8](https://github.com/happydesigns/nuxt-variants/commit/a178ba8))
+
+#### ⚠️ Breaking Changes
+
+- **schemas:** ⚠️  Require explicit variant graphs ([5498f3b](https://github.com/happydesigns/nuxt-variants/commit/5498f3b))
+- **deps:** ⚠️  Require supported Node releases ([5c824fa](https://github.com/happydesigns/nuxt-variants/commit/5c824fa))
+
+### ❤️ Contributors
+
+- Jan Fröhlich ([@janfrl](https://github.com/janfrl))
+
 ## v0.0.6
 
 [compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.0.5...v0.0.6)
