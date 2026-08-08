@@ -22,7 +22,7 @@
 
 ### 💅 Refactors
 
-- **schemas:** ⚠️  Require explicit variant graphs ([5498f3b](https://github.com/happydesigns/nuxt-variants/commit/5498f3b))
+- **schemas:** ⚠️ Require explicit variant graphs ([5498f3b](https://github.com/happydesigns/nuxt-variants/commit/5498f3b))
 - **core:** Share variant graph normalization ([00ed14b](https://github.com/happydesigns/nuxt-variants/commit/00ed14b))
 
 ### 📖 Documentation
@@ -32,7 +32,7 @@
 
 ### 🏡 Chore
 
-- **deps:** ⚠️  Require supported Node releases ([5c824fa](https://github.com/happydesigns/nuxt-variants/commit/5c824fa))
+- **deps:** ⚠️ Require supported Node releases ([5c824fa](https://github.com/happydesigns/nuxt-variants/commit/5c824fa))
 
 ### 🤖 CI
 
@@ -42,8 +42,8 @@
 
 #### ⚠️ Breaking Changes
 
-- **schemas:** ⚠️  Require explicit variant graphs ([5498f3b](https://github.com/happydesigns/nuxt-variants/commit/5498f3b))
-- **deps:** ⚠️  Require supported Node releases ([5c824fa](https://github.com/happydesigns/nuxt-variants/commit/5c824fa))
+- **schemas:** ⚠️ Require explicit variant graphs ([5498f3b](https://github.com/happydesigns/nuxt-variants/commit/5498f3b))
+- **deps:** ⚠️ Require supported Node releases ([5c824fa](https://github.com/happydesigns/nuxt-variants/commit/5c824fa))
 
 ### ❤️ Contributors
 
