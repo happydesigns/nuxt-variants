@@ -2,7 +2,7 @@ import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from "vue"
 import { useRuntimeConfig, useAppConfig } from "#app";
 import {
   resolveVariantConfig,
-  variantHasFeature,
+  resolveVariantFeatures,
   type VariantRegistryEntry,
   type VariantRegistry,
 } from "../utils/variants";
@@ -40,6 +40,8 @@ export type VariantConfigOf<K extends keyof CustomVariantRegistry> = MergeVarian
 export interface UseVariantReturn<TConfig> {
   /** The fully merged configuration object for this variant. */
   config: ComputedRef<TConfig>;
+  /** The active variant and its complete active inheritance chain. */
+  features: ComputedRef<ReadonlySet<string>>;
   /**
    * Returns a computed ref that is `true` if this variant directly or
    * transitively extends the given feature name.
@@ -78,13 +80,14 @@ export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<unk
     return resolveVariantConfig(toValue(name) as string, baseRegistry, overrideRegistry) as unknown;
   });
 
+  const features = computed(() => {
+    const { baseRegistry, overrideRegistry } = getRegistries();
+    return resolveVariantFeatures(toValue(name) as string, baseRegistry, overrideRegistry);
+  });
+
   function has(featureName: MaybeRefOrGetter<string>): ComputedRef<boolean> {
-    return computed(() => {
-      const { baseRegistry, overrideRegistry } = getRegistries();
-      const target = toValue(featureName);
-      return variantHasFeature(toValue(name) as string, target, baseRegistry, overrideRegistry);
-    });
+    return computed(() => features.value.has(toValue(featureName)));
   }
 
-  return { config, has };
+  return { config, features, has };
 }

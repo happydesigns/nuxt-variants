@@ -14,7 +14,7 @@ import { serializeConfigShape } from "./utils/type-serialization";
 import {
   listVariantEntries,
   resolveVariantConfig,
-  variantHasFeature,
+  resolveVariantFeatures,
   type VariantRegistry,
 } from "./runtime/utils/variants";
 
@@ -119,14 +119,13 @@ export default defineNuxtModule<ModuleOptions>({
             baseRegistry as VariantRegistry,
             appRegistry as VariantRegistry,
           ),
-          activeFeatures: [...allRegistryKeys].filter((feature) =>
-            variantHasFeature(
+          activeFeatures: [
+            ...resolveVariantFeatures(
               entry.name,
-              feature,
               baseRegistry as VariantRegistry,
               appRegistry as VariantRegistry,
             ),
-          ),
+          ],
         })),
         graph: variantGraph,
         diagnostics,
