@@ -85,9 +85,9 @@ describe("variant runtime utilities", () => {
 
   it("resolves each active feature once in inheritance order", () => {
     expect([...resolveVariantFeatures("article", baseRegistry, appRegistry)]).toEqual([
-      "article",
       "seo",
       "hero",
+      "article",
     ]);
     expect([...resolveVariantFeatures("inactive", baseRegistry, appRegistry)]).toEqual([]);
     expect([...resolveVariantFeatures("missing", baseRegistry, appRegistry)]).toEqual([]);

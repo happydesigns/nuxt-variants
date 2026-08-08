@@ -104,7 +104,7 @@ export function resolveVariantFeatures(
   const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
   if (isActive === false) return new Set();
 
-  const features = new Set<string>([variantName]);
+  const features = new Set<string>();
 
   for (const parent of getVariantExtends(variantName, baseRegistry, overrideRegistry)) {
     for (const feature of resolveVariantFeatures(
@@ -117,6 +117,7 @@ export function resolveVariantFeatures(
     }
   }
 
+  features.add(variantName);
   return features;
 }
 
