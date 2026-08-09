@@ -1,6 +1,11 @@
 import { getVariantExtends, type VariantRegistry } from "./variants";
 
 export type VariantDiagnosticCode =
+  | "invalid-registry-entry"
+  | "invalid-runtime-entry"
+  | "invalid-extends"
+  | "invalid-active"
+  | "invalid-config"
   | "unknown-registry-field"
   | "unknown-runtime-field"
   | "unknown-parent"
@@ -21,6 +26,91 @@ export interface VariantDiagnostic {
 const registryFields = new Set(["extends", "active", "config"]);
 // `extends` has its own actionable runtime-extends diagnostic below.
 const runtimeFields = new Set(["extends", "active", "config"]);
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function collectEntryShapeDiagnostics(
+  registry: Record<string, unknown>,
+  source: "Registry" | "App config",
+): VariantDiagnostic[] {
+  const diagnostics: VariantDiagnostic[] = [];
+  const runtime = source === "App config";
+
+  for (const [variant, entry] of Object.entries(registry)) {
+    if (Array.isArray(entry)) {
+      if (!runtime && !entry.every((parent) => typeof parent === "string")) {
+        diagnostics.push({
+          code: "invalid-extends",
+          severity: "error",
+          variant,
+          field: "extends",
+          message: `Registry shorthand for variant "${variant}" must contain only parent names.`,
+        });
+      }
+      continue;
+    }
+
+    if (!isObject(entry)) {
+      diagnostics.push({
+        code: runtime ? "invalid-runtime-entry" : "invalid-registry-entry",
+        severity: "error",
+        variant,
+        message: `${source} entry for variant "${variant}" must be an object${runtime ? "" : " or an array of parent names"}.`,
+      });
+      continue;
+    }
+
+    if (
+      !runtime &&
+      entry.extends !== undefined &&
+      typeof entry.extends !== "string" &&
+      !(Array.isArray(entry.extends) && entry.extends.every((parent) => typeof parent === "string"))
+    ) {
+      diagnostics.push({
+        code: "invalid-extends",
+        severity: "error",
+        variant,
+        field: "extends",
+        message: `Registry field "extends" for variant "${variant}" must be a parent name or an array of parent names.`,
+      });
+    }
+
+    if (entry.active !== undefined && typeof entry.active !== "boolean") {
+      diagnostics.push({
+        code: "invalid-active",
+        severity: "error",
+        variant,
+        field: "active",
+        message: `${source} field "active" for variant "${variant}" must be a boolean.`,
+      });
+    }
+
+    if (entry.config !== undefined && !isObject(entry.config)) {
+      diagnostics.push({
+        code: "invalid-config",
+        severity: "error",
+        variant,
+        field: "config",
+        message: `${source} field "config" for variant "${variant}" must be an object.`,
+      });
+    }
+  }
+
+  return diagnostics;
+}
+
+/** Validates raw module and app-config entries before registry normalization. */
+export function collectVariantInputDiagnostics(
+  baseRegistry: Record<string, unknown>,
+  overrideRegistry: Record<string, unknown>,
+): VariantDiagnostic[] {
+  return [
+    ...collectEntryShapeDiagnostics(baseRegistry, "Registry"),
+    ...collectEntryShapeDiagnostics(overrideRegistry, "App config"),
+  ];
+}
 
 function collectUnknownFields(
   registry: Record<string, unknown>,
@@ -164,5 +254,13 @@ export function assertValidVariantRegistry(
   overrideRegistry: Record<string, unknown>,
 ): void {
   const diagnostics = collectVariantDiagnostics(baseRegistry, overrideRegistry);
+  if (diagnostics.length > 0) throw new VariantRegistryError(diagnostics);
+}
+
+export function assertValidVariantInputs(
+  baseRegistry: Record<string, unknown>,
+  overrideRegistry: Record<string, unknown>,
+): void {
+  const diagnostics = collectVariantInputDiagnostics(baseRegistry, overrideRegistry);
   if (diagnostics.length > 0) throw new VariantRegistryError(diagnostics);
 }

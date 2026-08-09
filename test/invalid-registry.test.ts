@@ -17,4 +17,18 @@ describe("invalid Nuxt registry", () => {
       ],
     });
   });
+
+  it("rejects malformed entries before normalization", async () => {
+    const cwd = fileURLToPath(new URL("./fixtures/invalid-registry-shape", import.meta.url));
+
+    await expect(loadNuxt({ cwd, dev: false, ready: true })).rejects.toMatchObject({
+      code: "NUXT_VARIANTS_INVALID_REGISTRY",
+      diagnostics: [
+        expect.objectContaining({
+          code: "invalid-registry-entry",
+          variant: "article",
+        }),
+      ],
+    });
+  });
 });

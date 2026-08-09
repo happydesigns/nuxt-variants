@@ -9,7 +9,11 @@ import {
   createResolver,
 } from "@nuxt/kit";
 import { addCustomTab } from "@nuxt/devtools-kit";
-import { assertValidVariantRegistry, collectVariantDiagnostics } from "./runtime/utils/diagnostics";
+import {
+  assertValidVariantInputs,
+  assertValidVariantRegistry,
+  collectVariantDiagnostics,
+} from "./runtime/utils/diagnostics";
 import { createVariantGraph } from "./runtime/utils/graph";
 import { serializeConfigShape } from "./utils/type-serialization";
 import { collectVariantSources } from "./utils/layer-sources";
@@ -75,15 +79,17 @@ export default defineNuxtModule<ModuleOptions>({
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url);
     const configKey = options.configKey ?? "variants";
+    const registryInput = options.registry ?? {};
+    const appRegistry = (nuxt.options.appConfig[configKey] ?? {}) as Record<string, VariantEntry>;
+
+    assertValidVariantInputs(
+      registryInput as Record<string, unknown>,
+      appRegistry as Record<string, unknown>,
+    );
 
     // Build variant graph up-front so the type template can use it.
     // Normalise shorthand entries (arrays, missing config) into full VariantEntry objects.
-    const baseRegistry = normalizeVariantRegistry(options.registry ?? {}) as Record<
-      string,
-      VariantEntry
-    >;
-
-    const appRegistry = (nuxt.options.appConfig[configKey] ?? {}) as Record<string, VariantEntry>;
+    const baseRegistry = normalizeVariantRegistry(registryInput) as Record<string, VariantEntry>;
 
     assertValidVariantRegistry(baseRegistry as VariantRegistry, appRegistry);
 

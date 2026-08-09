@@ -8,7 +8,10 @@ import {
   variantHasFeature,
   type VariantRegistry,
 } from "../../src/runtime/utils/variants";
-import { collectVariantDiagnostics } from "../../src/runtime/utils/diagnostics";
+import {
+  collectVariantDiagnostics,
+  collectVariantInputDiagnostics,
+} from "../../src/runtime/utils/diagnostics";
 
 const baseRegistry: VariantRegistry = {
   seo: { config: { indexed: true, titleTemplate: "%s - Site" } },
@@ -192,6 +195,31 @@ describe("variant runtime utilities", () => {
         field: "actve",
         message: 'App config for variant "content" contains unknown field "actve".',
       },
+    ]);
+  });
+
+  it("reports malformed raw entries before registry normalization", () => {
+    expect(
+      collectVariantInputDiagnostics(
+        {
+          article: null,
+          event: { extends: ["hero", 42], active: "yes", config: [] },
+          landing: ["hero", false],
+        },
+        {
+          article: null,
+          event: { active: 1, config: "wide" },
+        },
+      ),
+    ).toEqual([
+      expect.objectContaining({ code: "invalid-registry-entry", variant: "article" }),
+      expect.objectContaining({ code: "invalid-extends", variant: "event", field: "extends" }),
+      expect.objectContaining({ code: "invalid-active", variant: "event", field: "active" }),
+      expect.objectContaining({ code: "invalid-config", variant: "event", field: "config" }),
+      expect.objectContaining({ code: "invalid-extends", variant: "landing", field: "extends" }),
+      expect.objectContaining({ code: "invalid-runtime-entry", variant: "article" }),
+      expect.objectContaining({ code: "invalid-active", variant: "event", field: "active" }),
+      expect.objectContaining({ code: "invalid-config", variant: "event", field: "config" }),
     ]);
   });
 });

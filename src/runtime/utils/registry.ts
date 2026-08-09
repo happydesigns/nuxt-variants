@@ -1,3 +1,5 @@
+import { assertValidVariantInputs } from "./diagnostics";
+
 /** A complete build-time variant entry. */
 export interface VariantRegistryEntryInput<TConfig = Record<string, unknown>> {
   extends?: string | readonly string[];
@@ -52,6 +54,8 @@ export function defineVariantRegistry<const TRegistry extends VariantRegistryInp
 export function normalizeVariantRegistry(
   registry: VariantRegistryInput,
 ): NormalizedVariantRegistry {
+  assertValidVariantInputs(registry as Record<string, unknown>, {});
+
   return Object.fromEntries(
     Object.entries(registry).map(([name, entry]) => {
       if (isRegistryShorthand(entry)) {
