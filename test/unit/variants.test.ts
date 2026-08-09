@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  createVariantResolutionPlan,
   listVariantEntries,
   resolveVariantConfig,
+  resolveVariantConfigFromPlan,
   resolveVariantFeatures,
   variantHasFeature,
   type VariantRegistry,
@@ -59,6 +61,16 @@ describe("variant runtime utilities", () => {
       titleTemplate: "%s - Site",
       height: "md",
     });
+  });
+
+  it("matches recursive config and feature resolution with a compiled plan", () => {
+    const plan = createVariantResolutionPlan(baseRegistry);
+
+    expect(resolveVariantConfigFromPlan("article", baseRegistry, appRegistry, plan)).toEqual(
+      resolveVariantConfig("article", baseRegistry, appRegistry),
+    );
+    expect(plan.article).toEqual(["seo", "hero", "article"]);
+    expect(plan.inactive).toEqual([]);
   });
 
   it("keeps structural inheritance in the build-time registry", () => {

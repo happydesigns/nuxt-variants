@@ -13,6 +13,7 @@ import { assertValidVariantRegistry, collectVariantDiagnostics } from "./runtime
 import { createVariantGraph } from "./runtime/utils/graph";
 import { serializeConfigShape } from "./utils/type-serialization";
 import {
+  createVariantResolutionPlan,
   listVariantEntries,
   resolveVariantConfig,
   resolveVariantFeatures,
@@ -31,6 +32,7 @@ export type {
   VariantOverrideRegistry,
   VariantRegistry,
   VariantRegistryEntry,
+  VariantResolutionPlan,
   VariantRuntimeOverride,
 } from "./runtime/utils/variants";
 
@@ -91,6 +93,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     const allRegistryKeys = new Set(Object.keys(baseRegistry));
     const variantGraph = createVariantGraph(baseRegistry);
+    const variantResolutionPlan = createVariantResolutionPlan(baseRegistry as VariantRegistry);
 
     const diagnostics = collectVariantDiagnostics(
       baseRegistry as VariantRegistry,
@@ -101,12 +104,14 @@ export default defineNuxtModule<ModuleOptions>({
     const runtimeDmtsPath = join(nuxt.options.buildDir, "variants-runtime.d.mts");
     const runtimeContent = [
       `export const variantRegistry = ${JSON.stringify(baseRegistry, null, 2)};`,
+      `export const variantResolutionPlan = ${JSON.stringify(variantResolutionPlan, null, 2)};`,
       `export const variantsConfigKey = ${JSON.stringify(options.configKey)};`,
       "",
     ].join("\n");
     const runtimeDtsContent = [
-      `import type { VariantRegistry } from "@happydesigns/nuxt-variants";`,
+      `import type { VariantRegistry, VariantResolutionPlan } from "@happydesigns/nuxt-variants";`,
       `export declare const variantRegistry: VariantRegistry;`,
+      `export declare const variantResolutionPlan: VariantResolutionPlan;`,
       `export declare const variantsConfigKey: string;`,
       "",
     ].join("\n");

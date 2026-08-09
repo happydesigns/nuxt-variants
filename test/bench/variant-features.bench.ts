@@ -1,5 +1,8 @@
 import { bench, describe } from "vitest";
 import {
+  createVariantResolutionPlan,
+  resolveVariantConfig,
+  resolveVariantConfigFromPlan,
   resolveVariantFeatures,
   variantHasFeature,
   type VariantRegistry,
@@ -15,6 +18,7 @@ const registry: VariantRegistry = Object.fromEntries(
   ]),
 );
 const checks = ["feature-0", "feature-4", "feature-8", "feature-12", "feature-16", "feature-23"];
+const plan = createVariantResolutionPlan(registry);
 
 describe("feature lookups", () => {
   bench("resolve the graph for every has() call", () => {
@@ -28,5 +32,15 @@ describe("feature lookups", () => {
     for (const feature of checks) {
       features.has(feature);
     }
+  });
+});
+
+describe("config resolution", () => {
+  bench("resolve config recursively", () => {
+    resolveVariantConfig("feature-23", registry, {});
+  });
+
+  bench("resolve config from a compiled plan", () => {
+    resolveVariantConfigFromPlan("feature-23", registry, {}, plan);
   });
 });

@@ -1,8 +1,10 @@
 import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from "vue";
 import { useAppConfig } from "#app";
-import { variantRegistry, variantsConfigKey } from "#variants-runtime";
+import { variantRegistry, variantResolutionPlan, variantsConfigKey } from "#variants-runtime";
 import {
+  hasVariantActivityOverrides,
   resolveVariantConfig,
+  resolveVariantConfigFromPlan,
   resolveVariantFeatures,
   type VariantOverrideRegistry,
   type VariantRegistryEntry,
@@ -77,12 +79,26 @@ export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<unk
 
   const config = computed(() => {
     const { baseRegistry, overrideRegistry } = getRegistries();
-    return resolveVariantConfig(toValue(name) as string, baseRegistry, overrideRegistry) as unknown;
+    const variantName = toValue(name) as string;
+
+    return (
+      hasVariantActivityOverrides(overrideRegistry)
+        ? resolveVariantConfig(variantName, baseRegistry, overrideRegistry)
+        : resolveVariantConfigFromPlan(
+            variantName,
+            baseRegistry,
+            overrideRegistry,
+            variantResolutionPlan,
+          )
+    ) as unknown;
   });
 
   const features = computed(() => {
     const { baseRegistry, overrideRegistry } = getRegistries();
-    return resolveVariantFeatures(toValue(name) as string, baseRegistry, overrideRegistry);
+    const variantName = toValue(name) as string;
+    return hasVariantActivityOverrides(overrideRegistry)
+      ? resolveVariantFeatures(variantName, baseRegistry, overrideRegistry)
+      : new Set<string>(variantResolutionPlan[variantName] ?? []);
   });
 
   function has(featureName: MaybeRefOrGetter<string>): ComputedRef<boolean> {

@@ -32,6 +32,9 @@ export interface VariantListEntry {
   configKeys: string[];
 }
 
+/** Parents-first resolution order for every registered variant. */
+export type VariantResolutionPlan = Record<string, string[]>;
+
 export function normalizeExtends(value: string | string[] | undefined): string[] {
   if (value === undefined) return [];
   return Array.isArray(value) ? value : [value];
@@ -76,6 +79,49 @@ export function resolveVariantConfig(
   );
 
   return defuReplaceArray({}, mergedConfig, resolvedParents);
+}
+
+/**
+ * Compiles each variant's active inheritance lineage once at build time.
+ * Later parents and the selected variant appear later so they retain the
+ * documented config priority when the plan is applied from left to right.
+ */
+export function createVariantResolutionPlan(baseRegistry: VariantRegistry): VariantResolutionPlan {
+  return Object.fromEntries(
+    Object.keys(baseRegistry).map((name) => [
+      name,
+      [...resolveVariantFeatures(name, baseRegistry, {})],
+    ]),
+  );
+}
+
+/** Resolves config from a precompiled parents-first lineage. */
+export function resolveVariantConfigFromPlan(
+  variantName: string,
+  baseRegistry: VariantRegistry,
+  overrideRegistry: VariantOverrideRegistry,
+  plan: VariantResolutionPlan,
+): Record<string, unknown> {
+  const lineage = plan[variantName];
+  if (!lineage) return {};
+
+  let resolved: Record<string, unknown> = {};
+
+  for (const name of lineage) {
+    resolved = defuReplaceArray(
+      {},
+      (overrideRegistry[name]?.config ?? {}) as Record<string, unknown>,
+      (baseRegistry[name]?.config ?? {}) as Record<string, unknown>,
+      resolved,
+    );
+  }
+
+  return resolved;
+}
+
+/** Runtime active overrides require graph traversal instead of the static plan. */
+export function hasVariantActivityOverrides(overrideRegistry: VariantOverrideRegistry): boolean {
+  return Object.values(overrideRegistry).some((entry) => entry.active !== undefined);
 }
 
 export function variantHasFeature(
