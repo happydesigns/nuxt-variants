@@ -12,6 +12,7 @@ import { addCustomTab } from "@nuxt/devtools-kit";
 import { assertValidVariantRegistry, collectVariantDiagnostics } from "./runtime/utils/diagnostics";
 import { createVariantGraph } from "./runtime/utils/graph";
 import { serializeConfigShape } from "./utils/type-serialization";
+import { collectVariantSources } from "./utils/layer-sources";
 import {
   createVariantResolutionPlan,
   listVariantEntries,
@@ -123,6 +124,7 @@ export default defineNuxtModule<ModuleOptions>({
       : builtClientPath;
 
     if (devtoolsEnabled) {
+      const variantSources = collectVariantSources(nuxt.options._layers, options.configKey);
       const variantEntries = listVariantEntries(
         baseRegistry as VariantRegistry,
         appRegistry as VariantRegistry,
@@ -145,6 +147,7 @@ export default defineNuxtModule<ModuleOptions>({
               appRegistry as VariantRegistry,
             ),
           ],
+          sources: variantSources[entry.name] ?? [],
         })),
         graph: variantGraph,
         diagnostics,

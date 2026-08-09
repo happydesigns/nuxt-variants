@@ -26,4 +26,24 @@ describe("Nuxt layer composition", async () => {
       (extractJson(html, "variants") as Array<{ name: string }>).map((entry) => entry.name),
     ).toEqual(["header", "content", "article"]);
   });
+
+  it("reports where each registry entry was declared", async () => {
+    const data = await $fetch<{
+      variants: Array<{
+        name: string;
+        sources: Array<{ name: string; kind: string }>;
+      }>;
+    }>("/__nuxt-variants/devtools/data.json");
+
+    expect(data.variants.find(({ name }) => name === "header")?.sources).toEqual([
+      { name: "layer-base", kind: "layer", entry: { config: { visible: true } } },
+    ]);
+    expect(data.variants.find(({ name }) => name === "article")?.sources).toEqual([
+      {
+        name: "Application",
+        kind: "application",
+        entry: { extends: ["content"], config: { kind: "article" } },
+      },
+    ]);
+  });
 });
