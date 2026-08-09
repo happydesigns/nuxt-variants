@@ -18,6 +18,14 @@ import {
   resolveVariantFeatures,
   type VariantRegistry,
 } from "./runtime/utils/variants";
+import {
+  defineVariantRegistry,
+  normalizeVariantRegistry,
+  type VariantRegistryInput,
+} from "./runtime/utils/registry";
+
+export { VariantRegistryError } from "./runtime/utils/diagnostics";
+export type { VariantDiagnostic, VariantDiagnosticCode } from "./runtime/utils/diagnostics";
 export type {
   VariantListEntry,
   VariantOverrideRegistry,
@@ -25,11 +33,6 @@ export type {
   VariantRegistryEntry,
   VariantRuntimeOverride,
 } from "./runtime/utils/variants";
-import {
-  defineVariantRegistry,
-  normalizeVariantRegistry,
-  type VariantRegistryInput,
-} from "./runtime/utils/registry";
 
 export { defineVariantRegistry };
 export type {
@@ -61,6 +64,9 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: "nuxt-variants",
     configKey: "variants",
+    compatibility: {
+      nuxt: ">=4.5.0",
+    },
   },
   defaults: {
     registry: {},
@@ -381,6 +387,5 @@ declare module 'vue-router' {
     }
 
     addImportsDir(resolver.resolve("./runtime/composables"));
-    addImportsDir(resolver.resolve("./runtime/utils"));
   },
 });
