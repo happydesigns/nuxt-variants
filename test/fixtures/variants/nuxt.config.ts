@@ -26,6 +26,7 @@ export default defineNuxtConfig({
       gallery: { extends: "hero", config: { layout: "gallery" } },
       editorial: { extends: ["seo"], config: { tone: "base" } },
       inactive: { active: false, config: { hidden: true } },
+      extra: { config: {} },
     },
   },
 });

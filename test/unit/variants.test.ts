@@ -30,6 +30,7 @@ const baseRegistry: VariantRegistry = {
   loopA: { extends: ["loopB"], config: {} },
   loopB: { extends: ["loopA"], config: {} },
   broken: { extends: ["missing"], config: {} },
+  preview: { config: {} },
 };
 
 const appRegistry: VariantRegistry = {
@@ -60,11 +61,11 @@ describe("variant runtime utilities", () => {
     });
   });
 
-  it("lets app.config replace the extends chain while preserving base config", () => {
+  it("keeps structural inheritance in the build-time registry", () => {
     expect(resolveVariantConfig("editorial", baseRegistry, appRegistry)).toEqual({
       tone: "app",
-      height: "md",
-      slots: ["hero"],
+      indexed: true,
+      titleTemplate: "%s - Site",
     });
   });
 
@@ -77,8 +78,8 @@ describe("variant runtime utilities", () => {
 
   it("checks direct and inherited features using the current has() semantics", () => {
     expect(variantHasFeature("article", "seo", baseRegistry, appRegistry)).toBe(true);
-    expect(variantHasFeature("editorial", "seo", baseRegistry, appRegistry)).toBe(false);
-    expect(variantHasFeature("editorial", "hero", baseRegistry, appRegistry)).toBe(true);
+    expect(variantHasFeature("editorial", "seo", baseRegistry, appRegistry)).toBe(true);
+    expect(variantHasFeature("editorial", "hero", baseRegistry, appRegistry)).toBe(false);
     expect(variantHasFeature("inactive", "inactive", baseRegistry, appRegistry)).toBe(false);
     expect(variantHasFeature("inactive", "seo", baseRegistry, appRegistry)).toBe(false);
   });
@@ -98,7 +99,7 @@ describe("variant runtime utilities", () => {
       { name: "seo", extends: [], configKeys: ["indexed", "titleTemplate"] },
       { name: "hero", extends: [], configKeys: ["height", "slots"] },
       { name: "article", extends: ["seo", "hero"], configKeys: ["hasDate", "slots", "authorBox"] },
-      { name: "editorial", extends: ["hero"], configKeys: ["tone"] },
+      { name: "editorial", extends: ["seo"], configKeys: ["tone"] },
       { name: "inactive", extends: ["seo"], configKeys: ["hidden"] },
       { name: "loopA", extends: ["loopB"], configKeys: [] },
       { name: "loopB", extends: ["loopA"], configKeys: [] },
@@ -107,34 +108,40 @@ describe("variant runtime utilities", () => {
     ]);
   });
 
-  it("collects diagnostics for unknown parents, cycles, and app extends replacements", () => {
+  it("collects build-time and runtime contract violations without duplicate cycles", () => {
     expect(collectVariantDiagnostics(baseRegistry, appRegistry)).toEqual([
       {
         code: "unknown-parent",
-        severity: "warning",
+        severity: "error",
         variant: "broken",
         parent: "missing",
         message: 'Variant "broken" extends unknown variant "missing".',
       },
       {
         code: "circular-extends",
-        severity: "warning",
+        severity: "error",
         variant: "loopA",
         path: ["loopA", "loopB", "loopA"],
         message: "Variant inheritance cycle detected: loopA -> loopB -> loopA.",
       },
       {
-        code: "circular-extends",
-        severity: "warning",
-        variant: "loopB",
-        path: ["loopB", "loopA", "loopB"],
-        message: "Variant inheritance cycle detected: loopB -> loopA -> loopB.",
-      },
-      {
-        code: "override-extends",
-        severity: "warning",
+        code: "runtime-extends",
+        severity: "error",
         variant: "editorial",
-        message: 'App config for variant "editorial" replaces the base extends chain.',
+        message:
+          'App config for variant "editorial" defines extends. Move structural inheritance to variants.registry.',
+      },
+    ]);
+  });
+
+  it("rejects app config entries that are absent from the build-time registry", () => {
+    expect(collectVariantDiagnostics({ content: {} }, { preview: { config: {} } })).toEqual([
+      {
+        code: "unknown-runtime-override",
+        severity: "error",
+        variant: "preview",
+        message:
+          'App config overrides unknown variant "preview". Register it in variants.registry first.',
       },
     ]);
   });

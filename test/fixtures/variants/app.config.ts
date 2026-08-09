@@ -8,7 +8,6 @@ export default defineAppConfig({
       },
     },
     editorial: {
-      extends: ["hero"],
       config: { tone: "app" },
     },
     extra: { config: { custom: 42 } },

@@ -1,6 +1,12 @@
 import { computed, type ComputedRef } from "vue";
-import { useRuntimeConfig, useAppConfig } from "#app";
-import { listVariantEntries, type VariantListEntry, type VariantRegistry } from "../utils/variants";
+import { useAppConfig } from "#app";
+import { variantRegistry, variantsConfigKey } from "#variants-runtime";
+import {
+  listVariantEntries,
+  type VariantListEntry,
+  type VariantOverrideRegistry,
+  type VariantRegistry,
+} from "../utils/variants";
 
 /**
  * Describes a resolved registry entry as returned by `useVariants`.
@@ -13,14 +19,12 @@ export type VariantEntry = VariantListEntry;
  * The returned computed ref updates automatically when `app.config` changes.
  */
 export function useVariants(): ComputedRef<VariantEntry[]> {
-  const runtimeConfig = useRuntimeConfig();
   const appConfig = useAppConfig();
 
   return computed(() => {
-    const configKey = runtimeConfig.public.variantsConfigKey as string;
-    const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as VariantRegistry;
-    const appRegistry = ((appConfig as Record<string, unknown>)[configKey] ??
-      {}) as VariantRegistry;
+    const baseRegistry = variantRegistry as VariantRegistry;
+    const appRegistry = ((appConfig as Record<string, unknown>)[variantsConfigKey] ??
+      {}) as VariantOverrideRegistry;
 
     return listVariantEntries(baseRegistry, appRegistry);
   });

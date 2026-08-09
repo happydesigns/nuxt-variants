@@ -9,7 +9,7 @@ import {
   createResolver,
 } from "@nuxt/kit";
 import { addCustomTab } from "@nuxt/devtools-kit";
-import { collectVariantDiagnostics } from "./runtime/utils/diagnostics";
+import { assertValidVariantRegistry, collectVariantDiagnostics } from "./runtime/utils/diagnostics";
 import { createVariantGraph } from "./runtime/utils/graph";
 import { serializeConfigShape } from "./utils/type-serialization";
 import {
@@ -17,6 +17,13 @@ import {
   resolveVariantConfig,
   resolveVariantFeatures,
   type VariantRegistry,
+} from "./runtime/utils/variants";
+export type {
+  VariantListEntry,
+  VariantOverrideRegistry,
+  VariantRegistry,
+  VariantRegistryEntry,
+  VariantRuntimeOverride,
 } from "./runtime/utils/variants";
 import {
   defineVariantRegistry,
@@ -69,40 +76,40 @@ export default defineNuxtModule<ModuleOptions>({
       VariantEntry
     >;
 
-    Object.assign(nuxt.options.runtimeConfig.public, {
-      variantRegistry: baseRegistry,
-      variantsConfigKey: options.configKey,
-    });
     const appRegistry = (nuxt.options.appConfig[options.configKey] ?? {}) as Record<
       string,
       VariantEntry
     >;
 
-    const allRegistryKeys = new Set([...Object.keys(baseRegistry), ...Object.keys(appRegistry)]);
-    const variantGraph = createVariantGraph(
-      Object.fromEntries(
-        [...allRegistryKeys].map((key) => [
-          key,
-          { extends: appRegistry[key]?.extends ?? baseRegistry[key]?.extends },
-        ]),
-      ),
-    );
+    assertValidVariantRegistry(baseRegistry as VariantRegistry, appRegistry);
+
+    const allRegistryKeys = new Set(Object.keys(baseRegistry));
+    const variantGraph = createVariantGraph(baseRegistry);
 
     const diagnostics = collectVariantDiagnostics(
       baseRegistry as VariantRegistry,
       appRegistry as VariantRegistry,
     );
+
+    const runtimeMjsPath = join(nuxt.options.buildDir, "variants-runtime.mjs");
+    const runtimeDmtsPath = join(nuxt.options.buildDir, "variants-runtime.d.mts");
+    const runtimeContent = [
+      `export const variantRegistry = ${JSON.stringify(baseRegistry, null, 2)};`,
+      `export const variantsConfigKey = ${JSON.stringify(options.configKey)};`,
+      "",
+    ].join("\n");
+    const runtimeDtsContent = [
+      `import type { VariantRegistry } from "@happydesigns/nuxt-variants";`,
+      `export declare const variantRegistry: VariantRegistry;`,
+      `export declare const variantsConfigKey: string;`,
+      "",
+    ].join("\n");
     const devtoolsEnabled = nuxt.options.dev || process.env.NODE_ENV === "test";
     const sourceClientPath = resolver.resolve("../client/.output/public");
     const builtClientPath = resolver.resolve("./client");
     const devtoolsClientPath = existsSync(join(sourceClientPath, "index.html"))
       ? sourceClientPath
       : builtClientPath;
-
-    for (const diagnostic of diagnostics) {
-      // The diagnostics are also emitted as virtual-module data below so tooling can render them.
-      console.warn(`[nuxt-variants] ${diagnostic.message}`);
-    }
 
     if (devtoolsEnabled) {
       const variantEntries = listVariantEntries(
@@ -186,8 +193,8 @@ export default defineNuxtModule<ModuleOptions>({
           configPaths.length === 0
             ? `Record<never, never>`
             : configPaths.length === 1
-              ? `typeof cfg0 extends { ${options.configKey}: infer V } ? V : Record<never, never>`
-              : `import('defu').Defu<${cfgRefs.split(", ")[0]}, [${cfgRefs.split(", ").slice(1).join(", ")}]> extends { ${options.configKey}: infer V } ? V : Record<never, never>`;
+              ? `typeof cfg0 extends { ${JSON.stringify(options.configKey)}: infer V } ? V : Record<never, never>`
+              : `import('defu').Defu<${cfgRefs.split(", ")[0]}, [${cfgRefs.split(", ").slice(1).join(", ")}]> extends { ${JSON.stringify(options.configKey)}: infer V } ? V : Record<never, never>`;
 
         // _RegistryVariants: typed from the module registry (nuxt.config.ts options).
         // These are serialized from JS values since nuxt.config.ts is not imported.
@@ -250,24 +257,8 @@ type _GeneratedVariantRegistry = {
 ${entries}
 }
 
-type _AppOnlyVariantRegistry = {
-  [K in Exclude<keyof _AppVariants, keyof _GeneratedVariantRegistry>]: _VariantConfigWithOverride<
-    K,
-    _AppVariantConfig<K>
-  >
-}
-
-type _OverrideOnlyVariantRegistry = {
-  [K in Exclude<
-    keyof CustomVariantOverrides,
-    keyof _GeneratedVariantRegistry | keyof _AppOnlyVariantRegistry
-  >]: CustomVariantOverrides[K]
-}
-
-export type CustomVariantRegistry =
-  & _GeneratedVariantRegistry
-  & _AppOnlyVariantRegistry
-  & _OverrideOnlyVariantRegistry
+export type CustomVariantRegistry = _GeneratedVariantRegistry
+export type VariantName = keyof CustomVariantRegistry & string
 
 type _KeysOfUnion<U> = U extends unknown ? keyof U : never
 type _ValueForKey<U, K extends PropertyKey> = U extends unknown
@@ -284,7 +275,7 @@ export type VariantConfigOf<K extends keyof CustomVariantRegistry> = _MergeVaria
 
 declare module 'vue-router' {
   interface RouteMeta {
-    variant?: string;
+    variant?: VariantName;
   }
 }
 `;
@@ -301,7 +292,7 @@ declare module 'vue-router' {
       "",
     ].join("\n");
     const graphDtsContent = [
-      `export interface VariantDiagnostic { code: "unknown-parent" | "circular-extends" | "override-extends"; severity: "warning"; variant: string; parent?: string; path?: string[]; message: string }`,
+      `export interface VariantDiagnostic { code: "unknown-parent" | "circular-extends" | "runtime-extends" | "unknown-runtime-override"; severity: "error"; variant: string; parent?: string; path?: string[]; message: string }`,
       `export declare const variantGraph: Record<string, string[]>;`,
       `export declare const variantDiagnostics: VariantDiagnostic[];`,
       "",
@@ -329,25 +320,33 @@ declare module 'vue-router' {
     // Write eagerly so content.config.ts can import the file at Nuxt init time,
     // before any hooks fire. addTemplate keeps them in sync during build.
     mkdirSync(nuxt.options.buildDir, { recursive: true });
+    writeFileSync(runtimeMjsPath, runtimeContent, "utf-8");
+    writeFileSync(runtimeDmtsPath, runtimeDtsContent, "utf-8");
     writeFileSync(graphMjsPath, graphContent, "utf-8");
     writeFileSync(graphDmtsPath, graphDtsContent, "utf-8");
     writeFileSync(schemasMjsPath, schemasContent, "utf-8");
     writeFileSync(schemasDmtsPath, schemasDtsContent, "utf-8");
 
+    addTemplate({ filename: "variants-runtime.mjs", getContents: () => runtimeContent });
+    addTemplate({ filename: "variants-runtime.d.mts", getContents: () => runtimeDtsContent });
     addTemplate({ filename: "variants-graph.mjs", getContents: () => graphContent });
     addTemplate({ filename: "variants-graph.d.mts", getContents: () => graphDtsContent });
     addTemplate({ filename: "variants-schemas.mjs", getContents: () => schemasContent });
     addTemplate({ filename: "variants-schemas.d.mts", getContents: () => schemasDtsContent });
 
+    nuxt.options.alias["#variants-runtime"] = runtimeMjsPath;
     nuxt.options.alias["#variants-graph"] = graphMjsPath;
     nuxt.options.alias["#variants-schemas"] = schemasMjsPath;
 
     nuxt.hook("prepare:types", ({ references }) => {
       // Re-write in case Nuxt cleaned buildDir after setup() ran.
+      writeFileSync(runtimeMjsPath, runtimeContent, "utf-8");
+      writeFileSync(runtimeDmtsPath, runtimeDtsContent, "utf-8");
       writeFileSync(graphMjsPath, graphContent, "utf-8");
       writeFileSync(graphDmtsPath, graphDtsContent, "utf-8");
       writeFileSync(schemasMjsPath, schemasContent, "utf-8");
       writeFileSync(schemasDmtsPath, schemasDtsContent, "utf-8");
+      references.push({ path: runtimeDmtsPath });
       references.push({ path: graphDmtsPath });
       references.push({ path: schemasDmtsPath });
     });

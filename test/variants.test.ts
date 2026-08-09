@@ -82,18 +82,18 @@ describe("nuxt-variants e2e", async () => {
       });
     });
 
-    it("app.config replaces the extends chain for a base variant", async () => {
+    it("keeps structural inheritance in nuxt.config", async () => {
       const html = await fetchText("/variant/editorial");
       expect(extractJson(html, "config")).toEqual({
         tone: "app",
-        fullscreen: true,
-        columns: 2,
+        indexed: true,
+        seoScore: 90,
       });
-      expect(extractJson(html, "has-seo")).toBe(false);
-      expect(extractJson(html, "has-hero")).toBe(true);
+      expect(extractJson(html, "has-seo")).toBe(true);
+      expect(extractJson(html, "has-hero")).toBe(false);
     });
 
-    it("resolves app.config-only variant not in nuxt.config registry", async () => {
+    it("resolves runtime config for a registered variant", async () => {
       const html = await fetchText("/variant/extra");
       expect(extractJson(html, "config")).toEqual({ custom: 42 });
     });
@@ -134,7 +134,12 @@ describe("nuxt-variants e2e", async () => {
   });
 
   describe("useVariants()", () => {
-    it("lists variants from both nuxt.config registry and app.config", async () => {
+    it("keeps the static registry out of public runtime config", async () => {
+      const html = await fetchText("/variants");
+      expect(extractJson(html, "runtime-config-leak")).toBe(false);
+    });
+
+    it("lists every build-time registry entry", async () => {
       const html = await fetchText("/variants");
       const variants = extractJson(html, "variants") as Array<{ name: string }>;
       const names = variants.map((v) => v.name);
@@ -152,7 +157,7 @@ describe("nuxt-variants e2e", async () => {
       ]);
     });
 
-    it("normalizes extends arrays and lets app.config replace base extends", async () => {
+    it("normalizes build-time extends arrays", async () => {
       const html = await fetchText("/variants");
       const variants = extractJson(html, "variants") as Array<{
         name: string;
@@ -166,7 +171,7 @@ describe("nuxt-variants e2e", async () => {
       expect(find("article").extends).toEqual(["seo", "hero", "design"]);
       expect(find("event").extends).toEqual(["seo", "hero"]);
       expect(find("gallery").extends).toEqual(["hero"]);
-      expect(find("editorial").extends).toEqual(["hero"]);
+      expect(find("editorial").extends).toEqual(["seo"]);
       expect(find("extra").extends).toEqual([]);
     });
 

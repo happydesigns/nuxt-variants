@@ -1,8 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import {
-  defineVariantRegistry,
-  normalizeVariantRegistry,
-} from "../../src/runtime/utils/registry";
+import { defineVariantRegistry, normalizeVariantRegistry } from "../../src/runtime/utils/registry";
 
 describe("defineVariantRegistry", () => {
   it("preserves literal names, parents, and config values", () => {
@@ -30,7 +27,7 @@ describe("normalizeVariantRegistry", () => {
     });
 
     expect(normalized).toEqual({
-      header: { config: {}, extends: undefined },
+      header: { config: {} },
       content: { extends: ["header", "toc"], config: {} },
       article: { extends: ["header", "toc"], active: true, config: {} },
     });

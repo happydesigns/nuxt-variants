@@ -1,4 +1,6 @@
-export const variantRegistry = {
+import { defineVariantRegistry } from "../src/module";
+
+export const variantRegistry = defineVariantRegistry({
   breadcrumbs: {
     config: {
       breadcrumbSeparator: " / ",
@@ -58,4 +60,5 @@ export const variantRegistry = {
       sidebarCollapsible: true,
     },
   },
-};
+  preview: {},
+});

@@ -1,7 +1,6 @@
 export default defineAppConfig({
   variants: {
     article: {
-      extends: ["breadcrumbs", "hero", "seo", "toc"],
       config: {
         heroHeight: "sm",
         heroAlign: "center",
@@ -11,7 +10,6 @@ export default defineAppConfig({
     },
 
     event: {
-      extends: ["breadcrumbs", "hero"],
       config: {
         heroHeight: "lg",
         heroOverlay: true,
@@ -20,7 +18,6 @@ export default defineAppConfig({
     },
 
     landing: {
-      extends: ["hero", "sidebar"],
       config: {
         heroHeight: "xl",
         heroOverlay: true,

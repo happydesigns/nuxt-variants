@@ -53,15 +53,20 @@ export function normalizeVariantRegistry(
   registry: VariantRegistryInput,
 ): NormalizedVariantRegistry {
   return Object.fromEntries(
-    Object.entries(registry).map(([name, entry]) => [
-      name,
-      isRegistryShorthand(entry)
-        ? { extends: [...entry], config: {} }
-        : {
-            ...entry,
-            extends: normalizeExtendsInput(entry.extends),
-            config: entry.config ?? {},
-          },
-    ]),
+    Object.entries(registry).map(([name, entry]) => {
+      if (isRegistryShorthand(entry)) {
+        return [name, { extends: [...entry], config: {} }];
+      }
+
+      const { extends: extendsValue, ...entryWithoutExtends } = entry;
+      const normalized: NormalizedVariantRegistryEntry = {
+        ...entryWithoutExtends,
+        config: entry.config ?? {},
+      };
+      const parents = normalizeExtendsInput(extendsValue);
+      if (parents !== undefined) normalized.extends = parents;
+
+      return [name, normalized];
+    }),
   );
 }

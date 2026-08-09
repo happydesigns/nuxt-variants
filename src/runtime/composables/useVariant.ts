@@ -1,8 +1,10 @@
 import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from "vue";
-import { useRuntimeConfig, useAppConfig } from "#app";
+import { useAppConfig } from "#app";
+import { variantRegistry, variantsConfigKey } from "#variants-runtime";
 import {
   resolveVariantConfig,
   resolveVariantFeatures,
+  type VariantOverrideRegistry,
   type VariantRegistryEntry,
   type VariantRegistry,
 } from "../utils/variants";
@@ -64,14 +66,12 @@ export function useVariant<K extends keyof CustomVariantRegistry>(
 ): UseVariantReturn<VariantConfigOf<K>>;
 export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<AnyVariantConfig>;
 export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<unknown> {
-  const runtimeConfig = useRuntimeConfig();
   const appConfig = useAppConfig();
 
   function getRegistries() {
-    const configKey = runtimeConfig.public.variantsConfigKey as string;
-    const baseRegistry = (runtimeConfig.public.variantRegistry ?? {}) as VariantRegistry;
-    const overrideRegistry = ((appConfig as Record<string, unknown>)[configKey] ??
-      {}) as VariantRegistry;
+    const baseRegistry = variantRegistry as VariantRegistry;
+    const overrideRegistry = ((appConfig as Record<string, unknown>)[variantsConfigKey] ??
+      {}) as VariantOverrideRegistry;
     return { baseRegistry, overrideRegistry };
   }
 
