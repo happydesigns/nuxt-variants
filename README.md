@@ -365,6 +365,7 @@ During Nuxt prepare, Nuxt Variants stops with one structured `VariantRegistryErr
 - `app.config` entries for unknown variants
 - `app.config` entries that define structural `extends`
 - unknown fields in registry entries or runtime overrides
+- malformed entries or invalid `extends`, `active`, and `config` value types
 
 The error contains all detected diagnostics with stable codes, so one prepare run can identify every problem. Valid graph data remains available from `#variants-graph` and in the Nuxt DevTools inspector.
 

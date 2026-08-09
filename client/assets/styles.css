@@ -303,6 +303,17 @@ main {
   line-height: 1.5;
 }
 
+.panel-head-copy {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.panel-head-copy > div {
+  min-width: 0;
+}
+
 .panel-body {
   padding: 1rem;
 }
