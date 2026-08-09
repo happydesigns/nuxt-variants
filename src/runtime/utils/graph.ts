@@ -1,12 +1,12 @@
-export type VariantGraphEntryInput =
-  | readonly string[]
-  | {
-      extends?: string | readonly string[];
-      active?: boolean;
-      config?: unknown;
-    };
+import type {
+  VariantRegistryEntryInput,
+  VariantRegistryEntryShorthand,
+  VariantRegistryInput,
+} from "./registry";
 
-export type VariantGraphRegistry = Record<string, VariantGraphEntryInput>;
+export type VariantGraphEntryInput = VariantRegistryEntryInput | VariantRegistryEntryShorthand;
+
+export type VariantGraphRegistry = VariantRegistryInput;
 
 function isStringArray(entry: VariantGraphEntryInput): entry is readonly string[] {
   return Array.isArray(entry);
