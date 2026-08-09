@@ -5,9 +5,10 @@ import type { VariantOverrideRegistry } from "../utils/variants";
 
 export default defineEventHandler((event) => {
   setHeader(event, "content-type", "application/json; charset=utf-8");
-  const metadata = useRuntimeConfig(event).variantDevtoolsMetadata as
-    | VariantDevtoolsMetadata
-    | undefined;
+  const runtimeConfig = useRuntimeConfig(event) as unknown as {
+    variantDevtoolsMetadata?: VariantDevtoolsMetadata;
+  };
+  const metadata = runtimeConfig.variantDevtoolsMetadata;
   if (!metadata) return {};
 
   const appConfig = useAppConfig() as Record<string, unknown>;
