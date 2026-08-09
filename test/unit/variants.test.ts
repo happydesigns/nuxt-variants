@@ -3,6 +3,7 @@ import {
   createVariantResolutionPlan,
   listVariantEntries,
   resolveVariantConfig,
+  resolveVariantConfigFromLineage,
   resolveVariantConfigFromPlan,
   resolveVariantFeatures,
   variantHasFeature,
@@ -85,6 +86,19 @@ describe("variant runtime utilities", () => {
 
     expect(plan.article).toEqual(["seo", "article"]);
     expect(resolveVariantConfigFromPlan("article", baseRegistry, overrides, plan)).toEqual(
+      resolveVariantConfig("article", baseRegistry, overrides),
+    );
+  });
+
+  it("resolves activity overrides from a single selected lineage", () => {
+    const overrides = {
+      ...appRegistry,
+      hero: { active: false },
+    };
+    const lineage = [...resolveVariantFeatures("article", baseRegistry, overrides)];
+
+    expect(lineage).toEqual(["seo", "article"]);
+    expect(resolveVariantConfigFromLineage(lineage, baseRegistry, overrides)).toEqual(
       resolveVariantConfig("article", baseRegistry, overrides),
     );
   });

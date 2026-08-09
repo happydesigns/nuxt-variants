@@ -2,9 +2,9 @@ import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from "vue"
 import { useAppConfig } from "#app";
 import { variantRegistry, variantResolutionPlan, variantsConfigKey } from "#variants-runtime";
 import {
-  createVariantResolutionPlan,
   hasVariantActivityOverrides,
-  resolveVariantConfigFromPlan,
+  resolveVariantConfigFromLineage,
+  resolveVariantFeatures,
   type VariantOverrideRegistry,
   type VariantRegistryEntry,
   type VariantRegistry,
@@ -77,29 +77,26 @@ export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<unk
     return { baseRegistry, overrideRegistry };
   }
 
-  const resolutionPlan = computed(() => {
+  const lineage = computed(() => {
     const { baseRegistry, overrideRegistry } = getRegistries();
+    const variantName = toValue(name) as string;
+
     return hasVariantActivityOverrides(overrideRegistry)
-      ? createVariantResolutionPlan(baseRegistry, overrideRegistry)
-      : variantResolutionPlan;
+      ? [...resolveVariantFeatures(variantName, baseRegistry, overrideRegistry)]
+      : (variantResolutionPlan[variantName] ?? []);
   });
 
   const config = computed(() => {
     const { baseRegistry, overrideRegistry } = getRegistries();
-    const variantName = toValue(name) as string;
 
-    return resolveVariantConfigFromPlan(
-      variantName,
+    return resolveVariantConfigFromLineage(
+      lineage.value,
       baseRegistry,
       overrideRegistry,
-      resolutionPlan.value,
     ) as unknown;
   });
 
-  const features = computed(() => {
-    const variantName = toValue(name) as string;
-    return new Set<string>(resolutionPlan.value[variantName] ?? []);
-  });
+  const features = computed(() => new Set<string>(lineage.value));
 
   function has(featureName: MaybeRefOrGetter<VariantNameInput>): ComputedRef<boolean> {
     return computed(() => features.value.has(toValue(featureName)));

@@ -108,6 +108,17 @@ export function resolveVariantConfigFromPlan(
   const lineage = plan[variantName];
   if (!lineage) return {};
 
+  return resolveVariantConfigFromLineage(lineage, baseRegistry, overrideRegistry);
+}
+
+/** Resolves config from one parents-first lineage. */
+export function resolveVariantConfigFromLineage(
+  lineage: readonly string[],
+  baseRegistry: VariantRegistry,
+  overrideRegistry: VariantOverrideRegistry,
+): Record<string, unknown> {
+  if (lineage.length === 0) return {};
+
   let resolved: Record<string, unknown> = {};
 
   for (const name of lineage) {

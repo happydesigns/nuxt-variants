@@ -2,6 +2,7 @@ import { bench, describe } from "vitest";
 import {
   createVariantResolutionPlan,
   resolveVariantConfig,
+  resolveVariantConfigFromLineage,
   resolveVariantConfigFromPlan,
   resolveVariantFeatures,
   variantHasFeature,
@@ -52,5 +53,17 @@ describe("config resolution", () => {
 
   bench("resolve activity overrides from a compiled plan", () => {
     resolveVariantConfigFromPlan("feature-23", registry, activeOverrides, overriddenPlan);
+  });
+});
+
+describe("activity override planning", () => {
+  bench("compile every variant lineage", () => {
+    const runtimePlan = createVariantResolutionPlan(registry, activeOverrides);
+    resolveVariantConfigFromPlan("feature-23", registry, activeOverrides, runtimePlan);
+  });
+
+  bench("resolve only the selected variant lineage", () => {
+    const lineage = [...resolveVariantFeatures("feature-23", registry, activeOverrides)];
+    resolveVariantConfigFromLineage(lineage, registry, activeOverrides);
   });
 });
