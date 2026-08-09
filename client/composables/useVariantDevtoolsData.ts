@@ -15,9 +15,8 @@ export function useVariantDevtoolsData() {
   const error = ref<string>();
   const selected = ref<string>();
 
-  const connected = computed(() => Boolean(devtoolsClient.value));
   const routeVariant = computed(() => {
-    const variant = devtoolsClient.value?.host.nuxt.$router.currentRoute.value.meta.variant;
+    const variant = devtoolsClient.value?.host?.nuxt.$router.currentRoute.value.meta.variant;
     return typeof variant === "string" ? variant : undefined;
   });
   const currentVariant = computed(() =>
@@ -68,7 +67,6 @@ export function useVariantDevtoolsData() {
   watch(routeVariant, selectRouteVariant);
 
   return {
-    connected,
     currentVariant,
     data,
     error,
