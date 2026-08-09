@@ -50,7 +50,11 @@ describe("AnyVariantConfig (string / unknown key fallback type)", () => {
 });
 
 describe("ModuleOptions registry entry contract", () => {
-  type RegistryEntryInput = ModuleOptions["registry"][string];
+  type RegistryEntryInput = NonNullable<ModuleOptions["registry"]>[string];
+
+  it("keeps options with defaults optional", () => {
+    expectTypeOf<{}>().toMatchTypeOf<ModuleOptions>();
+  });
 
   it("accepts the documented active flag on full entries", () => {
     expectTypeOf<{

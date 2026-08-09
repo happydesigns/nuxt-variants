@@ -59,8 +59,10 @@ interface VariantEntry {
  * - An empty object `{}` — feature with no config and no extends
  */
 export interface ModuleOptions {
-  registry: VariantRegistryInput;
-  configKey: string;
+  /** Build-time variant names, inheritance, and default values. */
+  registry?: VariantRegistryInput;
+  /** App-config key used for runtime value overrides. @default "variants" */
+  configKey?: string;
 }
 
 export default defineNuxtModule<ModuleOptions>({
@@ -77,6 +79,7 @@ export default defineNuxtModule<ModuleOptions>({
   },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url);
+    const configKey = options.configKey ?? "variants";
 
     // Build variant graph up-front so the type template can use it.
     // Normalise shorthand entries (arrays, missing config) into full VariantEntry objects.
@@ -85,10 +88,7 @@ export default defineNuxtModule<ModuleOptions>({
       VariantEntry
     >;
 
-    const appRegistry = (nuxt.options.appConfig[options.configKey] ?? {}) as Record<
-      string,
-      VariantEntry
-    >;
+    const appRegistry = (nuxt.options.appConfig[configKey] ?? {}) as Record<string, VariantEntry>;
 
     assertValidVariantRegistry(baseRegistry as VariantRegistry, appRegistry);
 
@@ -106,7 +106,7 @@ export default defineNuxtModule<ModuleOptions>({
     const runtimeContent = [
       `export const variantRegistry = ${JSON.stringify(baseRegistry, null, 2)};`,
       `export const variantResolutionPlan = ${JSON.stringify(variantResolutionPlan, null, 2)};`,
-      `export const variantsConfigKey = ${JSON.stringify(options.configKey)};`,
+      `export const variantsConfigKey = ${JSON.stringify(configKey)};`,
       "",
     ].join("\n");
     const runtimeDtsContent = [
@@ -124,13 +124,13 @@ export default defineNuxtModule<ModuleOptions>({
       : builtClientPath;
 
     if (devtoolsEnabled) {
-      const variantSources = collectVariantSources(nuxt.options._layers, options.configKey);
+      const variantSources = collectVariantSources(nuxt.options._layers, configKey);
       const variantEntries = listVariantEntries(
         baseRegistry as VariantRegistry,
         appRegistry as VariantRegistry,
       );
       const devtoolsData = {
-        configKey: options.configKey,
+        configKey,
         variants: variantEntries.map((entry) => {
           const activeFeatures = [
             ...resolveVariantFeatures(
@@ -212,8 +212,8 @@ export default defineNuxtModule<ModuleOptions>({
           configPaths.length === 0
             ? `Record<never, never>`
             : configPaths.length === 1
-              ? `typeof cfg0 extends { ${JSON.stringify(options.configKey)}: infer V } ? V : Record<never, never>`
-              : `import('defu').Defu<${cfgRefs.split(", ")[0]}, [${cfgRefs.split(", ").slice(1).join(", ")}]> extends { ${JSON.stringify(options.configKey)}: infer V } ? V : Record<never, never>`;
+              ? `typeof cfg0 extends { ${JSON.stringify(configKey)}: infer V } ? V : Record<never, never>`
+              : `import('defu').Defu<${cfgRefs.split(", ")[0]}, [${cfgRefs.split(", ").slice(1).join(", ")}]> extends { ${JSON.stringify(configKey)}: infer V } ? V : Record<never, never>`;
 
         // _RegistryVariants: typed from the module registry (nuxt.config.ts options).
         // These are serialized from JS values since nuxt.config.ts is not imported.

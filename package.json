@@ -15,7 +15,7 @@
   "typesVersions": {
     "*": {
       ".": [
-        "./dist/types.d.mts"
+        "./dist/module.d.mts"
       ],
       "schemas": [
         "./dist/schemas.d.mts"
@@ -24,7 +24,7 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/types.d.mts",
+      "types": "./dist/module.d.mts",
       "import": "./dist/module.mjs"
     },
     "./schemas": {
