@@ -36,7 +36,7 @@
     "access": "public"
   },
   "scripts": {
-    "build:client": "nuxt prepare client && node scripts/build-client.mjs",
+    "build:client": "node scripts/build-client.mjs",
     "prepack": "nuxt-module-build build && pnpm build:client",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt prepare playground && pnpm build:client",
     "dev": "pnpm dev:prepare && nuxt dev playground",
