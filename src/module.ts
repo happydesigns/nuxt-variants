@@ -278,6 +278,7 @@ ${entries}
 
 export type CustomVariantRegistry = _GeneratedVariantRegistry
 export type VariantName = keyof CustomVariantRegistry & string
+export type VariantNameInput = VariantName | (string & Record<never, never>)
 
 type _KeysOfUnion<U> = U extends unknown ? keyof U : never
 type _ValueForKey<U, K extends PropertyKey> = U extends unknown

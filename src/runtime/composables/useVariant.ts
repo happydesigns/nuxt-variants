@@ -9,15 +9,11 @@ import {
   type VariantRegistryEntry,
   type VariantRegistry,
 } from "../utils/variants";
-import type { CustomVariantRegistry, VariantName } from "#nuxt-variants";
+import type { CustomVariantRegistry, VariantName, VariantNameInput } from "#nuxt-variants";
 
-export type { CustomVariantRegistry, VariantName };
-export type VariantDefinition<
-  TConfig extends object = Record<string, unknown>,
-> = VariantRegistryEntry<TConfig>;
-
-/** Known variant names with a dynamic-string escape hatch for CMS and route data. */
-export type VariantNameInput = VariantName | (string & Record<never, never>);
+export type { CustomVariantRegistry, VariantName, VariantNameInput };
+export type VariantDefinition<TConfig extends object = Record<string, unknown>> =
+  VariantRegistryEntry<TConfig>;
 
 type KeysOfUnion<U> = U extends unknown ? keyof U : never;
 type ValueForKey<U, K extends PropertyKey> = U extends unknown
