@@ -203,6 +203,9 @@ has("location").value; // false
 
 Nuxt Variants ships `mergeVariantSchemas` for Nuxt Content v3. It walks the variant graph and produces one Zod or Valibot object schema with inherited fields included.
 
+Zod and Valibot are optional peer dependencies. Install the validator used by
+your Content schema; the other validator is not loaded or required.
+
 Keep the registry in a normal TypeScript file when both Nuxt and Nuxt Content
 need it. This avoids module-order and virtual-alias coupling.
 

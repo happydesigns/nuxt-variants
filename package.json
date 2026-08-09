@@ -78,6 +78,18 @@
     "vue-tsc": "^3.3.9",
     "zod": "^4.4.3"
   },
+  "peerDependencies": {
+    "valibot": "^1.0.0",
+    "zod": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "valibot": {
+      "optional": true
+    },
+    "zod": {
+      "optional": true
+    }
+  },
   "engines": {
     "node": "^22.19.0 || ^24.11.0 || >=26.0.0"
   },

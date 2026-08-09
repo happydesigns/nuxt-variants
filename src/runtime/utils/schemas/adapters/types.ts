@@ -4,7 +4,7 @@ export interface SchemaAdapter<TSchema = unknown> {
 }
 
 /**
- * Minimal structural type for Zod v3/v4 object schemas.
+ * Minimal structural type for Zod v4 object schemas.
  * Only describes the properties accessed by adapter code.
  * The `~standard` property is part of the Standard Schema spec and is present
  * on all Zod schemas at runtime, making them compatible with consumers such as
