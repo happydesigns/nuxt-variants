@@ -2,10 +2,9 @@ import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from "vue"
 import { useAppConfig } from "#app";
 import { variantRegistry, variantResolutionPlan, variantsConfigKey } from "#variants-runtime";
 import {
+  createVariantResolutionPlan,
   hasVariantActivityOverrides,
-  resolveVariantConfig,
   resolveVariantConfigFromPlan,
-  resolveVariantFeatures,
   type VariantOverrideRegistry,
   type VariantRegistryEntry,
   type VariantRegistry,
@@ -82,28 +81,28 @@ export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<unk
     return { baseRegistry, overrideRegistry };
   }
 
+  const resolutionPlan = computed(() => {
+    const { baseRegistry, overrideRegistry } = getRegistries();
+    return hasVariantActivityOverrides(overrideRegistry)
+      ? createVariantResolutionPlan(baseRegistry, overrideRegistry)
+      : variantResolutionPlan;
+  });
+
   const config = computed(() => {
     const { baseRegistry, overrideRegistry } = getRegistries();
     const variantName = toValue(name) as string;
 
-    return (
-      hasVariantActivityOverrides(overrideRegistry)
-        ? resolveVariantConfig(variantName, baseRegistry, overrideRegistry)
-        : resolveVariantConfigFromPlan(
-            variantName,
-            baseRegistry,
-            overrideRegistry,
-            variantResolutionPlan,
-          )
+    return resolveVariantConfigFromPlan(
+      variantName,
+      baseRegistry,
+      overrideRegistry,
+      resolutionPlan.value,
     ) as unknown;
   });
 
   const features = computed(() => {
-    const { baseRegistry, overrideRegistry } = getRegistries();
     const variantName = toValue(name) as string;
-    return hasVariantActivityOverrides(overrideRegistry)
-      ? resolveVariantFeatures(variantName, baseRegistry, overrideRegistry)
-      : new Set<string>(variantResolutionPlan[variantName] ?? []);
+    return new Set<string>(resolutionPlan.value[variantName] ?? []);
   });
 
   function has(featureName: MaybeRefOrGetter<VariantNameInput>): ComputedRef<boolean> {

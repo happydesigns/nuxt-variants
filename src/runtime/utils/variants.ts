@@ -86,11 +86,14 @@ export function resolveVariantConfig(
  * Later parents and the selected variant appear later so they retain the
  * documented config priority when the plan is applied from left to right.
  */
-export function createVariantResolutionPlan(baseRegistry: VariantRegistry): VariantResolutionPlan {
+export function createVariantResolutionPlan(
+  baseRegistry: VariantRegistry,
+  overrideRegistry: VariantOverrideRegistry = {},
+): VariantResolutionPlan {
   return Object.fromEntries(
     Object.keys(baseRegistry).map((name) => [
       name,
-      [...resolveVariantFeatures(name, baseRegistry, {})],
+      [...resolveVariantFeatures(name, baseRegistry, overrideRegistry)],
     ]),
   );
 }

@@ -19,6 +19,8 @@ const registry: VariantRegistry = Object.fromEntries(
 );
 const checks = ["feature-0", "feature-4", "feature-8", "feature-12", "feature-16", "feature-23"];
 const plan = createVariantResolutionPlan(registry);
+const activeOverrides = { "feature-12": { active: false } };
+const overriddenPlan = createVariantResolutionPlan(registry, activeOverrides);
 
 describe("feature lookups", () => {
   bench("resolve the graph for every has() call", () => {
@@ -42,5 +44,13 @@ describe("config resolution", () => {
 
   bench("resolve config from a compiled plan", () => {
     resolveVariantConfigFromPlan("feature-23", registry, {}, plan);
+  });
+
+  bench("resolve activity overrides recursively", () => {
+    resolveVariantConfig("feature-23", registry, activeOverrides);
+  });
+
+  bench("resolve activity overrides from a compiled plan", () => {
+    resolveVariantConfigFromPlan("feature-23", registry, activeOverrides, overriddenPlan);
   });
 });

@@ -73,6 +73,19 @@ describe("variant runtime utilities", () => {
     expect(plan.inactive).toEqual([]);
   });
 
+  it("compiles runtime activity overrides into the resolution plan", () => {
+    const overrides = {
+      ...appRegistry,
+      hero: { active: false },
+    };
+    const plan = createVariantResolutionPlan(baseRegistry, overrides);
+
+    expect(plan.article).toEqual(["seo", "article"]);
+    expect(resolveVariantConfigFromPlan("article", baseRegistry, overrides, plan)).toEqual(
+      resolveVariantConfig("article", baseRegistry, overrides),
+    );
+  });
+
   it("keeps structural inheritance in the build-time registry", () => {
     expect(resolveVariantConfig("editorial", baseRegistry, appRegistry)).toEqual({
       tone: "app",
