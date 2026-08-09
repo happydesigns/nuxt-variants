@@ -1,5 +1,81 @@
 # Changelog
 
+## v0.2.0
+
+[compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.1.1...v0.2.0)
+
+### 🚀 Enhancements
+
+- **registry:** Add typed registry authoring ([68ff6a4](https://github.com/happydesigns/nuxt-variants/commit/68ff6a4))
+- **core:** ⚠️  Separate structural and runtime variants ([b10263f](https://github.com/happydesigns/nuxt-variants/commit/b10263f))
+- **devtools:** Expose variant layer provenance ([12f702e](https://github.com/happydesigns/nuxt-variants/commit/12f702e))
+- **types:** ⚠️  Strengthen runtime variant contracts ([fac94af](https://github.com/happydesigns/nuxt-variants/commit/fac94af))
+- **devtools:** Turn the registry view into an inspector ([4670133](https://github.com/happydesigns/nuxt-variants/commit/4670133))
+- **types:** Expose dynamic variant name input ([98e6b4e](https://github.com/happydesigns/nuxt-variants/commit/98e6b4e))
+- **devtools:** Follow the current route variant ([067da11](https://github.com/happydesigns/nuxt-variants/commit/067da11))
+- **devtools:** Refresh app config snapshots ([8286878](https://github.com/happydesigns/nuxt-variants/commit/8286878))
+- **validation:** ⚠️  Reject unknown variant fields ([3b71b4e](https://github.com/happydesigns/nuxt-variants/commit/3b71b4e))
+- **devtools:** Compact the mobile variant picker ([07275fd](https://github.com/happydesigns/nuxt-variants/commit/07275fd))
+- **validation:** ⚠️  Diagnose malformed registry entries ([dac95ec](https://github.com/happydesigns/nuxt-variants/commit/dac95ec))
+- **devtools:** Copy resolved inspector output ([8650d52](https://github.com/happydesigns/nuxt-variants/commit/8650d52))
+
+### 🔥 Performance
+
+- **runtime:** Compile variant resolution plans ([e5de4f7](https://github.com/happydesigns/nuxt-variants/commit/e5de4f7))
+- **runtime:** Compile activity override plans ([8afd5b6](https://github.com/happydesigns/nuxt-variants/commit/8afd5b6))
+- **build:** Avoid duplicate client prepare ([889bf0d](https://github.com/happydesigns/nuxt-variants/commit/889bf0d))
+- **runtime:** Resolve only the selected override lineage ([8903e7a](https://github.com/happydesigns/nuxt-variants/commit/8903e7a))
+
+### 🩹 Fixes
+
+- **release:** Ensure npm authentication ([5daef44](https://github.com/happydesigns/nuxt-variants/commit/5daef44))
+- **types:** Align published module contracts ([cbdf736](https://github.com/happydesigns/nuxt-variants/commit/cbdf736))
+- **devtools:** Support custom app base URLs ([43abf80](https://github.com/happydesigns/nuxt-variants/commit/43abf80))
+- **schemas:** Make validator peers truly optional ([41ef3ed](https://github.com/happydesigns/nuxt-variants/commit/41ef3ed))
+- **devtools:** Tolerate standalone inspector access ([f32ea8c](https://github.com/happydesigns/nuxt-variants/commit/f32ea8c))
+- **types:** Normalize generated runtime config boundary ([fda47d0](https://github.com/happydesigns/nuxt-variants/commit/fda47d0))
+- **devtools:** Share normalized inspector contracts ([b8c40e7](https://github.com/happydesigns/nuxt-variants/commit/b8c40e7))
+- **docs:** Bundle lucide icons locally ([f199b8f](https://github.com/happydesigns/nuxt-variants/commit/f199b8f))
+- **types:** Derive variants from merged app config ([22e6673](https://github.com/happydesigns/nuxt-variants/commit/22e6673))
+
+### 💅 Refactors
+
+- **module:** ⚠️  Narrow the auto-import surface ([5837ce3](https://github.com/happydesigns/nuxt-variants/commit/5837ce3))
+- **schemas:** ⚠️  Remove the virtual schema facade ([f5d7262](https://github.com/happydesigns/nuxt-variants/commit/f5d7262))
+- **types:** ⚠️  Expose immutable graph contracts ([9ab0e1c](https://github.com/happydesigns/nuxt-variants/commit/9ab0e1c))
+
+### 📖 Documentation
+
+- Define the 1.0 architecture contracts ([cacafa0](https://github.com/happydesigns/nuxt-variants/commit/cacafa0))
+- Align guides with the 1.0 contracts ([ae3fa8f](https://github.com/happydesigns/nuxt-variants/commit/ae3fa8f))
+- **core:** Clarify variant list structure ([e463baa](https://github.com/happydesigns/nuxt-variants/commit/e463baa))
+- **package:** Improve npm discoverability ([e80a971](https://github.com/happydesigns/nuxt-variants/commit/e80a971))
+- **package:** Include MIT license ([28db45b](https://github.com/happydesigns/nuxt-variants/commit/28db45b))
+
+### ✅ Tests
+
+- **layers:** Verify registry composition ([1b98c93](https://github.com/happydesigns/nuxt-variants/commit/1b98c93))
+- **core:** Cover layer overrides and startup failures ([4532c6d](https://github.com/happydesigns/nuxt-variants/commit/4532c6d))
+- **perf:** Expose resolution benchmarks ([1f5369c](https://github.com/happydesigns/nuxt-variants/commit/1f5369c))
+
+### 🤖 CI
+
+- Make validation installs reproducible ([3ff713a](https://github.com/happydesigns/nuxt-variants/commit/3ff713a))
+
+#### ⚠️ Breaking Changes
+
+- **core:** ⚠️  Separate structural and runtime variants ([b10263f](https://github.com/happydesigns/nuxt-variants/commit/b10263f))
+- **types:** ⚠️  Strengthen runtime variant contracts ([fac94af](https://github.com/happydesigns/nuxt-variants/commit/fac94af))
+- **validation:** ⚠️  Reject unknown variant fields ([3b71b4e](https://github.com/happydesigns/nuxt-variants/commit/3b71b4e))
+- **validation:** ⚠️  Diagnose malformed registry entries ([dac95ec](https://github.com/happydesigns/nuxt-variants/commit/dac95ec))
+- **module:** ⚠️  Narrow the auto-import surface ([5837ce3](https://github.com/happydesigns/nuxt-variants/commit/5837ce3))
+- **schemas:** ⚠️  Remove the virtual schema facade ([f5d7262](https://github.com/happydesigns/nuxt-variants/commit/f5d7262))
+- **types:** ⚠️  Expose immutable graph contracts ([9ab0e1c](https://github.com/happydesigns/nuxt-variants/commit/9ab0e1c))
+
+### ❤️ Contributors
+
+- Jan Fröhlich ([@janfrl](https://github.com/janfrl))
+
 ## v0.1.1
 
 [compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.1.0...v0.1.1)
