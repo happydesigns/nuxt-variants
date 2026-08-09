@@ -32,10 +32,10 @@ This is useful when several page or collection types share a layout but not
 all of its behavior. A small app with one layout and a few static props usually
 does not need a variant graph.
 
-Nuxt Variants keeps those decisions in one registry:
+Nuxt Variants separates structural decisions from configurable values:
 
-- `nuxt.config.ts` defines every name, inheritance edge, and build-time default.
-- `app.config.ts` overrides values or activity for those registered names at runtime.
+- `nuxt.config.ts` defines every name and inheritance edge, plus optional code-owned defaults.
+- `app.config.ts` supplies layer or application defaults and runtime overrides for registered names.
 - Pages select a variant with `definePageMeta`.
 - Layouts call `useVariant` and render from the resolved config.
 - Nuxt Content can merge schemas from the same variant inheritance graph.
@@ -45,7 +45,7 @@ Nuxt Variants keeps those decisions in one registry:
 - Flat variant registry for both reusable features and page variants.
 - Deep object merge with array replacement, not array concatenation.
 - `extends` inheritance across direct and transitive parents.
-- Runtime `app.config` overrides for Nuxt Studio-compatible editing.
+- Reactive `app.config` overrides with generated types from both config sources.
 - Auto-generated TypeScript types through `#nuxt-variants`.
 - Build-time virtual graph through `#variants-graph`.
 - Fail-fast diagnostics for unknown parents, inheritance cycles, and invalid runtime structure.
@@ -142,7 +142,9 @@ export default defineAppConfig({
 });
 ```
 
-`app.config.ts` wins over `nuxt.config.ts` for the same registered variant, so editors can change runtime behavior without creating a new layout. Names and `extends` remain in `nuxt.config.ts`; changing them at runtime would make generated types, Content schemas, and rendering disagree, so Nuxt Variants rejects it during startup.
+`app.config.ts` wins over `nuxt.config.ts` for the same registered variant. Generated config types include both the registry and Nuxt's merged `AppConfig`, so an entry may be structural in the registry while its complete value contract lives in a layer or application app config. Names and `extends` remain in the registry; changing structure at runtime would make generated types, Content schemas, and rendering disagree, so Nuxt Variants rejects it during startup.
+
+Current Nuxt Studio versions edit Nuxt Content files rather than `app.config.ts` directly. For owner-editable settings, define a small app-owned data collection with an explicit schema and map its values to `updateAppConfig`. This preserves the reactive variant API without exposing the technical variant graph to editors. See the documentation example for the complete pattern.
 
 ### 3. Select A Variant Per Page
 
@@ -188,7 +190,8 @@ const hasSurround = has("surround");
 </script>
 ```
 
-When the variant name is a literal, `config` is typed from the generated registry:
+When the variant name is a literal, `config` is typed from the build-time
+registry and Nuxt's merged `AppConfig`:
 
 ```ts
 const { config, has } = useVariant("article");
@@ -272,10 +275,10 @@ import type { VariantConfigOf } from "#nuxt-variants";
 type ArticleConfig = VariantConfigOf<"article">;
 ```
 
-Generated config values are widened to primitive types. If you need a narrower
-or library-owned type, augment `CustomVariantOverrides` in a module
-declaration. This example mirrors the typed back-button configuration used by
-`@happydesigns/ui`:
+Generated config values are widened to primitive types. Config declared only
+in `app.config.ts` is included automatically. If ordinary inference cannot
+express a deliberately narrower or library-owned type, augment
+`CustomVariantOverrides` in a module declaration:
 
 ```ts
 import type { ButtonProps } from "@nuxt/ui";
