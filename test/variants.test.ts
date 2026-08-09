@@ -200,14 +200,21 @@ describe("nuxt-variants e2e", async () => {
 
       const data = await fetchJson<{
         configKey: string;
-        variants: Array<{ name: string; activeFeatures: string[] }>;
+        variants: Array<{
+          name: string;
+          active: boolean;
+          activeFeatures: string[];
+          sources: Array<{ name: string; kind: string }>;
+        }>;
         diagnostics: unknown[];
       }>("/__nuxt-variants/devtools/data.json");
 
       expect(data.configKey).toBe("variants");
       expect(data.diagnostics).toEqual([]);
       expect(data.variants.find((variant) => variant.name === "article")).toMatchObject({
+        active: true,
         activeFeatures: ["seo", "hero", "design", "article"],
+        sources: [{ name: "Application", kind: "application" }],
       });
 
       const scriptPath = html.match(/src="([^"]+\/_nuxt\/[^"]+\.js)"/)?.[1];

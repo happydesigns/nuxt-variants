@@ -15,7 +15,8 @@ defineProps<{
     <div class="panel-body">
       <div class="flex flex-col gap2">
         <NTip v-for="diagnostic in diagnostics" :key="diagnostic.message" icon="i-carbon-warning">
-          {{ diagnostic.message }}
+          <strong>{{ diagnostic.code }}</strong>
+          <span>{{ diagnostic.message }}</span>
         </NTip>
       </div>
     </div>

@@ -131,24 +131,29 @@ export default defineNuxtModule<ModuleOptions>({
       );
       const devtoolsData = {
         configKey: options.configKey,
-        variants: variantEntries.map((entry) => ({
-          ...entry,
-          base: baseRegistry[entry.name] ?? null,
-          app: appRegistry[entry.name] ?? null,
-          resolvedConfig: resolveVariantConfig(
-            entry.name,
-            baseRegistry as VariantRegistry,
-            appRegistry as VariantRegistry,
-          ),
-          activeFeatures: [
+        variants: variantEntries.map((entry) => {
+          const activeFeatures = [
             ...resolveVariantFeatures(
               entry.name,
               baseRegistry as VariantRegistry,
               appRegistry as VariantRegistry,
             ),
-          ],
-          sources: variantSources[entry.name] ?? [],
-        })),
+          ];
+
+          return {
+            ...entry,
+            base: baseRegistry[entry.name] ?? null,
+            app: appRegistry[entry.name] ?? {},
+            resolvedConfig: resolveVariantConfig(
+              entry.name,
+              baseRegistry as VariantRegistry,
+              appRegistry as VariantRegistry,
+            ),
+            activeFeatures,
+            active: activeFeatures.includes(entry.name),
+            sources: variantSources[entry.name] ?? [],
+          };
+        }),
         graph: variantGraph,
         diagnostics,
       };

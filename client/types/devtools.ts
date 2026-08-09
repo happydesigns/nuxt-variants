@@ -6,6 +6,7 @@ export interface VariantEntry {
   app: unknown;
   resolvedConfig: Record<string, unknown>;
   activeFeatures: string[];
+  active: boolean;
   sources: VariantSource[];
 }
 
@@ -20,6 +21,11 @@ export interface VariantSource {
 }
 
 export interface VariantDiagnostic {
+  code: string;
+  severity: "error";
+  variant: string;
+  parent?: string;
+  path?: string[];
   message: string;
 }
 

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { DevtoolsData, VariantEntry } from "~/types/devtools";
+import { filterVariants } from "~/utils/filter-variants";
 
-defineProps<{
+const props = defineProps<{
   data: DevtoolsData;
   selected?: string;
 }>();
@@ -9,6 +10,9 @@ defineProps<{
 const emit = defineEmits<{
   "update:selected": [value: string];
 }>();
+
+const query = ref("");
+const filteredVariants = computed(() => filterVariants(props.data.variants, query.value));
 
 function plural(count: number, singular: string, pluralForm = `${singular}s`) {
   return count === 1 ? singular : pluralForm;
@@ -43,9 +47,14 @@ function variantMeta(variant: VariantEntry) {
       </NBadge>
     </div>
 
+    <div class="sidebar-search">
+      <NTextInput v-model="query" icon="i-carbon-search" placeholder="Filter variants" />
+      <span class="search-count">{{ filteredVariants.length }} of {{ data.variants.length }}</span>
+    </div>
+
     <nav class="variant-list" aria-label="Variants">
       <button
-        v-for="variant in data.variants"
+        v-for="variant in filteredVariants"
         :key="variant.name"
         class="variant-nav"
         :class="{ 'is-active': variant.name === selected }"
@@ -54,8 +63,12 @@ function variantMeta(variant: VariantEntry) {
         @click="emit('update:selected', variant.name)"
       >
         <span class="variant-name">{{ variant.name }}</span>
-        <span class="variant-meta">{{ variantMeta(variant) }}</span>
+        <span class="variant-row-meta">
+          <span class="variant-meta">{{ variantMeta(variant) }}</span>
+          <span v-if="!variant.active" class="inactive-label">disabled</span>
+        </span>
       </button>
+      <p v-if="!filteredVariants.length" class="empty-state">No variants match “{{ query }}”.</p>
     </nav>
   </aside>
 </template>

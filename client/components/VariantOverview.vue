@@ -5,34 +5,37 @@ const props = defineProps<{
   variant?: VariantEntry;
 }>();
 
-const extendedVariants = computed(() => props.variant?.extends ?? []);
+const resolutionOrder = computed(() => props.variant?.activeFeatures ?? []);
 </script>
 
 <template>
   <NCard>
     <div class="composition-panel">
       <div class="composition-head">
-        <h2>Composition</h2>
-        <p>Variants listed in extends merge first. The selected variant is applied last.</p>
+        <h2>Resolution order</h2>
+        <p>Inherited features merge from left to right. The selected variant is applied last.</p>
       </div>
 
       <div class="composition-row">
-        <span class="composition-label">Extends</span>
+        <span class="composition-label">Features</span>
         <div class="flex flex-wrap gap2">
-          <NBadge v-for="extendedVariant in extendedVariants" :key="extendedVariant" n="gray">
-            {{ extendedVariant }}
-          </NBadge>
-          <span v-if="!extendedVariants.length" class="muted">None</span>
+          <template v-for="(feature, index) in resolutionOrder" :key="feature">
+            <span v-if="index" class="resolution-arrow" aria-hidden="true">→</span>
+            <NBadge :n="feature === variant?.name ? 'green' : 'gray'">
+              {{ feature }}
+            </NBadge>
+          </template>
+          <span v-if="!resolutionOrder.length" class="muted">Disabled</span>
         </div>
       </div>
 
       <div class="composition-row">
-        <span class="composition-label">Selected</span>
+        <span class="composition-label">Direct parents</span>
         <div class="flex flex-wrap gap2">
-          <NBadge v-if="variant" n="green">
-            {{ variant.name }}
+          <NBadge v-for="parent in variant?.extends ?? []" :key="parent" n="gray">
+            {{ parent }}
           </NBadge>
-          <span v-else class="muted">None</span>
+          <span v-if="!variant?.extends.length" class="muted">None</span>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useVariantDevtoolsData } from "~/composables/useVariantDevtoolsData";
 
-const { currentVariant, data, error, pending, selected } = useVariantDevtoolsData();
+const { currentVariant, data, error, pending, reload, selected } = useVariantDevtoolsData();
 
 function plural(count: number, singular: string, pluralForm = `${singular}s`) {
   return count === 1 ? singular : pluralForm;
@@ -51,7 +51,7 @@ const currentConfigKeyCount = computed(() =>
 
     <main>
       <div class="content">
-        <LoadStatePanel :error="error" :pending="pending" />
+        <LoadStatePanel :error="error" :pending="pending" @retry="reload" />
 
         <template v-if="!pending && !error">
           <header class="main-header">
@@ -68,6 +68,9 @@ const currentConfigKeyCount = computed(() =>
               <NBadge n="gray">
                 {{ currentConfigKeyCount }}
                 {{ plural(currentConfigKeyCount, "config key") }}
+              </NBadge>
+              <NBadge :n="currentVariant?.active ? 'green' : 'orange'">
+                {{ currentVariant?.active ? "Enabled" : "Disabled" }}
               </NBadge>
               <NBadge v-if="data.diagnostics.length" n="orange">
                 {{ `${data.diagnostics.length} ${plural(data.diagnostics.length, "issue")}` }}
@@ -86,10 +89,11 @@ const currentConfigKeyCount = computed(() =>
               :value="currentVariant?.resolvedConfig ?? {}"
             />
             <ConfigPanel
-              title="Source Layers"
-              description="The module defaults and runtime app.config override before merging."
+              title="Raw inputs"
+              description="The merged Nuxt registry entry and app.config override before resolution."
               :value="{ base: currentVariant?.base, app: currentVariant?.app }"
             />
+            <VariantSources class="grid-wide" :sources="currentVariant?.sources ?? []" />
           </section>
         </template>
       </div>

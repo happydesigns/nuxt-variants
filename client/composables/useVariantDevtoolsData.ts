@@ -32,7 +32,9 @@ export function useVariantDevtoolsData() {
       }
 
       data.value = (await response.json()) as DevtoolsData;
-      selected.value = data.value.variants[0]?.name;
+      if (!data.value.variants.some((variant) => variant.name === selected.value)) {
+        selected.value = data.value.variants[0]?.name;
+      }
     } catch (cause) {
       error.value = cause instanceof Error ? cause.message : "Failed to load DevTools data.";
     } finally {
@@ -51,5 +53,6 @@ export function useVariantDevtoolsData() {
     error,
     pending,
     selected,
+    reload: loadData,
   };
 }
