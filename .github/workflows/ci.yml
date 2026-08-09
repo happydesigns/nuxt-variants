@@ -19,10 +19,10 @@ jobs:
         with:
           node-version: 24
 
-      - run: npm i -g --force corepack@latest && corepack enable
+      - run: npm i -g --force corepack@0.35.0 && corepack enable
 
       - name: Install dependencies
-        run: npx nypm@latest i
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: npm run lint
@@ -37,13 +37,16 @@ jobs:
         with:
           node-version: 24
 
-      - run: npm i -g --force corepack@latest && corepack enable
+      - run: npm i -g --force corepack@0.35.0 && corepack enable
 
       - name: Install dependencies
-        run: npx nypm@latest i
+        run: pnpm install --frozen-lockfile
 
       - name: Playground prepare
         run: npm run dev:prepare
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Test
         run: npm run test
