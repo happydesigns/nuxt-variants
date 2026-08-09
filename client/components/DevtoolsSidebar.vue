@@ -28,6 +28,14 @@ function variantMeta(variant: VariantEntry) {
 
   return `${keyText} / extends ${variant.extends.length}`;
 }
+
+function selectVariant(event: Event) {
+  const target = event.target;
+
+  if (target instanceof HTMLSelectElement) {
+    emit("update:selected", target.value);
+  }
+}
 </script>
 
 <template>
@@ -46,6 +54,15 @@ function variantMeta(variant: VariantEntry) {
             : "No issues"
         }}
       </NBadge>
+    </div>
+
+    <div class="mobile-variant-picker">
+      <label for="variant-picker">Variant</label>
+      <select id="variant-picker" :value="selected" @change="selectVariant">
+        <option v-for="variant in data.variants" :key="variant.name" :value="variant.name">
+          {{ variant.name }}{{ variant.name === routeVariant ? " (current route)" : "" }}
+        </option>
+      </select>
     </div>
 
     <div class="sidebar-search">
