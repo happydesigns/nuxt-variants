@@ -23,13 +23,13 @@ describe("normalizeVariantRegistry", () => {
     const normalized = normalizeVariantRegistry({
       header: {},
       content: parents,
-      article: { extends: parents, active: true },
+      article: { extends: "header", active: true },
     });
 
     expect(normalized).toEqual({
       header: { config: {} },
       content: { extends: ["header", "toc"], config: {} },
-      article: { extends: ["header", "toc"], active: true, config: {} },
+      article: { extends: ["header"], active: true, config: {} },
     });
   });
 

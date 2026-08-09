@@ -1,4 +1,5 @@
 import { collectVariantDiagnostics } from "./diagnostics";
+import type { VariantSource } from "../../utils/layer-sources";
 import { createVariantGraph, type VariantGraph } from "./graph";
 import {
   listVariantEntries,
@@ -8,15 +9,7 @@ import {
   type VariantRegistry,
 } from "./variants";
 
-export interface VariantSourceEntry {
-  name: string;
-  kind: "application" | "layer";
-  entry: {
-    extends?: string | string[];
-    active?: boolean;
-    config: Record<string, unknown>;
-  };
-}
+export type VariantSourceEntry = VariantSource;
 
 export type VariantSources = Readonly<Record<string, readonly VariantSourceEntry[]>>;
 

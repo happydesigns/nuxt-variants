@@ -2,7 +2,7 @@
 import type { VariantDiagnostic } from "~/types/devtools";
 
 defineProps<{
-  diagnostics: VariantDiagnostic[];
+  diagnostics: readonly VariantDiagnostic[];
 }>();
 </script>
 

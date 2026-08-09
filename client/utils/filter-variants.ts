@@ -1,7 +1,10 @@
 import type { VariantEntry } from "../types/devtools";
 
 /** Filters the registry inspector across names, parents, config keys, and layer sources. */
-export function filterVariants(variants: VariantEntry[], query: string): VariantEntry[] {
+export function filterVariants(
+  variants: readonly VariantEntry[],
+  query: string,
+): readonly VariantEntry[] {
   const normalizedQuery = query.trim().toLocaleLowerCase();
   if (!normalizedQuery) return variants;
 

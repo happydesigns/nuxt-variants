@@ -2,7 +2,7 @@
 import type { VariantSource } from "~/types/devtools";
 
 defineProps<{
-  sources: VariantSource[];
+  sources: readonly VariantSource[];
 }>();
 </script>
 

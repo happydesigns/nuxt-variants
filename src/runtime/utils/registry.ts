@@ -18,7 +18,7 @@ export type VariantRegistryInput = Record<
 
 /** Normalized build-time entry used by runtime and tooling internals. */
 export interface NormalizedVariantRegistryEntry {
-  extends?: string | string[];
+  extends?: string[];
   active?: boolean;
   config: Record<string, unknown>;
 }
@@ -33,8 +33,9 @@ function isRegistryShorthand(
 
 function normalizeExtendsInput(
   value: string | readonly string[] | undefined,
-): string | string[] | undefined {
-  return typeof value === "string" || value === undefined ? value : [...value];
+): string[] | undefined {
+  if (value === undefined) return undefined;
+  return typeof value === "string" ? [value] : [...value];
 }
 
 /**
