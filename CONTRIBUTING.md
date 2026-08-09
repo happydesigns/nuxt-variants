@@ -64,6 +64,10 @@ Add or update tests when changing logic. Prioritize tests for variant graph
 resolution, deep merge behavior, runtime override behavior, generated public
 types, Nuxt Content schema merging, and public contracts.
 
+Run `pnpm bench` when changing graph traversal, resolution-plan compilation,
+or config merging. Compare relative throughput on the same machine; absolute
+numbers are environment-specific and are not a CI gate.
+
 If tests are not practical for a change, note the reason in the pull request or
 final summary.
 

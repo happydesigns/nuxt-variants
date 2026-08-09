@@ -51,6 +51,7 @@
     "lint:check": "pnpm lint",
     "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit && cd ../client && vue-tsc --noEmit",
     "test": "vitest run",
+    "bench": "vitest bench --run test/bench",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit && cd ../client && vue-tsc --noEmit"
   },
