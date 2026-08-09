@@ -18,6 +18,7 @@ describe("Nuxt layer composition", async () => {
 
     expect(extractJson(html, "features")).toEqual(["header", "content", "article"]);
     expect(extractJson(html, "config")).toEqual({
+      consumer: true,
       visible: true,
       width: "wide",
       kind: "article",
@@ -43,6 +44,18 @@ describe("Nuxt layer composition", async () => {
         name: "Application",
         kind: "application",
         entry: { extends: ["content"], config: { kind: "article" } },
+      },
+    ]);
+    expect(data.variants.find(({ name }) => name === "content")?.sources).toEqual([
+      {
+        name: "Application",
+        kind: "application",
+        entry: { config: { consumer: true } },
+      },
+      {
+        name: "layer-base",
+        kind: "layer",
+        entry: { extends: ["header"], config: { width: "prose" } },
       },
     ]);
   });
