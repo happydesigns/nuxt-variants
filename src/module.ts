@@ -345,6 +345,9 @@ declare module 'vue-router' {
     });
 
     if (devtoolsEnabled) {
+      const appBaseURL = nuxt.options.app.baseURL.replace(/\/+$/, "");
+      const devtoolsRoute = `${appBaseURL}/__nuxt-variants/devtools`;
+
       addServerHandler({
         route: "/__nuxt-variants/devtools",
         handler: resolver.resolve("./runtime/server/devtools.get"),
@@ -366,7 +369,7 @@ declare module 'vue-router' {
           category: "app",
           view: {
             type: "iframe",
-            src: "/__nuxt-variants/devtools",
+            src: devtoolsRoute,
           },
         },
         nuxt,

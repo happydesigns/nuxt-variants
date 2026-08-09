@@ -25,7 +25,10 @@ export function useVariantDevtoolsData() {
     error.value = undefined;
 
     try {
-      const response = await fetch("/__nuxt-variants/devtools/data.json");
+      const base = window.location.href.endsWith("/")
+        ? window.location.href
+        : `${window.location.href}/`;
+      const response = await fetch(new URL("data.json", base));
 
       if (!response.ok) {
         throw new Error(`DevTools data request failed with ${response.status}.`);

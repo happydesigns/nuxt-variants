@@ -29,7 +29,14 @@ export default defineEventHandler((event) => {
   }
 
   const { pathname } = getRequestURL(event);
-  const routePath = decodeURIComponent(pathname).slice(routeBase.length);
+  const decodedPathname = decodeURIComponent(pathname);
+  const routeIndex = decodedPathname.indexOf(routeBase);
+  if (routeIndex === -1) {
+    throw createError({ statusCode: 404, statusMessage: "DevTools route not found." });
+  }
+
+  const publicRouteBase = decodedPathname.slice(0, routeIndex + routeBase.length);
+  const routePath = decodedPathname.slice(routeIndex + routeBase.length);
   const requestedPath = routePath.replace(/^\/+/, "") || "index.html";
   const filePath = normalize(
     join(clientRoot, requestedPath.endsWith("/") ? `${requestedPath}index.html` : requestedPath),
@@ -45,5 +52,11 @@ export default defineEventHandler((event) => {
   }
 
   setHeader(event, "content-type", getContentType(filePath));
-  return readFileSync(filePath);
+  const content = readFileSync(filePath);
+
+  if (requestedPath === "index.html") {
+    return content.toString("utf8").replaceAll(`${routeBase}/`, `${publicRouteBase}/`);
+  }
+
+  return content;
 });
