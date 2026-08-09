@@ -4,6 +4,7 @@ import { filterVariants } from "~/utils/filter-variants";
 
 const props = defineProps<{
   data: DevtoolsData;
+  routeVariant?: string;
   selected?: string;
 }>();
 
@@ -62,7 +63,10 @@ function variantMeta(variant: VariantEntry) {
         :aria-current="variant.name === selected ? 'page' : undefined"
         @click="emit('update:selected', variant.name)"
       >
-        <span class="variant-name">{{ variant.name }}</span>
+        <span class="variant-heading">
+          <span class="variant-name">{{ variant.name }}</span>
+          <span v-if="variant.name === routeVariant" class="route-label">current route</span>
+        </span>
         <span class="variant-row-meta">
           <span class="variant-meta">{{ variantMeta(variant) }}</span>
           <span v-if="!variant.active" class="inactive-label">disabled</span>

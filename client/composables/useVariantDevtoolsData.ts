@@ -16,9 +16,22 @@ export function useVariantDevtoolsData() {
   const selected = ref<string>();
 
   const connected = computed(() => Boolean(devtoolsClient.value));
+  const routeVariant = computed(() => {
+    const variant = devtoolsClient.value?.host.nuxt.$router.currentRoute.value.meta.variant;
+    return typeof variant === "string" ? variant : undefined;
+  });
   const currentVariant = computed(() =>
     data.value.variants.find((variant) => variant.name === selected.value),
   );
+
+  function selectRouteVariant() {
+    if (data.value.variants.some((variant) => variant.name === routeVariant.value)) {
+      selected.value = routeVariant.value;
+      return true;
+    }
+
+    return false;
+  }
 
   async function loadData() {
     pending.value = true;
@@ -35,7 +48,10 @@ export function useVariantDevtoolsData() {
       }
 
       data.value = (await response.json()) as DevtoolsData;
-      if (!data.value.variants.some((variant) => variant.name === selected.value)) {
+      if (
+        !selectRouteVariant() &&
+        !data.value.variants.some((variant) => variant.name === selected.value)
+      ) {
         selected.value = data.value.variants[0]?.name;
       }
     } catch (cause) {
@@ -49,12 +65,15 @@ export function useVariantDevtoolsData() {
     void loadData();
   });
 
+  watch(routeVariant, selectRouteVariant);
+
   return {
     connected,
     currentVariant,
     data,
     error,
     pending,
+    routeVariant,
     selected,
     reload: loadData,
   };

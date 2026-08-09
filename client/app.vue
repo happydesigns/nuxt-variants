@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useVariantDevtoolsData } from "~/composables/useVariantDevtoolsData";
 
-const { currentVariant, data, error, pending, reload, selected } = useVariantDevtoolsData();
+const { currentVariant, data, error, pending, reload, routeVariant, selected } =
+  useVariantDevtoolsData();
 
 function plural(count: number, singular: string, pluralForm = `${singular}s`) {
   return count === 1 ? singular : pluralForm;
@@ -47,7 +48,7 @@ const currentConfigKeyCount = computed(() =>
 
 <template>
   <div class="shell">
-    <DevtoolsSidebar v-model:selected="selected" :data="data" />
+    <DevtoolsSidebar v-model:selected="selected" :data="data" :route-variant="routeVariant" />
 
     <main>
       <div class="content">
