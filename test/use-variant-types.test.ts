@@ -1,6 +1,7 @@
 import { describe, it, expectTypeOf } from "vitest";
 import type { ModuleOptions } from "../src/module";
 import type { MergeVariantConfigUnion } from "../src/runtime/composables/useVariant";
+import type { VariantRegistryEntry, VariantRuntimeOverride } from "../src/runtime/utils/variants";
 
 type AnyVariantConfigFor<Registry> = keyof Registry extends never
   ? Record<string, unknown>
@@ -61,5 +62,16 @@ describe("ModuleOptions registry entry contract", () => {
 
   it("keeps array shorthand entries accepted", () => {
     expectTypeOf<["seo", "hero"]>().toMatchTypeOf<RegistryEntryInput>();
+  });
+});
+
+describe("runtime registry contracts", () => {
+  it("defaults config to an object with unknown values", () => {
+    expectTypeOf<NonNullable<VariantRegistryEntry["config"]>>().toEqualTypeOf<
+      Partial<Record<string, unknown>>
+    >();
+    expectTypeOf<NonNullable<VariantRuntimeOverride["config"]>>().toEqualTypeOf<
+      Partial<Record<string, unknown>>
+    >();
   });
 });

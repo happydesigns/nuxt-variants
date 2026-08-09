@@ -10,10 +10,15 @@ import {
   type VariantRegistryEntry,
   type VariantRegistry,
 } from "../utils/variants";
-import type { CustomVariantRegistry } from "#nuxt-variants";
+import type { CustomVariantRegistry, VariantName } from "#nuxt-variants";
 
-export type { CustomVariantRegistry };
-export type VariantDefinition<T = unknown> = VariantRegistryEntry<T>;
+export type { CustomVariantRegistry, VariantName };
+export type VariantDefinition<
+  TConfig extends object = Record<string, unknown>,
+> = VariantRegistryEntry<TConfig>;
+
+/** Known variant names with a dynamic-string escape hatch for CMS and route data. */
+export type VariantNameInput = VariantName | (string & Record<never, never>);
 
 type KeysOfUnion<U> = U extends unknown ? keyof U : never;
 type ValueForKey<U, K extends PropertyKey> = U extends unknown
@@ -50,7 +55,7 @@ export interface UseVariantReturn<TConfig> {
    * Returns a computed ref that is `true` if this is the selected variant or
    * if it directly or transitively extends the given feature name.
    */
-  has: (featureName: MaybeRefOrGetter<string>) => ComputedRef<boolean>;
+  has: (featureName: MaybeRefOrGetter<VariantNameInput>) => ComputedRef<boolean>;
 }
 
 /**
@@ -101,7 +106,7 @@ export function useVariant(name: MaybeRefOrGetter<string>): UseVariantReturn<unk
       : new Set<string>(variantResolutionPlan[variantName] ?? []);
   });
 
-  function has(featureName: MaybeRefOrGetter<string>): ComputedRef<boolean> {
+  function has(featureName: MaybeRefOrGetter<VariantNameInput>): ComputedRef<boolean> {
     return computed(() => features.value.has(toValue(featureName)));
   }
 

@@ -4,21 +4,21 @@ import { defuReplaceArray } from "./merge";
  * Describes a single variant entry in the registry.
  * @template T The shape of the configuration object this variant produces.
  */
-export interface VariantRegistryEntry<T = unknown> {
+export interface VariantRegistryEntry<TConfig extends object = Record<string, unknown>> {
   extends?: string | string[];
   active?: boolean;
-  config?: Partial<T>;
+  config?: Partial<TConfig>;
 }
 
-export type VariantRegistry = Record<string, VariantRegistryEntry<unknown>>;
+export type VariantRegistry = Record<string, VariantRegistryEntry>;
 
 /** Runtime values that may override an existing build-time registry entry. */
-export interface VariantRuntimeOverride<T = unknown> {
+export interface VariantRuntimeOverride<TConfig extends object = Record<string, unknown>> {
   active?: boolean;
-  config?: Partial<T>;
+  config?: Partial<TConfig>;
 }
 
-export type VariantOverrideRegistry = Record<string, VariantRuntimeOverride<unknown>>;
+export type VariantOverrideRegistry = Record<string, VariantRuntimeOverride>;
 
 export interface VariantListEntry {
   /** The variant's key in the registry. */

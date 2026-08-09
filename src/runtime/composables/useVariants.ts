@@ -7,11 +7,15 @@ import {
   type VariantOverrideRegistry,
   type VariantRegistry,
 } from "../utils/variants";
+import type { VariantName } from "#nuxt-variants";
 
 /**
  * Describes a resolved registry entry as returned by `useVariants`.
  */
-export type VariantEntry = VariantListEntry;
+export type VariantEntry = Omit<VariantListEntry, "name" | "extends"> & {
+  name: VariantName;
+  extends: VariantName[];
+};
 
 /**
  * Reactively returns a flat list of all variants known to the registry, combining
@@ -26,6 +30,6 @@ export function useVariants(): ComputedRef<VariantEntry[]> {
     const appRegistry = ((appConfig as Record<string, unknown>)[variantsConfigKey] ??
       {}) as VariantOverrideRegistry;
 
-    return listVariantEntries(baseRegistry, appRegistry);
+    return listVariantEntries(baseRegistry, appRegistry) as VariantEntry[];
   });
 }
