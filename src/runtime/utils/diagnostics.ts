@@ -1,6 +1,8 @@
 import { getVariantExtends, type VariantRegistry } from "./variants";
 
 export type VariantDiagnosticCode =
+  | "unknown-registry-field"
+  | "unknown-runtime-field"
   | "unknown-parent"
   | "circular-extends"
   | "runtime-extends"
@@ -11,8 +13,40 @@ export interface VariantDiagnostic {
   severity: "error";
   variant: string;
   parent?: string;
+  field?: string;
   path?: string[];
   message: string;
+}
+
+const registryFields = new Set(["extends", "active", "config"]);
+// `extends` has its own actionable runtime-extends diagnostic below.
+const runtimeFields = new Set(["extends", "active", "config"]);
+
+function collectUnknownFields(
+  registry: Record<string, unknown>,
+  allowedFields: ReadonlySet<string>,
+  code: "unknown-registry-field" | "unknown-runtime-field",
+  source: "Registry" | "App config",
+): VariantDiagnostic[] {
+  const diagnostics: VariantDiagnostic[] = [];
+
+  for (const [variant, entry] of Object.entries(registry)) {
+    if (Array.isArray(entry) || typeof entry !== "object" || entry === null) continue;
+
+    for (const field of Object.keys(entry)) {
+      if (allowedFields.has(field)) continue;
+
+      diagnostics.push({
+        code,
+        severity: "error",
+        variant,
+        field,
+        message: `${source} for variant "${variant}" contains unknown field "${field}".`,
+      });
+    }
+  }
+
+  return diagnostics;
 }
 
 export class VariantRegistryError extends Error {
@@ -34,6 +68,15 @@ export function collectVariantDiagnostics(
   overrideRegistry: Record<string, unknown>,
 ): VariantDiagnostic[] {
   const diagnostics: VariantDiagnostic[] = [];
+  diagnostics.push(
+    ...collectUnknownFields(
+      baseRegistry as Record<string, unknown>,
+      registryFields,
+      "unknown-registry-field",
+      "Registry",
+    ),
+    ...collectUnknownFields(overrideRegistry, runtimeFields, "unknown-runtime-field", "App config"),
+  );
   const keys = new Set(Object.keys(baseRegistry));
   const graph = Object.fromEntries(
     [...keys].map((key) => [key, getVariantExtends(key, baseRegistry)]),

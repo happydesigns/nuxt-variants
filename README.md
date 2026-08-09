@@ -364,8 +364,13 @@ During Nuxt prepare, Nuxt Variants stops with one structured `VariantRegistryErr
 - circular inheritance chains
 - `app.config` entries for unknown variants
 - `app.config` entries that define structural `extends`
+- unknown fields in registry entries or runtime overrides
 
 The error contains all detected diagnostics with stable codes, so one prepare run can identify every problem. Valid graph data remains available from `#variants-graph` and in the Nuxt DevTools inspector.
+
+Registry entries accept only `extends`, `active`, and `config`. Runtime
+`app.config` overrides accept only `active` and `config`; misspelled or extra
+fields fail during startup instead of being silently ignored.
 
 ## Playground And Documentation
 

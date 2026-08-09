@@ -170,4 +170,28 @@ describe("variant runtime utilities", () => {
       },
     ]);
   });
+
+  it("rejects unknown fields instead of silently ignoring typos", () => {
+    expect(
+      collectVariantDiagnostics(
+        { content: { config: {}, configs: { toc: true } } } as VariantRegistry,
+        { content: { actve: false } },
+      ),
+    ).toEqual([
+      {
+        code: "unknown-registry-field",
+        severity: "error",
+        variant: "content",
+        field: "configs",
+        message: 'Registry for variant "content" contains unknown field "configs".',
+      },
+      {
+        code: "unknown-runtime-field",
+        severity: "error",
+        variant: "content",
+        field: "actve",
+        message: 'App config for variant "content" contains unknown field "actve".',
+      },
+    ]);
+  });
 });

@@ -56,6 +56,7 @@ skipped without disabling its child.
 
 Structural graph errors are build errors:
 
+- a registry or runtime override contains an unknown field;
 - an entry extends an unknown parent;
 - the graph contains an inheritance cycle;
 - runtime app config attempts to add an unknown entry;
