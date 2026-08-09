@@ -13,13 +13,7 @@ import { assertValidVariantRegistry, collectVariantDiagnostics } from "./runtime
 import { createVariantGraph } from "./runtime/utils/graph";
 import { serializeConfigShape } from "./utils/type-serialization";
 import { collectVariantSources } from "./utils/layer-sources";
-import {
-  createVariantResolutionPlan,
-  listVariantEntries,
-  resolveVariantConfig,
-  resolveVariantFeatures,
-  type VariantRegistry,
-} from "./runtime/utils/variants";
+import { createVariantResolutionPlan, type VariantRegistry } from "./runtime/utils/variants";
 import {
   defineVariantRegistry,
   normalizeVariantRegistry,
@@ -126,40 +120,13 @@ export default defineNuxtModule<ModuleOptions>({
 
     if (devtoolsEnabled) {
       const variantSources = collectVariantSources(nuxt.options._layers, configKey);
-      const variantEntries = listVariantEntries(
-        baseRegistry as VariantRegistry,
-        appRegistry as VariantRegistry,
-      );
-      const devtoolsData = {
+      const devtoolsMetadata = {
         configKey,
-        variants: variantEntries.map((entry) => {
-          const activeFeatures = [
-            ...resolveVariantFeatures(
-              entry.name,
-              baseRegistry as VariantRegistry,
-              appRegistry as VariantRegistry,
-            ),
-          ];
-
-          return {
-            ...entry,
-            base: baseRegistry[entry.name] ?? null,
-            app: appRegistry[entry.name] ?? {},
-            resolvedConfig: resolveVariantConfig(
-              entry.name,
-              baseRegistry as VariantRegistry,
-              appRegistry as VariantRegistry,
-            ),
-            activeFeatures,
-            active: activeFeatures.includes(entry.name),
-            sources: variantSources[entry.name] ?? [],
-          };
-        }),
-        graph: variantGraph,
-        diagnostics,
+        registry: baseRegistry,
+        sources: variantSources,
       };
       Object.assign(nuxt.options.runtimeConfig, {
-        variantDevtoolsData: devtoolsData,
+        variantDevtoolsMetadata: devtoolsMetadata,
         variantDevtoolsClientPath: devtoolsClientPath,
       });
     }

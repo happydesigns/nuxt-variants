@@ -142,10 +142,16 @@ main {
   line-height: 1.6;
 }
 
+.header-meta,
 .header-badges {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
+}
+
+.header-meta {
+  justify-content: space-between;
 }
 
 .grid {

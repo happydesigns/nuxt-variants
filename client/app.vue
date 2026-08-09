@@ -61,21 +61,33 @@ const currentConfigKeyCount = computed(() =>
               <p>{{ currentVariantSummary }}</p>
             </div>
 
-            <div class="header-badges">
-              <NBadge n="gray">
-                {{ currentVariant?.extends.length ?? 0 }}
-                extends
-              </NBadge>
-              <NBadge n="gray">
-                {{ currentConfigKeyCount }}
-                {{ plural(currentConfigKeyCount, "config key") }}
-              </NBadge>
-              <NBadge :n="currentVariant?.active ? 'green' : 'orange'">
-                {{ currentVariant?.active ? "Enabled" : "Disabled" }}
-              </NBadge>
-              <NBadge v-if="data.diagnostics.length" n="orange">
-                {{ `${data.diagnostics.length} ${plural(data.diagnostics.length, "issue")}` }}
-              </NBadge>
+            <div class="header-meta">
+              <div class="header-badges">
+                <NBadge n="gray">
+                  {{ currentVariant?.extends.length ?? 0 }}
+                  extends
+                </NBadge>
+                <NBadge n="gray">
+                  {{ currentConfigKeyCount }}
+                  {{ plural(currentConfigKeyCount, "config key") }}
+                </NBadge>
+                <NBadge :n="currentVariant?.active ? 'green' : 'orange'">
+                  {{ currentVariant?.active ? "Enabled" : "Disabled" }}
+                </NBadge>
+                <NBadge v-if="data.diagnostics.length" n="orange">
+                  {{ `${data.diagnostics.length} ${plural(data.diagnostics.length, "issue")}` }}
+                </NBadge>
+              </div>
+
+              <NButton
+                border
+                icon="i-carbon-renew"
+                :disabled="pending"
+                title="Refresh app-config overrides"
+                @click="reload"
+              >
+                Refresh
+              </NButton>
             </div>
           </header>
 

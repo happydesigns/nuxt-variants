@@ -324,7 +324,7 @@ Virtual modules:
 
 Development tooling:
 
-- The Nuxt DevTools tab named `Nuxt Variants` follows the current route variant, filters by variant, parent, config key, or source layer, and shows resolution order, activity, layer provenance, raw inputs, and resolved config.
+- The Nuxt DevTools tab named `Nuxt Variants` follows the current route variant, filters by variant, parent, config key, or source layer, and shows resolution order, activity, layer provenance, raw inputs, and resolved config. Refreshing the inspector reads the current `app.config` overrides again.
 - The backing inspector route is registered only in Nuxt dev and test environments.
 
 ## Merge Rules
