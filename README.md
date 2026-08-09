@@ -318,7 +318,6 @@ Virtual modules:
 
 - `#nuxt-variants` exposes generated types.
 - `#variants-graph` exposes `variantGraph` and `variantDiagnostics`.
-- `#variants-schemas` exposes graph-aware schema helpers inside Nuxt's Vite pipeline. Use the package `schemas` export from `content.config.ts`.
 
 Development tooling:
 

@@ -318,45 +318,21 @@ declare module 'vue-router' {
       "",
     ].join("\n");
 
-    const schemasMjsPath = join(nuxt.options.buildDir, "variants-schemas.mjs");
-    const schemasDmtsPath = join(nuxt.options.buildDir, "variants-schemas.d.mts");
-    const schemasContent =
-      [
-        `import { mergeVariantSchemas as _merge } from "@happydesigns/nuxt-variants/schemas";`,
-        `const _graph = ${JSON.stringify(variantGraph, null, 2)};`,
-        `export function mergeVariantSchemas(activeVariants, registry, options) {`,
-        `  return _merge(activeVariants, registry, _graph, options);`,
-        `}`,
-        `export { zodAdapter, valibotAdapter, detectAdapter } from "@happydesigns/nuxt-variants/schemas";`,
-      ].join("\n") + "\n";
-    const schemasDtsContent =
-      [
-        `import type { SchemaRegistry, SchemaAdapter, MergeVariantSchemasOptions, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
-        `export declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ZodObjectSchema | undefined>, options?: MergeVariantSchemasOptions): ZodObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, ValibotObjectSchema | undefined>, options?: MergeVariantSchemasOptions): ValibotObjectSchema;\nexport declare function mergeVariantSchemas(activeVariants: string[], registry: Record<string, AnyObjectSchema | undefined>, options?: MergeVariantSchemasOptions): AnyObjectSchema;`,
-        `export { zodAdapter, valibotAdapter, detectAdapter } from "@happydesigns/nuxt-variants/schemas";`,
-        `export type { SchemaRegistry, SchemaAdapter, MergeVariantSchemasOptions, AnyObjectSchema, ZodObjectSchema, ValibotObjectSchema } from "@happydesigns/nuxt-variants/schemas";`,
-      ].join("\n") + "\n";
-
-    // Write eagerly so content.config.ts can import the file at Nuxt init time,
-    // before any hooks fire. addTemplate keeps them in sync during build.
+    // Write eagerly so runtime and type aliases exist before Nuxt's hooks run.
+    // addTemplate keeps them in sync during build.
     mkdirSync(nuxt.options.buildDir, { recursive: true });
     writeFileSync(runtimeMjsPath, runtimeContent, "utf-8");
     writeFileSync(runtimeDmtsPath, runtimeDtsContent, "utf-8");
     writeFileSync(graphMjsPath, graphContent, "utf-8");
     writeFileSync(graphDmtsPath, graphDtsContent, "utf-8");
-    writeFileSync(schemasMjsPath, schemasContent, "utf-8");
-    writeFileSync(schemasDmtsPath, schemasDtsContent, "utf-8");
 
     addTemplate({ filename: "variants-runtime.mjs", getContents: () => runtimeContent });
     addTemplate({ filename: "variants-runtime.d.mts", getContents: () => runtimeDtsContent });
     addTemplate({ filename: "variants-graph.mjs", getContents: () => graphContent });
     addTemplate({ filename: "variants-graph.d.mts", getContents: () => graphDtsContent });
-    addTemplate({ filename: "variants-schemas.mjs", getContents: () => schemasContent });
-    addTemplate({ filename: "variants-schemas.d.mts", getContents: () => schemasDtsContent });
 
     nuxt.options.alias["#variants-runtime"] = runtimeMjsPath;
     nuxt.options.alias["#variants-graph"] = graphMjsPath;
-    nuxt.options.alias["#variants-schemas"] = schemasMjsPath;
 
     nuxt.hook("prepare:types", ({ references }) => {
       // Re-write in case Nuxt cleaned buildDir after setup() ran.
@@ -364,11 +340,8 @@ declare module 'vue-router' {
       writeFileSync(runtimeDmtsPath, runtimeDtsContent, "utf-8");
       writeFileSync(graphMjsPath, graphContent, "utf-8");
       writeFileSync(graphDmtsPath, graphDtsContent, "utf-8");
-      writeFileSync(schemasMjsPath, schemasContent, "utf-8");
-      writeFileSync(schemasDmtsPath, schemasDtsContent, "utf-8");
       references.push({ path: runtimeDmtsPath });
       references.push({ path: graphDmtsPath });
-      references.push({ path: schemasDmtsPath });
     });
 
     if (devtoolsEnabled) {
