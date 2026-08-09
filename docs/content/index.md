@@ -24,7 +24,7 @@ links:
 
 ::landing-workbench
 ---
-graphLabel: variant graph resolves at runtime
+graphLabel: variant graph compiled at build time
 resolvedLabel: Resolved page
 extendsLabel: Extends
 featureChecksLabel: Feature checks
@@ -152,7 +152,7 @@ features:
     description: Keep Nuxt Content fields aligned with the same variant graph that powers rendering.
   - icon: i-lucide-monitor-cog
     title: Transparent debugging
-    description: Inspect inheritance, config layers, resolved output, and diagnostics in Nuxt DevTools.
+    description: Inspect resolution order, activity, source layers, raw inputs, and resolved output in Nuxt DevTools.
 ---
 ::
 

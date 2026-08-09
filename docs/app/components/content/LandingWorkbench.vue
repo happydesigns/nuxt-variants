@@ -15,7 +15,7 @@ const props = withDefaults(
     eventSummary?: string;
   }>(),
   {
-    graphLabel: "variant graph resolves at runtime",
+    graphLabel: "variant graph compiled at build time",
     resolvedLabel: "Resolved page",
     extendsLabel: "Extends",
     featureChecksLabel: "Feature checks",

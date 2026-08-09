@@ -34,8 +34,8 @@ does not need a variant graph.
 
 Nuxt Variants keeps those decisions in one registry:
 
-- `nuxt.config.ts` defines build-time defaults.
-- `app.config.ts` overrides values at runtime.
+- `nuxt.config.ts` defines every name, inheritance edge, and build-time default.
+- `app.config.ts` overrides values or activity for those registered names at runtime.
 - Pages select a variant with `definePageMeta`.
 - Layouts call `useVariant` and render from the resolved config.
 - Nuxt Content can merge schemas from the same variant inheritance graph.
@@ -48,8 +48,8 @@ Nuxt Variants keeps those decisions in one registry:
 - Runtime `app.config` overrides for Nuxt Studio-compatible editing.
 - Auto-generated TypeScript types through `#nuxt-variants`.
 - Build-time virtual graph through `#variants-graph`.
-- Build-time diagnostics for unknown parents, inheritance cycles, and replaced parent chains.
-- Nuxt DevTools tab for inspecting variants, inheritance, config layers, and resolved output during development.
+- Fail-fast diagnostics for unknown parents, inheritance cycles, and invalid runtime structure.
+- Nuxt DevTools inspector with filtering, resolution order, layer provenance, and resolved output.
 - Graph-aware Nuxt Content schema helper through `@happydesigns/nuxt-variants/schemas`.
 
 ## Quick Setup
@@ -142,7 +142,7 @@ export default defineAppConfig({
 });
 ```
 
-`app.config.ts` wins over `nuxt.config.ts` for the same variant, so editors can change runtime behavior without creating a new layout.
+`app.config.ts` wins over `nuxt.config.ts` for the same registered variant, so editors can change runtime behavior without creating a new layout. Names and `extends` remain in `nuxt.config.ts`; changing them at runtime would make generated types, Content schemas, and rendering disagree, so Nuxt Variants rejects it during startup.
 
 ### 3. Select A Variant Per Page
 
@@ -208,13 +208,15 @@ need it. This avoids module-order and virtual-alias coupling.
 
 ```ts
 // variants.ts
-export const variantRegistry = {
+import { defineVariantRegistry } from "@happydesigns/nuxt-variants/schemas";
+
+export const variantRegistry = defineVariantRegistry({
   dates: {},
   authors: {},
   header: {},
   toc: {},
   article: { extends: ["dates", "authors", "header", "toc"] },
-};
+});
 ```
 
 ```ts
@@ -259,7 +261,7 @@ immediately instead of producing an incomplete collection schema.
 
 ## TypeScript
 
-The module generates `CustomVariantRegistry` and `VariantConfigOf` in `#nuxt-variants` during Nuxt prepare.
+The module generates `CustomVariantRegistry`, `VariantName`, `VariantNameInput`, and `VariantConfigOf` in `#nuxt-variants` during Nuxt prepare. `VariantNameInput` retains suggestions for known names while accepting dynamic route or CMS values.
 
 ```ts
 import type { VariantConfigOf } from "#nuxt-variants";
@@ -306,8 +308,8 @@ types only; runtime values still come from `nuxt.config.ts` and
 
 ```ts
 interface VariantEntry {
-  name: string;
-  extends: string[];
+  name: VariantName;
+  extends: VariantName[];
   configKeys: string[];
 }
 ```
@@ -320,7 +322,7 @@ Virtual modules:
 
 Development tooling:
 
-- The Nuxt DevTools tab named `Nuxt Variants` shows the current variant list, inheritance graph, active features, base/app config layers, resolved config, and diagnostics.
+- The Nuxt DevTools tab named `Nuxt Variants` filters by variant, parent, config key, or source layer and shows resolution order, activity, layer provenance, raw inputs, and resolved config.
 - The backing inspector route is registered only in Nuxt dev and test environments.
 
 ## Merge Rules
@@ -354,13 +356,14 @@ Resolving `article` produces:
 
 ## Diagnostics
 
-During Nuxt prepare, Nuxt Variants warns about registry graph problems:
+During Nuxt prepare, Nuxt Variants stops with one structured `VariantRegistryError` when the registry contract is invalid:
 
 - variants extending unknown parent keys
 - circular inheritance chains
-- `app.config` entries that replace an existing `nuxt.config` `extends` chain
+- `app.config` entries for unknown variants
+- `app.config` entries that define structural `extends`
 
-The same warnings are available as `variantDiagnostics` from `#variants-graph` and in the Nuxt DevTools inspector.
+The error contains all detected diagnostics with stable codes, so one prepare run can identify every problem. Valid graph data remains available from `#variants-graph` and in the Nuxt DevTools inspector.
 
 ## Playground And Documentation
 
