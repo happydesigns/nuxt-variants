@@ -1,7 +1,11 @@
 import { describe, it, expectTypeOf } from "vitest";
-import type { ModuleOptions } from "../src/module";
+import type { ModuleOptions, VariantGraph } from "../src/module";
 import type { MergeVariantConfigUnion } from "../src/runtime/composables/useVariant";
-import type { VariantRegistryEntry, VariantRuntimeOverride } from "../src/runtime/utils/variants";
+import type {
+  VariantRegistryEntry,
+  VariantResolutionPlan,
+  VariantRuntimeOverride,
+} from "../src/runtime/utils/variants";
 
 type AnyVariantConfigFor<Registry> = keyof Registry extends never
   ? Record<string, unknown>
@@ -76,6 +80,13 @@ describe("runtime registry contracts", () => {
     >();
     expectTypeOf<NonNullable<VariantRuntimeOverride["config"]>>().toEqualTypeOf<
       Partial<Record<string, unknown>>
+    >();
+  });
+
+  it("exposes generated graph artifacts as immutable data", () => {
+    expectTypeOf<VariantGraph>().toEqualTypeOf<Readonly<Record<string, readonly string[]>>>();
+    expectTypeOf<VariantResolutionPlan>().toEqualTypeOf<
+      Readonly<Record<string, readonly string[]>>
     >();
   });
 });

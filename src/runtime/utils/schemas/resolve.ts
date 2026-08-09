@@ -1,6 +1,6 @@
 import { detectAdapter } from "./adapters/detect";
 import { createVariantGraph } from "../graph";
-import type { VariantGraphRegistry } from "../graph";
+import type { VariantGraph, VariantGraphRegistry } from "../graph";
 import type {
   AnyObjectSchema,
   SchemaAdapter,
@@ -57,7 +57,7 @@ export function createVariantSchemaResolver(
   return (activeVariants) => mergeVariantSchemas(activeVariants, schemaRegistry, graph, options);
 }
 
-function resolveExtendsGraph(variants: string[], graph: Record<string, string[]>): string[] {
+function resolveExtendsGraph(variants: string[], graph: VariantGraph): string[] {
   const result: string[] = [];
   const visited = new Set<string>();
 
@@ -96,25 +96,25 @@ function resolveExtendsGraph(variants: string[], graph: Record<string, string[]>
 export function mergeVariantSchemas(
   activeVariants: string[],
   registry: Record<string, ZodObjectSchema | undefined>,
-  graph: Record<string, string[]>,
+  graph: VariantGraph,
   options?: MergeVariantSchemasOptions,
 ): ZodObjectSchema;
 export function mergeVariantSchemas(
   activeVariants: string[],
   registry: Record<string, ValibotObjectSchema | undefined>,
-  graph: Record<string, string[]>,
+  graph: VariantGraph,
   options?: MergeVariantSchemasOptions,
 ): ValibotObjectSchema;
 export function mergeVariantSchemas(
   activeVariants: string[],
   registry: Record<string, AnyObjectSchema | undefined>,
-  graph: Record<string, string[]>,
+  graph: VariantGraph,
   options?: MergeVariantSchemasOptions,
 ): AnyObjectSchema;
 export function mergeVariantSchemas(
   activeVariants: string[],
   registry: Record<string, AnyObjectSchema | undefined>,
-  graph: Record<string, string[]>,
+  graph: VariantGraph,
   options: MergeVariantSchemasOptions = {},
 ): AnyObjectSchema {
   for (const variant of activeVariants) {

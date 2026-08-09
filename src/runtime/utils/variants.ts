@@ -33,7 +33,7 @@ export interface VariantListEntry {
 }
 
 /** Parents-first resolution order for every registered variant. */
-export type VariantResolutionPlan = Record<string, string[]>;
+export type VariantResolutionPlan = Readonly<Record<string, readonly string[]>>;
 
 export function normalizeExtends(value: string | string[] | undefined): string[] {
   if (value === undefined) return [];

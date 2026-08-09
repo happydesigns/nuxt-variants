@@ -28,6 +28,7 @@ import {
 
 export { VariantRegistryError } from "./runtime/utils/diagnostics";
 export type { VariantDiagnostic, VariantDiagnosticCode } from "./runtime/utils/diagnostics";
+export type { VariantGraph } from "./runtime/utils/graph";
 export type {
   VariantListEntry,
   VariantOverrideRegistry,
@@ -111,7 +112,7 @@ export default defineNuxtModule<ModuleOptions>({
     ].join("\n");
     const runtimeDtsContent = [
       `import type { VariantRegistry, VariantResolutionPlan } from "@happydesigns/nuxt-variants";`,
-      `export declare const variantRegistry: VariantRegistry;`,
+      `export declare const variantRegistry: Readonly<VariantRegistry>;`,
       `export declare const variantResolutionPlan: VariantResolutionPlan;`,
       `export declare const variantsConfigKey: string;`,
       "",
@@ -312,9 +313,9 @@ declare module 'vue-router' {
       "",
     ].join("\n");
     const graphDtsContent = [
-      `export interface VariantDiagnostic { code: "unknown-parent" | "circular-extends" | "runtime-extends" | "unknown-runtime-override"; severity: "error"; variant: string; parent?: string; path?: string[]; message: string }`,
-      `export declare const variantGraph: Record<string, string[]>;`,
-      `export declare const variantDiagnostics: VariantDiagnostic[];`,
+      `import type { VariantDiagnostic, VariantGraph } from "@happydesigns/nuxt-variants";`,
+      `export declare const variantGraph: VariantGraph;`,
+      `export declare const variantDiagnostics: readonly VariantDiagnostic[];`,
       "",
     ].join("\n");
 
