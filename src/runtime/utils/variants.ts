@@ -24,7 +24,7 @@ export interface VariantListEntry {
   /** The variant's key in the registry. */
   name: string;
   /**
-   * The resolved `extends` chain (from `app.config` if present, otherwise `nuxt.config`).
+   * The direct `extends` chain declared in the build-time registry.
    * An empty array means this is a base feature with no parents.
    */
   extends: string[];

@@ -119,7 +119,7 @@ describe("variant runtime utilities", () => {
     expect([...resolveVariantFeatures("missing", baseRegistry, appRegistry)]).toEqual([]);
   });
 
-  it("lists variants from both registries with normalized extends and config keys", () => {
+  it("lists registered variants with normalized extends and override config keys", () => {
     expect(listVariantEntries(baseRegistry, appRegistry)).toEqual([
       { name: "seo", extends: [], configKeys: ["indexed", "titleTemplate"] },
       { name: "hero", extends: [], configKeys: ["height", "slots"] },
