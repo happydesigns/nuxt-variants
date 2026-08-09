@@ -1,7 +1,18 @@
 {
   "name": "@happydesigns/nuxt-variants",
   "version": "0.1.1",
-  "description": "A centralized, deeply-merging configuration engine for Nuxt layouts with build-time variant graph and Nuxt Content v3 schema merging.",
+  "description": "Composable page capabilities for Nuxt with typed config inheritance and Nuxt Content schema merging.",
+  "keywords": [
+    "nuxt",
+    "nuxt-content",
+    "nuxt-module",
+    "typescript",
+    "variants"
+  ],
+  "homepage": "https://github.com/happydesigns/nuxt-variants#readme",
+  "bugs": {
+    "url": "https://github.com/happydesigns/nuxt-variants/issues"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
