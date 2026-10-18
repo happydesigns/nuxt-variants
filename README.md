@@ -389,7 +389,7 @@ pnpm dev
 The playground demonstrates shared layouts, feature composition, runtime overrides, generated type contracts, and Nuxt Content schema merging.
 
 ```bash
-pnpm docs:dev
+pnpm run docs
 ```
 
 The Docus documentation source lives in [`docs/`](/docs). See [`CONTRIBUTING.md`](/CONTRIBUTING.md) for branch, commit, and PR rules.
