@@ -7,6 +7,7 @@ import {
   resolveVariantConfigFromPlan,
   resolveVariantFeatures,
   variantHasFeature,
+  type VariantOverrideRegistry,
   type VariantRegistry,
 } from "../../src/runtime/utils/variants";
 import {
@@ -56,6 +57,72 @@ const appRegistry: VariantRegistry = {
 };
 
 describe("variant runtime utilities", () => {
+  describe("parent config priority", () => {
+    const sharedRegistry: VariantRegistry = {
+      base: { config: { color: "blue", slots: ["base"] } },
+      customized: {
+        extends: ["base"],
+        config: { color: "red", slots: ["customized"], customizedOnly: true },
+      },
+      plain: { extends: ["base"] },
+    };
+
+    it.each<{
+      name: string;
+      parents: string[];
+      overrides: VariantOverrideRegistry;
+      expected: Record<string, unknown>;
+    }>([
+      {
+        name: "lets the later parent's inherited values win in a diamond",
+        parents: ["customized", "plain"],
+        overrides: {},
+        expected: { color: "blue", slots: ["base"], customizedOnly: true },
+      },
+      {
+        name: "respects reversed parent priority",
+        parents: ["plain", "customized"],
+        overrides: {},
+        expected: { color: "red", slots: ["customized"], customizedOnly: true },
+      },
+      {
+        name: "includes shared ancestor app config in the later parent",
+        parents: ["customized", "plain"],
+        overrides: { base: { config: { color: "green", slots: ["runtime"] } } },
+        expected: { color: "green", slots: ["runtime"], customizedOnly: true },
+      },
+      {
+        name: "omits an inactive later parent",
+        parents: ["customized", "plain"],
+        overrides: { plain: { active: false } },
+        expected: { color: "red", slots: ["customized"], customizedOnly: true },
+      },
+    ])("$name", ({ parents, overrides, expected }) => {
+      const registry = { ...sharedRegistry, article: { extends: parents } };
+      const plan = createVariantResolutionPlan(registry, overrides);
+      const lineage = [...resolveVariantFeatures("article", registry, overrides)];
+
+      expect(resolveVariantConfig("article", registry, overrides)).toEqual(expected);
+      expect(resolveVariantConfigFromPlan("article", registry, overrides, plan)).toEqual(expected);
+      expect(resolveVariantConfigFromLineage(lineage, registry, overrides)).toEqual(expected);
+    });
+
+    it("merges complete parent configs before applying sibling defaults", () => {
+      const registry: VariantRegistry = {
+        earlier: { config: { nested: { fromEarlier: true } } },
+        base: { config: { nested: false } },
+        later: { extends: ["base"], config: { nested: { fromLater: true } } },
+        article: { extends: ["earlier", "later"] },
+      };
+      const expected = { nested: { fromEarlier: true, fromLater: true } };
+      const plan = createVariantResolutionPlan(registry);
+
+      expect(resolveVariantConfig("article", registry, {})).toEqual(expected);
+      expect(resolveVariantConfigFromPlan("article", registry, {}, plan)).toEqual(expected);
+      expect(resolveVariantConfigFromLineage(plan.article!, registry, {})).toEqual(expected);
+    });
+  });
+
   it("resolves inherited config with app overrides winning over base config", () => {
     expect(resolveVariantConfig("article", baseRegistry, appRegistry)).toEqual({
       hasDate: false,

@@ -83,8 +83,8 @@ export function resolveVariantConfig(
 
 /**
  * Compiles each variant's active inheritance lineage once at build time.
- * Later parents and the selected variant appear later so they retain the
- * documented config priority when the plan is applied from left to right.
+ * Each active entry appears once, after its parents. Config resolution merges
+ * complete parent configs so shared ancestors retain the declared priority.
  */
 export function createVariantResolutionPlan(
   baseRegistry: VariantRegistry,
@@ -119,15 +119,24 @@ export function resolveVariantConfigFromLineage(
 ): Record<string, unknown> {
   if (lineage.length === 0) return {};
 
+  const resolvedConfigs = new Map<string, Record<string, unknown>>();
   let resolved: Record<string, unknown> = {};
 
   for (const name of lineage) {
+    // Merge each parent's complete config, including shared ancestors, before
+    // applying this entry. Flattening contributions loses sibling priority and
+    // changes deep-merge grouping when inherited values have different shapes.
+    const resolvedParents = getVariantExtends(name, baseRegistry).reduceRight<
+      Record<string, unknown>
+    >((config, parent) => defuReplaceArray(config, resolvedConfigs.get(parent) ?? {}), {});
+
     resolved = defuReplaceArray(
       {},
       (overrideRegistry[name]?.config ?? {}) as Record<string, unknown>,
       (baseRegistry[name]?.config ?? {}) as Record<string, unknown>,
-      resolved,
+      resolvedParents,
     );
+    resolvedConfigs.set(name, resolved);
   }
 
   return resolved;
