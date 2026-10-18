@@ -397,10 +397,13 @@ The Docus documentation source lives in [`docs/`](/docs). See [`CONTRIBUTING.md`
 ## Local Checks
 
 ```bash
-pnpm dev:prepare
-pnpm lint
-pnpm typecheck
-pnpm test
+pnpm run check
+```
+
+This prepares the module and playground, then runs lint, type checks, and tests.
+Run the package, playground, and documentation builds separately:
+
+```bash
 pnpm prepack
 pnpm dev:build
 pnpm docs:build
