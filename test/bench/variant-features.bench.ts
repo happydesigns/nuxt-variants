@@ -23,6 +23,21 @@ const plan = createVariantResolutionPlan(registry);
 const activeOverrides = { "feature-12": { active: false } };
 const overriddenPlan = createVariantResolutionPlan(registry, activeOverrides);
 
+const sharedRegistry: VariantRegistry = { base: {} };
+let sharedParents = ["base"];
+for (let depth = 1; depth <= 16; depth++) {
+  sharedRegistry[`left-${depth}`] = { extends: [...sharedParents] };
+  sharedRegistry[`right-${depth}`] = { extends: [...sharedParents] };
+  sharedParents = [`left-${depth}`, `right-${depth}`];
+}
+sharedRegistry.target = { extends: sharedParents };
+
+describe("shared ancestor feature traversal (34 entries)", () => {
+  bench("resolve selected lineage", () => {
+    resolveVariantFeatures("target", sharedRegistry, {});
+  });
+});
+
 describe("feature lookups", () => {
   bench("resolve the graph for every has() call", () => {
     for (const feature of checks) {

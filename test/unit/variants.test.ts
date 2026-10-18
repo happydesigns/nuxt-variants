@@ -203,6 +203,65 @@ describe("variant runtime utilities", () => {
     expect([...resolveVariantFeatures("missing", baseRegistry, appRegistry)]).toEqual([]);
   });
 
+  it("bounds shared-ancestor traversal by the distinct registry entries", () => {
+    const registry: VariantRegistry = { base: {} };
+    let parents = ["base"];
+    for (let depth = 1; depth <= 16; depth++) {
+      registry[`left-${depth}`] = { extends: [...parents] };
+      registry[`right-${depth}`] = { extends: [...parents] };
+      parents = [`left-${depth}`, `right-${depth}`];
+    }
+    registry.target = { extends: parents };
+    let reads = 0;
+    const observed = new Proxy(registry, {
+      get(target, key, receiver) {
+        if (typeof key === "string" && Object.hasOwn(target, key)) reads++;
+        return Reflect.get(target, key, receiver);
+      },
+    });
+
+    expect([...resolveVariantFeatures("target", observed, {})]).toEqual(Object.keys(registry));
+    expect(reads).toBeLessThanOrEqual(Object.keys(registry).length * 2);
+  });
+
+  it("preserves caller visited exclusions without adding traversed parents to that set", () => {
+    const visited = new Set(["seo"]);
+    expect([...resolveVariantFeatures("article", baseRegistry, appRegistry, visited)]).toEqual([
+      "hero",
+      "article",
+    ]);
+    expect([...visited]).toEqual(["seo", "article"]);
+    expect([...resolveVariantFeatures("article", baseRegistry, appRegistry, visited)]).toEqual([]);
+  });
+
+  it("keeps cycle, missing-parent and activity-override behavior across shared paths", () => {
+    const registry: VariantRegistry = {
+      base: {},
+      hidden: {},
+      paused: { extends: "hidden", active: false },
+      loopA: { extends: "loopB" },
+      loopB: { extends: "loopA" },
+      left: { extends: ["base", "paused", "missing", "loopA"] },
+      right: { extends: ["base", "paused", "loopA"] },
+      target: { extends: ["left", "right", "preview"] },
+    };
+    expect([...resolveVariantFeatures("target", registry, { preview: { config: {} } })]).toEqual([
+      "base",
+      "loopB",
+      "loopA",
+      "left",
+      "right",
+      "preview",
+      "target",
+    ]);
+    expect([
+      ...resolveVariantFeatures("target", registry, {
+        base: { active: false },
+        paused: { active: true },
+      }),
+    ]).toEqual(["hidden", "paused", "loopB", "loopA", "left", "right", "target"]);
+  });
+
   it("lists registered variants with normalized extends and override config keys", () => {
     expect(listVariantEntries(baseRegistry, appRegistry)).toEqual([
       { name: "seo", extends: [], configKeys: ["indexed", "titleTemplate"] },

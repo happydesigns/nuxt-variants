@@ -163,30 +163,28 @@ export function resolveVariantFeatures(
   overrideRegistry: VariantOverrideRegistry,
   visited = new Set<string>(),
 ): ReadonlySet<string> {
-  if (visited.has(variantName)) return new Set();
+  // Keep caller exclusions and root-only mutation, but share traversal state
+  // across sibling paths so a common ancestor is expanded only once per call.
+  const traversed = new Set(visited);
   visited.add(variantName);
-
-  const baseEntry = baseRegistry[variantName];
-  const overrideEntry = overrideRegistry[variantName];
-  if (!baseEntry && !overrideEntry) return new Set();
-
-  const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
-  if (isActive === false) return new Set();
-
   const features = new Set<string>();
 
-  for (const parent of getVariantExtends(variantName, baseRegistry)) {
-    for (const feature of resolveVariantFeatures(
-      parent,
-      baseRegistry,
-      overrideRegistry,
-      new Set(visited),
-    )) {
-      features.add(feature);
-    }
+  function visit(name: string): void {
+    if (traversed.has(name)) return;
+    traversed.add(name);
+
+    const baseEntry = baseRegistry[name];
+    const overrideEntry = overrideRegistry[name];
+    if (!baseEntry && !overrideEntry) return;
+
+    const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
+    if (isActive === false) return;
+
+    for (const parent of getVariantExtends(name, baseRegistry)) visit(parent);
+    features.add(name);
   }
 
-  features.add(variantName);
+  visit(variantName);
   return features;
 }
 
