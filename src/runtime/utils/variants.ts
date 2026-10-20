@@ -83,8 +83,8 @@ export function resolveVariantConfig(
 
 /**
  * Compiles each variant's active inheritance lineage once at build time.
- * Later parents and the selected variant appear later so they retain the
- * documented config priority when the plan is applied from left to right.
+ * Each active entry appears once, after its parents. Config resolution merges
+ * complete parent configs so shared ancestors retain the declared priority.
  */
 export function createVariantResolutionPlan(
   baseRegistry: VariantRegistry,
@@ -119,15 +119,24 @@ export function resolveVariantConfigFromLineage(
 ): Record<string, unknown> {
   if (lineage.length === 0) return {};
 
+  const resolvedConfigs = new Map<string, Record<string, unknown>>();
   let resolved: Record<string, unknown> = {};
 
   for (const name of lineage) {
+    // Merge each parent's complete config, including shared ancestors, before
+    // applying this entry. Flattening contributions loses sibling priority and
+    // changes deep-merge grouping when inherited values have different shapes.
+    const resolvedParents = getVariantExtends(name, baseRegistry).reduceRight<
+      Record<string, unknown>
+    >((config, parent) => defuReplaceArray(config, resolvedConfigs.get(parent) ?? {}), {});
+
     resolved = defuReplaceArray(
       {},
       (overrideRegistry[name]?.config ?? {}) as Record<string, unknown>,
       (baseRegistry[name]?.config ?? {}) as Record<string, unknown>,
-      resolved,
+      resolvedParents,
     );
+    resolvedConfigs.set(name, resolved);
   }
 
   return resolved;
@@ -154,30 +163,28 @@ export function resolveVariantFeatures(
   overrideRegistry: VariantOverrideRegistry,
   visited = new Set<string>(),
 ): ReadonlySet<string> {
-  if (visited.has(variantName)) return new Set();
+  // Keep caller exclusions and root-only mutation, but share traversal state
+  // across sibling paths so a common ancestor is expanded only once per call.
+  const traversed = new Set(visited);
   visited.add(variantName);
-
-  const baseEntry = baseRegistry[variantName];
-  const overrideEntry = overrideRegistry[variantName];
-  if (!baseEntry && !overrideEntry) return new Set();
-
-  const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
-  if (isActive === false) return new Set();
-
   const features = new Set<string>();
 
-  for (const parent of getVariantExtends(variantName, baseRegistry)) {
-    for (const feature of resolveVariantFeatures(
-      parent,
-      baseRegistry,
-      overrideRegistry,
-      new Set(visited),
-    )) {
-      features.add(feature);
-    }
+  function visit(name: string): void {
+    if (traversed.has(name)) return;
+    traversed.add(name);
+
+    const baseEntry = baseRegistry[name];
+    const overrideEntry = overrideRegistry[name];
+    if (!baseEntry && !overrideEntry) return;
+
+    const isActive = overrideEntry?.active ?? baseEntry?.active ?? true;
+    if (isActive === false) return;
+
+    for (const parent of getVariantExtends(name, baseRegistry)) visit(parent);
+    features.add(name);
   }
 
-  features.add(variantName);
+  visit(variantName);
   return features;
 }
 

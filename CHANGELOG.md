@@ -7,16 +7,16 @@
 ### 🚀 Enhancements
 
 - **registry:** Add typed registry authoring ([68ff6a4](https://github.com/happydesigns/nuxt-variants/commit/68ff6a4))
-- **core:** ⚠️  Separate structural and runtime variants ([b10263f](https://github.com/happydesigns/nuxt-variants/commit/b10263f))
+- **core:** ⚠️ Separate structural and runtime variants ([b10263f](https://github.com/happydesigns/nuxt-variants/commit/b10263f))
 - **devtools:** Expose variant layer provenance ([12f702e](https://github.com/happydesigns/nuxt-variants/commit/12f702e))
-- **types:** ⚠️  Strengthen runtime variant contracts ([fac94af](https://github.com/happydesigns/nuxt-variants/commit/fac94af))
+- **types:** ⚠️ Strengthen runtime variant contracts ([fac94af](https://github.com/happydesigns/nuxt-variants/commit/fac94af))
 - **devtools:** Turn the registry view into an inspector ([4670133](https://github.com/happydesigns/nuxt-variants/commit/4670133))
 - **types:** Expose dynamic variant name input ([98e6b4e](https://github.com/happydesigns/nuxt-variants/commit/98e6b4e))
 - **devtools:** Follow the current route variant ([067da11](https://github.com/happydesigns/nuxt-variants/commit/067da11))
 - **devtools:** Refresh app config snapshots ([8286878](https://github.com/happydesigns/nuxt-variants/commit/8286878))
-- **validation:** ⚠️  Reject unknown variant fields ([3b71b4e](https://github.com/happydesigns/nuxt-variants/commit/3b71b4e))
+- **validation:** ⚠️ Reject unknown variant fields ([3b71b4e](https://github.com/happydesigns/nuxt-variants/commit/3b71b4e))
 - **devtools:** Compact the mobile variant picker ([07275fd](https://github.com/happydesigns/nuxt-variants/commit/07275fd))
-- **validation:** ⚠️  Diagnose malformed registry entries ([dac95ec](https://github.com/happydesigns/nuxt-variants/commit/dac95ec))
+- **validation:** ⚠️ Diagnose malformed registry entries ([dac95ec](https://github.com/happydesigns/nuxt-variants/commit/dac95ec))
 - **devtools:** Copy resolved inspector output ([8650d52](https://github.com/happydesigns/nuxt-variants/commit/8650d52))
 
 ### 🔥 Performance
@@ -40,9 +40,9 @@
 
 ### 💅 Refactors
 
-- **module:** ⚠️  Narrow the auto-import surface ([5837ce3](https://github.com/happydesigns/nuxt-variants/commit/5837ce3))
-- **schemas:** ⚠️  Remove the virtual schema facade ([f5d7262](https://github.com/happydesigns/nuxt-variants/commit/f5d7262))
-- **types:** ⚠️  Expose immutable graph contracts ([9ab0e1c](https://github.com/happydesigns/nuxt-variants/commit/9ab0e1c))
+- **module:** ⚠️ Narrow the auto-import surface ([5837ce3](https://github.com/happydesigns/nuxt-variants/commit/5837ce3))
+- **schemas:** ⚠️ Remove the virtual schema facade ([f5d7262](https://github.com/happydesigns/nuxt-variants/commit/f5d7262))
+- **types:** ⚠️ Expose immutable graph contracts ([9ab0e1c](https://github.com/happydesigns/nuxt-variants/commit/9ab0e1c))
 
 ### 📖 Documentation
 
@@ -64,13 +64,13 @@
 
 #### ⚠️ Breaking Changes
 
-- **core:** ⚠️  Separate structural and runtime variants ([b10263f](https://github.com/happydesigns/nuxt-variants/commit/b10263f))
-- **types:** ⚠️  Strengthen runtime variant contracts ([fac94af](https://github.com/happydesigns/nuxt-variants/commit/fac94af))
-- **validation:** ⚠️  Reject unknown variant fields ([3b71b4e](https://github.com/happydesigns/nuxt-variants/commit/3b71b4e))
-- **validation:** ⚠️  Diagnose malformed registry entries ([dac95ec](https://github.com/happydesigns/nuxt-variants/commit/dac95ec))
-- **module:** ⚠️  Narrow the auto-import surface ([5837ce3](https://github.com/happydesigns/nuxt-variants/commit/5837ce3))
-- **schemas:** ⚠️  Remove the virtual schema facade ([f5d7262](https://github.com/happydesigns/nuxt-variants/commit/f5d7262))
-- **types:** ⚠️  Expose immutable graph contracts ([9ab0e1c](https://github.com/happydesigns/nuxt-variants/commit/9ab0e1c))
+- **core:** ⚠️ Separate structural and runtime variants ([b10263f](https://github.com/happydesigns/nuxt-variants/commit/b10263f))
+- **types:** ⚠️ Strengthen runtime variant contracts ([fac94af](https://github.com/happydesigns/nuxt-variants/commit/fac94af))
+- **validation:** ⚠️ Reject unknown variant fields ([3b71b4e](https://github.com/happydesigns/nuxt-variants/commit/3b71b4e))
+- **validation:** ⚠️ Diagnose malformed registry entries ([dac95ec](https://github.com/happydesigns/nuxt-variants/commit/dac95ec))
+- **module:** ⚠️ Narrow the auto-import surface ([5837ce3](https://github.com/happydesigns/nuxt-variants/commit/5837ce3))
+- **schemas:** ⚠️ Remove the virtual schema facade ([f5d7262](https://github.com/happydesigns/nuxt-variants/commit/f5d7262))
+- **types:** ⚠️ Expose immutable graph contracts ([9ab0e1c](https://github.com/happydesigns/nuxt-variants/commit/9ab0e1c))
 
 ### ❤️ Contributors
 

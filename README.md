@@ -389,7 +389,7 @@ pnpm dev
 The playground demonstrates shared layouts, feature composition, runtime overrides, generated type contracts, and Nuxt Content schema merging.
 
 ```bash
-pnpm docs:dev
+pnpm run docs
 ```
 
 The Docus documentation source lives in [`docs/`](/docs). See [`CONTRIBUTING.md`](/CONTRIBUTING.md) for branch, commit, and PR rules.
@@ -397,10 +397,13 @@ The Docus documentation source lives in [`docs/`](/docs). See [`CONTRIBUTING.md`
 ## Local Checks
 
 ```bash
-pnpm dev:prepare
-pnpm lint
-pnpm typecheck
-pnpm test
+pnpm run check
+```
+
+This prepares the module and playground, then runs lint, type checks, and tests.
+Run the package, playground, and documentation builds separately:
+
+```bash
 pnpm prepack
 pnpm dev:build
 pnpm docs:build
