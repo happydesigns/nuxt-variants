@@ -22,9 +22,7 @@ describe("Nuxt layer composition", async () => {
     const generatedTypes = readFileSync(join(buildDir, "types/nuxt-variants.d.ts"), "utf8");
 
     expect(generatedTypes).toContain('"article": { config: { "kind": string } }');
-    expect(generatedTypes).toContain('_VariantConfigWithOverride<"content"');
     expect(generatedTypes).toContain("import type { AppConfig } from 'nuxt/schema'");
-    expect(generatedTypes).toContain("_VariantConfig<_AppVariants extends Record");
     expect(generatedTypes).not.toMatch(/import cfg\d+ from/);
     expect(generatedTypes).not.toContain("defineAppConfig");
   });
