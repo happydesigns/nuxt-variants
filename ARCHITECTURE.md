@@ -89,3 +89,20 @@ The 1.0 public contract includes:
 
 Internal template filenames, DevTools endpoints, and inspector payload shapes
 remain internal unless explicitly documented otherwise.
+
+## Optional Platform Adapters
+
+The `0.3.0-next.0` preview exposes the existing resolver through `/core` and
+adds optional `/content` and `/devtools` integrations. The approved scope and
+tradeoffs are recorded in `docs/content/docs/10.platform-preview.md`.
+
+The Content adapter persists identity, not resolved presentation state. The
+DevFrame adapter exposes a read-only, uncached snapshot query; the host owns
+authentication and transport. The Nuxt adapter remains responsible for
+generated aliases/types, auto-imports, layer composition, routes and dock
+registration. No adapter duplicates graph or merge semantics.
+
+The existing Nuxt Content schema resolver stays separate from the Comark
+Content identity field. JSON Schema subset limitations do not justify moving
+application refinements into the variant engine. Public virtual modules and
+existing schema merge priorities are unchanged.

@@ -9,6 +9,26 @@ Nuxt Variants is a small Nuxt module for building one shared layout that can beh
 
 The package name is `@happydesigns/nuxt-variants`.
 
+This branch contains the local `0.3.0-next.0` platform preview. Optional
+`/core`, `/content`, and `/devtools` entry points add portable resolution,
+Comark Content integration, and a DevFrame inspector. The Nuxt module and
+existing schema helpers remain available. See the [preview guide](docs/content/docs/10.platform-preview.md).
+The [acceptance report](docs/preview-acceptance.md) records completed checks,
+performance costs, known limits, and the next adoption steps.
+
+To compare against the actual `v0.2.0` release implementation locally:
+
+```bash
+pnpm compare:prepare
+pnpm compare
+```
+
+Open `http://127.0.0.1:4192/`. The comparison includes article, snippet, and
+course fixtures, interactive overrides, and legacy/live/offline inspectors.
+It does not change another application or publish a package.
+The preparation command builds the preview and downloads the integrity-checked
+released inspector once, so the comparison also shows the real old UI.
+
 ## Why Use It?
 
 Nuxt lets a page select a layout, but it does not describe which capabilities a
