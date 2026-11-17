@@ -114,7 +114,13 @@ const currentConfigKeyCount = computed(() =>
                 title="Final Config"
                 description="Resolved configuration after current overrides."
                 :value="currentVariant?.resolvedConfig ?? {}"
-              />
+              >
+                <ValueSource
+                  v-if="currentVariant"
+                  :variant="currentVariant"
+                  :entries="data.variants"
+                />
+              </ConfigPanel>
               <ConfigPanel
                 title="Raw inputs"
                 description="Registry defaults and current overrides before resolution."

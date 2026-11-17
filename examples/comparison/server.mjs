@@ -33,6 +33,7 @@ const registry = {
   authors: { config: { authors: ["Redaktion"] } },
   progress: { config: { progress: { label: "Lernfortschritt", value: 40 } } },
   article: { extends: ["header", "toc", "authors"], config: { label: "Artikel" } },
+  event: { extends: ["header", "toc"], config: { label: "Event" } },
   snippet: { extends: ["header"], config: { label: "Kurzbeitrag" } },
   course: { extends: ["header", "toc", "progress"], config: { label: "Kurs" } },
 };
@@ -40,6 +41,10 @@ const documents = {
   article: {
     title: "Ein Inhalt, zwei Integrationen",
     body: "Beide Wege liefern denselben Inhalt und dieselben Layout-Fähigkeiten. Die Preview bindet Content über eine kleine Extension an und benötigt dafür keinen Nuxt-Host.",
+  },
+  event: {
+    title: "Offene Sprechstunde",
+    body: "Das Seitenlabel kommt aus der App-Konfiguration. Im Inspector zeigt Value source für das Feld label die Variante event und den Override.",
   },
   snippet: {
     title: "Weniger reicht oft aus",
@@ -52,7 +57,11 @@ const documents = {
 };
 const resolver = createVariantResolver(registry);
 let state = { document: "article", toc: true, header: true };
-const overrides = () => ({ toc: { active: state.toc }, header: { active: state.header } });
+const overrides = (current = state) => ({
+  toc: { active: current.toc },
+  header: { active: current.header },
+  event: { config: { label: "Veranstaltung" } },
+});
 const sourceFiles = Object.fromEntries(
   Object.entries(documents).map(([name, doc]) => [
     name + ".md",
@@ -118,18 +127,19 @@ function canonical(value) {
   );
 }
 async function comparison() {
-  const file = await restored.get("/" + state.document);
+  const current = state;
+  const file = await restored.get("/" + current.document);
   const name = restored.variantName(file);
-  const legacy = resolveBaseline(name, overrides());
-  const preview = restored.resolveVariant(name, overrides());
+  const legacy = resolveBaseline(name, overrides(current));
+  const preview = restored.resolveVariant(name, overrides(current));
   return {
-    state,
-    document: { ...documents[state.document], data: file.data, meta: file.meta.variant },
+    state: current,
+    document: { ...documents[current.document], data: file.data, meta: file.meta.variant },
     legacy,
     preview,
     equivalent:
       canonical(legacy.config) === canonical(preview.config) &&
-      canonical([...legacy.features].sort()) === canonical([...preview.features].sort()),
+      canonical(legacy.features) === canonical(preview.features),
     inspector: `http://127.0.0.1:${framePort}/__nuxt-variants/devtools/?transport=devframe`,
   };
 }

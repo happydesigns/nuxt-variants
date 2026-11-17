@@ -3,7 +3,17 @@ export default defineNuxtConfig({
   css: ["~/assets/styles.css"],
   modules: ["@nuxt/ui"],
   ui: { fonts: false, colorMode: false },
-  icon: { clientBundle: { icons: ["lucide:search", "lucide:refresh-cw", "lucide:loader-circle"] } },
+  icon: {
+    clientBundle: {
+      icons: [
+        "lucide:search",
+        "lucide:refresh-cw",
+        "lucide:loader-circle",
+        "lucide:chevron-down",
+        "lucide:check",
+      ],
+    },
+  },
   app: {
     baseURL: "./",
     cdnURL: "./",

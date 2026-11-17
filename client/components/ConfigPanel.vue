@@ -58,6 +58,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
     <div class="panel-body">
+      <slot />
       <JsonCodeBlock :code="code" />
     </div>
   </UCard>
