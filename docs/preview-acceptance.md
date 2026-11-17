@@ -24,7 +24,7 @@ accessibility certification.
 | Check                                  | Result                                                                                                                                       |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Frozen workspace installation          | Passed without changing the lockfile                                                                                                         |
-| Quality checks                         | Formatting, lint and module/playground/client typechecks passed; final full suite: 131 tests passed with `vitest run --maxWorkers=1`         |
+| Quality checks                         | Formatting, lint, module/playground/client typechecks and all 135 tests passed with a single test worker                                     |
 | `pnpm prepack` and `pnpm test:package` | Real tarball, isolated consumer, packed types, Content typegen and offline assets passed                                                     |
 | Core import isolation                  | Resolution works without Nuxt, Vue, Content or DevFrame installed in the consumer                                                            |
 | Consumer resolution shadows            | 70 cases across the actual UI and Course registries/defaults; config and features equal                                                      |
@@ -48,7 +48,8 @@ three compiler tests. The unchanged suite passed with one worker in 89 seconds;
 no assertions or time limits were relaxed. A full `pnpm check` had also passed
 before the final dependency-resolution cleanup.
 
-The tarball is approximately 209 kB compressed and 769 kB unpacked.
+The tarball with the field inspector is approximately 233 kB compressed and
+857 kB unpacked.
 Core imports do not load the platform peers, but installing this combined
 package still installs its declared Nuxt tooling dependencies.
 The workspace explicitly pins the matching Vite DevTools kit for build types;
@@ -62,10 +63,10 @@ dependency workarounds for those modules.
 ## Performance
 
 `pnpm bench` passed. For the 24-entry chain fixture, the existing compiled
-config path averaged about 0.050 ms and the portable path about 0.073 ms
-including validation and isolated output copies: approximately 1.45 times
-the cost. Relative error was about 9% and 5%, respectively. This is a local
-microbenchmark, not application latency evidence or a speed improvement.
+config path averaged 0.0311 ms and the portable path averaged 0.0376 ms
+including validation and isolated copies. The portable call took 1.21 times
+as long in this run. Relative errors were 1.34% and 1.74%. These figures
+measure isolated calls on the local machine.
 
 Compile the immutable resolver once per content/application instance. Keep
 snapshots identity-only and resolve current overrides when needed. The Nuxt
@@ -98,8 +99,8 @@ A direct check used the normalizer and compiled configuration path from the
 name, it applied the consumer's own app defaults, then disabled each feature
 individually. Config and ordered features matched in all 380 UI cases
 (19 names × 20 settings) and 90 Course cases (9 names × 10 settings).
-These checks cover resolution. Collection validation, queries and SSR still
-need an application pilot.
+These checks cover resolution. The collection pilot below exercises the next
+three boundaries independently.
 
 One deliberate difference matters for upgrades. If two parents share a base
 value, the first overrides it and the second inherits it, 0.2.0 returns the
@@ -107,33 +108,43 @@ first parent's override. The preview returns the second parent's inherited
 value. Their feature lists are identical. The precedence fix already exists
 on `main` at `489e481` and takes effect when upgrading from the release.
 
-Three cases in the portable entry remain open.
+The portable resolver now infers typed application defaults supplied at
+construction. An override that introduces a sibling's field fails typechecking,
+including when passed as a variable. The Course-shaped contract reads inherited
+`courseProgress.storagePrefix` and accounts for disabled parents and an inactive
+root. A separate strict compile also passed with the actual Course registry
+and app defaults. Registry config, defaults and overrides reject class
+instances before copying. These changes apply to the optional entry.
 
-- TypeScript accepts a string `title` on one parent and a numeric `title`
-  supplied through another parent's override. A child still types the result
-  as an optional string, and its accepted `title?.toUpperCase()` call throws.
-- The Course registry declares feature names and supplies values through
-  app config. The resolver returns `courseProgress.storagePrefix` at runtime,
-  but TypeScript rejects access to `courseProgress` on the active result.
-- A config value that is a class instance loses its prototype during cloning.
-  The plain-data boundary should reject it before copying it.
+## Article and event pilot
 
-Give the resolver typed application defaults at construction time, then check
-per-call overrides against the resulting config shape. Cover both type cases
-in a packed TypeScript consumer before promoting the preview. Use UI's article
-and event collections for the pilot because they already derive both content
-schemas and rendering features from the registry. Compare a real
-shared-field change with typed presets and check what must be edited, which
-documents the schema accepts, and what SSR renders.
+`pnpm compare:presets ../ui` reads the UI checkout's registry, Zod traits and
+playground Markdown (tested at UI revision `f49467d`). One Comark instance
+resolves the document through the extension. A second uses typed arrays of
+features for each collection. Both
+use the same field validators, including a shared change that trims category
+text and rejects a blank category. Each approach needed one rule edit.
+
+All eight articles and four events passed both schemas before and after that
+change. Blank categories then failed in both collections, and malformed
+authors and locations failed their respective collection checks. Filtered
+SQLite queries agreed on published items in a selected category. The same Vue
+reader produced identical HTML in all 24 document and schema combinations.
+The fixture converts ISO date strings to Dates for the UI's existing Zod
+schemas. Full Nuxt page rendering and Nuxt Content v4 remain separate checks.
+
+For these two fixed collections, typed presets are sufficient. The graph earns
+its place where a layer composes more capabilities, switches them at runtime
+or needs to explain a resolved field. In the running Event example the new
+field selector identifies `header.title` as a registry default from `header`
+and `label` as an app-config override from `event`.
 
 ## Next steps
 
 1. Review the local comparison with `pnpm compare:prepare` and `pnpm compare`.
    Decide whether the reduced coupling and inspector information are useful.
-2. Close the portable data and typing gaps above. Pilot the optional Content
-   entry in one isolated consumer checkout, with
-   its real schemas, generated types, queries and SSR/browser flows. Keep the
-   productive application on its current module until that acceptance passes.
+2. Before migrating a consumer, verify its full Nuxt page, generated types
+   and browser flows in an isolated checkout.
 3. Verify the actual Nuxt Content v4 adapter contract and resolve the upstream
    DevTools peer matrix before a stable release. Keep the opt-in preview until
    those checks are complete.

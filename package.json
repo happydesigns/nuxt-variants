@@ -84,6 +84,7 @@
     "test": "vitest run",
     "bench": "vitest bench --run test/bench",
     "compare": "node examples/comparison/server.mjs",
+    "compare:presets": "node examples/comparison/article-event.mts",
     "compare:prepare": "pnpm prepack && node examples/comparison/prepare-baseline.mjs",
     "test:package": "node scripts/check-packed.mjs",
     "test:watch": "vitest watch"

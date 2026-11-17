@@ -23,11 +23,18 @@ pnpm compare:prepare
 pnpm compare
 ```
 
-Open `http://127.0.0.1:4192/`. The comparison includes article, snippet, and
+Open `http://127.0.0.1:4192/`. The comparison includes article, event, snippet, and
 course fixtures, interactive overrides, and legacy/live/offline inspectors.
 It does not change another application or publish a package.
 The preparation command builds the preview and downloads the integrity-checked
 released inspector once, so the comparison also shows the real old UI.
+Select `event` in the live inspector and open **Final Config → Value source**.
+The `label` field shows the app-config override that supplies `Veranstaltung`.
+
+With a local happydesigns UI checkout and its dependencies installed, run
+`pnpm compare:presets ../ui` after building the preview. The pilot reads its
+article and event documents and compares schema validation, SQLite queries
+and Vue server rendering against typed presets.
 
 ## Why Use It?
 
