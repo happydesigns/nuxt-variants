@@ -107,16 +107,10 @@ const platformOutput = execFileSync(process.execPath, ["platform.mjs"], {
 });
 await fs.writeFile(
   path.join(consumer, "contracts.ts"),
-  `
-import {createVariantResolver} from '@happydesigns/nuxt-variants/core';
-const resolver=createVariantResolver({base:{config:{optional:1}},article:{extends:['base'],config:{title:'Required'}}});
-const result=resolver.resolve('article');
-if(result.active){result.config.title.toUpperCase();result.config.optional?.toFixed();}
-// @ts-expect-error Unknown identities must remain rejected in the packed declaration.
-resolver.resolve('missing');
-// @ts-expect-error Known override values retain their types.
-resolver.resolve('article',{article:{config:{title:42}}});
-`,
+  (await fs.readFile(path.join(root, "test/platform-types.test-d.ts"), "utf8")).replaceAll(
+    "../src/",
+    "@happydesigns/nuxt-variants/",
+  ),
 );
 await fs.writeFile(
   path.join(consumer, "tsconfig.json"),

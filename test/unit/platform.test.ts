@@ -9,11 +9,7 @@ import {
   type VariantDevtoolsData,
 } from "../../src/devtools";
 import { createHostContext } from "devframe/node";
-import {
-  resolveVariantConfig,
-  resolveVariantFeatures,
-  type VariantOverrideRegistry,
-} from "../../src/runtime/utils/variants";
+import { resolveVariantConfig, resolveVariantFeatures } from "../../src/runtime/utils/variants";
 
 const registry = {
   base: { config: { title: "Base", nested: { inherited: true }, links: ["base"] } },
@@ -26,7 +22,7 @@ describe("portable resolver", () => {
   it("retains complete-parent precedence and independent request overrides", () => {
     const resolver = createVariantResolver(registry);
     const overrides = { right: { active: false }, article: { config: { count: 2 } } };
-    const scenarios: VariantOverrideRegistry[] = [{}, overrides, { article: { active: false } }];
+    const scenarios = [{}, overrides, { article: { active: false } }] as const;
     for (const runtime of scenarios) {
       const result = resolver.resolve("article", runtime);
       expect(result.config).toEqual(resolveVariantConfig("article", resolver.registry, runtime));
@@ -35,6 +31,32 @@ describe("portable resolver", () => {
       ]);
     }
     expect(resolver.resolve("article").config.count).toBe(1);
+  });
+  it("compiles app defaults, preserving request isolation and activation", () => {
+    const defaults = {
+      progress: { active: false, config: { storage: { prefix: "course", scope: "local" } } },
+    };
+    const resolver = createVariantResolver({ progress: {}, course: ["progress"] }, defaults);
+    expect(resolver.resolve("course").config).toEqual({});
+    defaults.progress.config.storage.prefix = "mutated";
+    const enabled = resolver.resolve("course", {
+      progress: { active: true, config: { storage: { scope: "reader" } } },
+    });
+    expect(enabled.config).toEqual({ storage: { prefix: "course", scope: "reader" } });
+    expect(resolver.resolve("course", { progress: { active: true } }).config.storage?.scope).toBe(
+      "local",
+    );
+  });
+  it("rejects class instances before cloning any config input", () => {
+    class Setting {
+      label = "text";
+    }
+    const entry = { base: { config: { setting: new Setting() } } };
+    expect(() => createVariantResolver(entry)).toThrow(/plain data/);
+    expect(() => createVariantResolver({ base: {} }, entry)).toThrow(/plain data/);
+    const resolver = createVariantResolver({ base: { config: { setting: { label: "" } } } });
+    expect(() => resolver.resolve("base", entry)).toThrow(/plain data/);
+    expect(Object.isFrozen(entry.base.config.setting)).toBe(false);
   });
   it("copies inputs and returns fresh config/feature results", () => {
     const input = { base: { config: { items: ["one"] } } };
