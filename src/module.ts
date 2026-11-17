@@ -6,9 +6,10 @@ import {
   addTypeTemplate,
   addTemplate,
   addServerHandler,
+  addPlugin,
   createResolver,
 } from "@nuxt/kit";
-import { addCustomTab } from "@nuxt/devtools-kit";
+import { addCustomTab, onDevtoolsReady, NUXT_DEVTOOLS_GROUP_ID } from "@nuxt/devtools-kit";
 import {
   assertValidVariantInputs,
   assertValidVariantRegistry,
@@ -62,12 +63,15 @@ export interface ModuleOptions {
   registry?: VariantRegistryInput;
   /** App-config key used for runtime value overrides. @default "variants" */
   configKey?: string;
+  /** Opt into the DevFrame inspector on Nuxt DevTools v4. @default "legacy" */
+  devtools?: "legacy" | "devframe";
 }
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: "nuxt-variants",
     configKey: "variants",
+    devtools: "legacy",
     compatibility: {
       nuxt: ">=4.5.0",
     },
@@ -309,19 +313,55 @@ declare module 'vue-router' {
         handler: resolver.resolve("./runtime/server/devtools.get"),
       });
 
-      addCustomTab(
-        {
-          name: "nuxt-variants",
-          title: "Nuxt Variants",
-          icon: "i-lucide-git-branch",
-          category: "app",
-          view: {
+      if (options.devtools === "devframe") {
+        addPlugin({
+          src: resolver.resolve("./runtime/plugins/devtools-host.client"),
+          mode: "client",
+        });
+        addServerHandler({
+          route: "/__nuxt-variants/snapshot.json",
+          handler: resolver.resolve("./runtime/server/devtools-data.get"),
+        });
+        onDevtoolsReady(async (ctx) => {
+          const { createVariantsDevframe } = await import("./devtools");
+          const definition = createVariantsDevframe({
+            clientAssets: devtoolsClientPath,
+            basePath: `${devtoolsRoute}/`,
+            snapshot: async () => {
+              const response = await fetch(
+                new URL(`${appBaseURL}/__nuxt-variants/snapshot.json`, nuxt.options.devServer.url),
+              );
+              if (!response.ok)
+                throw new Error(`Variants snapshot failed with HTTP ${response.status}.`);
+              return response.json();
+            },
+          });
+          await definition.setup(ctx, { flags: {} });
+          await ctx.views.hostStatic(`${devtoolsRoute}/`, devtoolsClientPath);
+          await ctx.host.mountConnectionMeta?.(`${devtoolsRoute}/`);
+          ctx.docks.register({
+            id: "nuxt-variants",
             type: "iframe",
-            src: devtoolsRoute,
+            title: "Variants",
+            icon: `${devtoolsRoute}/variants.svg`,
+            groupId: NUXT_DEVTOOLS_GROUP_ID,
+            url: `${devtoolsRoute}/?transport=devframe&host=nuxt`,
+          });
+        }, nuxt);
+      } else
+        addCustomTab(
+          {
+            name: "nuxt-variants",
+            title: "Nuxt Variants",
+            icon: "i-lucide-git-branch",
+            category: "app",
+            view: {
+              type: "iframe",
+              src: devtoolsRoute,
+            },
           },
-        },
-        nuxt,
-      );
+          nuxt,
+        );
     }
 
     addImportsDir(resolver.resolve("./runtime/composables"));

@@ -3,7 +3,7 @@ import type { VariantSource } from "../../utils/layer-sources";
 import { createVariantGraph, type VariantGraph } from "./graph";
 import {
   listVariantEntries,
-  resolveVariantConfig,
+  resolveVariantConfigFromLineage,
   resolveVariantFeatures,
   type VariantOverrideRegistry,
   type VariantRegistry,
@@ -54,7 +54,7 @@ export function createVariantDevtoolsData(
         ...entry,
         base: registry[entry.name] ?? null,
         app: appRegistry[entry.name] ?? {},
-        resolvedConfig: resolveVariantConfig(entry.name, registry, appRegistry),
+        resolvedConfig: resolveVariantConfigFromLineage(activeFeatures, registry, appRegistry),
         activeFeatures,
         active: activeFeatures.includes(entry.name),
         sources: sources[entry.name] ?? [],

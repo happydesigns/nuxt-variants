@@ -1,5 +1,8 @@
-import { useDevtoolsClient } from "@nuxt/devtools-kit/iframe-client";
 import type { DevtoolsData } from "~/types/devtools";
+import { createInspectorTransport, type InspectorTransport } from "~/utils/inspector-transport";
+import { createVariantDevtoolsData } from "../../src/runtime/utils/devtools";
+import { useVariantHostContext } from "./useVariantHostContext";
+import { useNuxtRouteVariant } from "./useNuxtRouteVariant";
 
 const emptyData: DevtoolsData = {
   configKey: "variants",
@@ -9,16 +12,31 @@ const emptyData: DevtoolsData = {
 };
 
 export function useVariantDevtoolsData() {
-  const devtoolsClient = useDevtoolsClient();
-  const data = ref<DevtoolsData>({ ...emptyData });
+  const baseData = shallowRef<DevtoolsData>({ ...emptyData });
+  const host = useVariantHostContext();
+  const data = computed(() => {
+    if (!host.context.value) return baseData.value;
+    const snapshot = baseData.value;
+    return createVariantDevtoolsData(
+      {
+        configKey: snapshot.configKey,
+        registry: Object.fromEntries(
+          snapshot.variants.map((entry) => [entry.name, entry.base ?? {}]),
+        ),
+        sources: Object.fromEntries(snapshot.variants.map((entry) => [entry.name, entry.sources])),
+      },
+      host.context.value.overrides,
+    );
+  });
   const pending = ref(true);
   const error = ref<string>();
   const selected = ref<string>();
+  const transportLabel = ref("");
+  let transport: InspectorTransport | undefined;
+  let disposed = false;
 
-  const routeVariant = computed(() => {
-    const variant = devtoolsClient.value?.host?.nuxt.$router.currentRoute.value.meta.variant;
-    return typeof variant === "string" ? variant : undefined;
-  });
+  const legacyRoute = useNuxtRouteVariant();
+  const routeVariant = computed(() => host.context.value?.variant ?? legacyRoute.value);
   const currentVariant = computed(() =>
     data.value.variants.find((variant) => variant.name === selected.value),
   );
@@ -37,16 +55,20 @@ export function useVariantDevtoolsData() {
     error.value = undefined;
 
     try {
-      const base = window.location.href.endsWith("/")
-        ? window.location.href
-        : `${window.location.href}/`;
-      const response = await fetch(new URL("data.json", base));
-
-      if (!response.ok) {
-        throw new Error(`DevTools data request failed with ${response.status}.`);
+      if (!transport) {
+        const base = new URL(window.location.href);
+        if (!base.pathname.endsWith("/")) base.pathname += "/";
+        base.search = "";
+        base.hash = "";
+        transport = await createInspectorTransport(base);
+        if (disposed) {
+          transport.close();
+          return;
+        }
+        transportLabel.value = transport.label;
       }
-
-      data.value = (await response.json()) as DevtoolsData;
+      const [snapshot] = await Promise.all([transport.read(), host.refresh()]);
+      baseData.value = snapshot;
       if (
         !selectRouteVariant() &&
         !data.value.variants.some((variant) => variant.name === selected.value)
@@ -54,6 +76,8 @@ export function useVariantDevtoolsData() {
         selected.value = data.value.variants[0]?.name;
       }
     } catch (cause) {
+      transport?.close();
+      transport = undefined;
       error.value = cause instanceof Error ? cause.message : "Failed to load DevTools data.";
     } finally {
       pending.value = false;
@@ -65,6 +89,10 @@ export function useVariantDevtoolsData() {
   });
 
   watch(routeVariant, selectRouteVariant);
+  onScopeDispose(() => {
+    disposed = true;
+    transport?.close();
+  });
 
   return {
     currentVariant,
@@ -73,6 +101,7 @@ export function useVariantDevtoolsData() {
     pending,
     routeVariant,
     selected,
+    transportLabel,
     reload: loadData,
   };
 }

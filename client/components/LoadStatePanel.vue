@@ -10,18 +10,20 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <NCard v-if="pending" class="p4">
+  <UCard :ui="{ body: 'p-0 sm:p-0' }" v-if="pending" class="p4">
     <div class="flex items-center gap3 op70">
-      <NLoading />
+      <UIcon name="i-lucide-loader-circle" class="size-5 animate-spin" aria-hidden="true" />
       <span>Loading variants...</span>
     </div>
-  </NCard>
+  </UCard>
 
-  <NCard v-else-if="error" class="load-error">
+  <UCard :ui="{ body: 'p-0 sm:p-0' }" v-else-if="error" class="load-error">
     <div>
       <strong>Could not load registry data</strong>
       <p>{{ error }}</p>
     </div>
-    <NButton border icon="i-carbon-renew" @click="emit('retry')">Retry</NButton>
-  </NCard>
+    <UButton color="neutral" variant="outline" icon="i-lucide-refresh-cw" @click="emit('retry')"
+      >Retry</UButton
+    >
+  </UCard>
 </template>

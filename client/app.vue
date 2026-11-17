@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useVariantDevtoolsData } from "~/composables/useVariantDevtoolsData";
 
-const { currentVariant, data, error, pending, reload, routeVariant, selected } =
+const { currentVariant, data, error, pending, reload, routeVariant, selected, transportLabel } =
   useVariantDevtoolsData();
 
 function plural(count: number, singular: string, pluralForm = `${singular}s`) {
@@ -47,69 +47,84 @@ const currentConfigKeyCount = computed(() =>
 </script>
 
 <template>
-  <div class="shell">
-    <DevtoolsSidebar v-model:selected="selected" :data="data" :route-variant="routeVariant" />
+  <UApp>
+    <div class="shell">
+      <DevtoolsSidebar
+        v-model:selected="selected"
+        :data="data"
+        :route-variant="routeVariant"
+        :pending="pending"
+        :error="error"
+      />
 
-    <main>
-      <div class="content">
-        <LoadStatePanel :error="error" :pending="pending" @retry="reload" />
+      <main>
+        <div class="content">
+          <LoadStatePanel
+            :error="error"
+            :pending="pending && data.variants.length === 0"
+            @retry="reload"
+          />
 
-        <template v-if="!pending && !error">
-          <header class="main-header">
-            <div class="title-block">
-              <h1>{{ currentVariant?.name ?? "Variant" }}</h1>
-              <p>{{ currentVariantSummary }}</p>
-            </div>
-
-            <div class="header-meta">
-              <div class="header-badges">
-                <NBadge n="gray">
-                  {{ currentVariant?.extends.length ?? 0 }}
-                  extends
-                </NBadge>
-                <NBadge n="gray">
-                  {{ currentConfigKeyCount }}
-                  {{ plural(currentConfigKeyCount, "config key") }}
-                </NBadge>
-                <NBadge :n="currentVariant?.active ? 'green' : 'orange'">
-                  {{ currentVariant?.active ? "Enabled" : "Disabled" }}
-                </NBadge>
-                <NBadge v-if="data.diagnostics.length" n="orange">
-                  {{ `${data.diagnostics.length} ${plural(data.diagnostics.length, "issue")}` }}
-                </NBadge>
+          <template v-if="!error && (!pending || data.variants.length > 0)">
+            <header class="main-header">
+              <div class="title-block">
+                <h1>{{ currentVariant?.name ?? "Variant" }}</h1>
+                <p>{{ currentVariantSummary }}</p>
               </div>
 
-              <NButton
-                border
-                icon="i-carbon-renew"
-                :disabled="pending"
-                title="Refresh app-config overrides"
-                @click="reload"
-              >
-                Refresh
-              </NButton>
-            </div>
-          </header>
+              <div class="header-meta">
+                <div class="header-badges">
+                  <UBadge color="neutral" variant="soft">{{ transportLabel }}</UBadge>
+                  <UBadge color="neutral" variant="soft">
+                    {{ currentVariant?.extends.length ?? 0 }}
+                    extends
+                  </UBadge>
+                  <UBadge color="neutral" variant="soft">
+                    {{ currentConfigKeyCount }}
+                    {{ plural(currentConfigKeyCount, "config key") }}
+                  </UBadge>
+                  <UBadge :color="currentVariant?.active ? 'success' : 'warning'">
+                    {{ currentVariant?.active ? "Enabled" : "Disabled" }}
+                  </UBadge>
+                  <UBadge v-if="data.diagnostics.length" color="warning" variant="soft">
+                    {{ `${data.diagnostics.length} ${plural(data.diagnostics.length, "issue")}` }}
+                  </UBadge>
+                </div>
 
-          <DiagnosticsPanel v-if="data.diagnostics.length" :diagnostics="data.diagnostics" />
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  icon="i-lucide-refresh-cw"
+                  :disabled="pending"
+                  :loading="pending"
+                  title="Refresh app-config overrides"
+                  @click="reload"
+                >
+                  Refresh
+                </UButton>
+              </div>
+            </header>
 
-          <VariantOverview :variant="currentVariant" />
+            <DiagnosticsPanel v-if="data.diagnostics.length" :diagnostics="data.diagnostics" />
 
-          <section class="grid">
-            <ConfigPanel
-              title="Final Config"
-              description="The object returned by useVariant for the selected variant."
-              :value="currentVariant?.resolvedConfig ?? {}"
-            />
-            <ConfigPanel
-              title="Raw inputs"
-              description="The merged Nuxt registry entry and app.config override before resolution."
-              :value="{ base: currentVariant?.base, app: currentVariant?.app }"
-            />
-            <VariantSources class="grid-wide" :sources="currentVariant?.sources ?? []" />
-          </section>
-        </template>
-      </div>
-    </main>
-  </div>
+            <VariantOverview :variant="currentVariant" />
+
+            <section class="grid">
+              <ConfigPanel
+                title="Final Config"
+                description="Resolved configuration after current overrides."
+                :value="currentVariant?.resolvedConfig ?? {}"
+              />
+              <ConfigPanel
+                title="Raw inputs"
+                description="Registry defaults and current overrides before resolution."
+                :value="{ base: currentVariant?.base, app: currentVariant?.app }"
+              />
+              <VariantSources class="grid-wide" :sources="currentVariant?.sources ?? []" />
+            </section>
+          </template>
+        </div>
+      </main>
+    </div>
+  </UApp>
 </template>

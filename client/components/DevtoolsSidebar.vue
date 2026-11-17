@@ -6,6 +6,8 @@ const props = defineProps<{
   data: DevtoolsData;
   routeVariant?: string;
   selected?: string;
+  pending?: boolean;
+  error?: string;
 }>();
 
 const emit = defineEmits<{
@@ -41,19 +43,39 @@ function selectVariant(event: Event) {
 <template>
   <aside class="sidebar n-bg-base">
     <div class="sidebar-head">
-      <h2>Nuxt Variants</h2>
+      <h2>Variants</h2>
       <p>{{ data.variants.length }} variant definitions</p>
     </div>
 
-    <div class="sidebar-health" :class="{ 'has-issues': data.diagnostics.length > 0 }">
-      <span>{{ data.diagnostics.length ? "Needs attention" : "Registry is valid" }}</span>
-      <NBadge :n="data.diagnostics.length ? 'orange' : 'green'">
+    <div
+      class="sidebar-health"
+      :class="{ 'has-issues': error || data.diagnostics.length > 0 }"
+      role="status"
+    >
+      <span>{{
+        error
+          ? "Connection unavailable"
+          : pending
+            ? "Updating registry"
+            : data.diagnostics.length
+              ? "Needs attention"
+              : "Registry is valid"
+      }}</span>
+      <UBadge
+        :color="
+          error ? 'error' : pending ? 'neutral' : data.diagnostics.length ? 'warning' : 'success'
+        "
+      >
         {{
-          data.diagnostics.length
-            ? `${data.diagnostics.length} ${plural(data.diagnostics.length, "issue")}`
-            : "No issues"
+          error
+            ? "Offline"
+            : pending
+              ? "Loading"
+              : data.diagnostics.length
+                ? `${data.diagnostics.length} ${plural(data.diagnostics.length, "issue")}`
+                : "No issues"
         }}
-      </NBadge>
+      </UBadge>
     </div>
 
     <div class="mobile-variant-picker">
@@ -66,7 +88,13 @@ function selectVariant(event: Event) {
     </div>
 
     <div class="sidebar-search">
-      <NTextInput v-model="query" icon="i-carbon-search" placeholder="Filter variants" />
+      <UInput
+        class="w-full"
+        aria-label="Filter variants"
+        v-model="query"
+        icon="i-lucide-search"
+        placeholder="Filter variants"
+      />
       <span class="search-count">{{ filteredVariants.length }} of {{ data.variants.length }}</span>
     </div>
 

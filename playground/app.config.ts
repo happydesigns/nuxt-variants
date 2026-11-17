@@ -1,5 +1,6 @@
 export default defineAppConfig({
   variants: {
+    toc: { active: true },
     article: {
       config: {
         heroHeight: "sm",

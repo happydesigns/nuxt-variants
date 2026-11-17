@@ -7,19 +7,19 @@ defineProps<{
 </script>
 
 <template>
-  <NCard>
+  <UCard :ui="{ body: 'p-0 sm:p-0' }">
     <div class="panel-head">
       <h2>Declared in</h2>
-      <p>Nuxt configuration sources in precedence order.</p>
+      <p>Configuration sources in precedence order.</p>
     </div>
 
     <div v-if="sources.length" class="source-list">
       <article v-for="source in sources" :key="`${source.kind}:${source.name}`" class="source-item">
         <div class="source-heading">
           <strong>{{ source.name }}</strong>
-          <NBadge :n="source.kind === 'application' ? 'green' : 'gray'">
+          <UBadge :color="source.kind === 'application' ? 'success' : 'neutral'">
             {{ source.kind }}
-          </NBadge>
+          </UBadge>
         </div>
         <div class="source-meta">
           <span>{{ source.entry.extends?.length ?? 0 }} parents</span>
@@ -29,5 +29,5 @@ defineProps<{
     </div>
 
     <div v-else class="empty-state">No source information is available.</div>
-  </NCard>
+  </UCard>
 </template>

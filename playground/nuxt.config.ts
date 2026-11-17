@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   variants: {
+    devtools: "devframe",
     configKey: "variants",
     registry: variantRegistry,
   },

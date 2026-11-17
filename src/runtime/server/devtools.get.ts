@@ -55,7 +55,12 @@ export default defineEventHandler((event) => {
   const content = readFileSync(filePath);
 
   if (requestedPath === "index.html") {
-    return content.toString("utf8").replaceAll(`${routeBase}/`, `${publicRouteBase}/`);
+    return content
+      .toString("utf8")
+      .replaceAll(`${routeBase}/`, `${publicRouteBase}/`)
+      .replaceAll('="./_nuxt/', `="${publicRouteBase}/_nuxt/`)
+      .replace('baseURL:"/"', `baseURL:${JSON.stringify(`${publicRouteBase}/`)}`)
+      .replace('cdnURL:"./"', `cdnURL:${JSON.stringify(`${publicRouteBase}/`)}`);
   }
 
   return content;

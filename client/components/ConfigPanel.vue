@@ -40,20 +40,25 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <NCard>
+  <UCard :ui="{ body: 'p-0 sm:p-0' }">
     <div class="panel-head">
       <div class="panel-head-copy">
         <div>
           <h2>{{ title }}</h2>
           <p>{{ description }}</p>
         </div>
-        <NButton border :title="`Copy ${title} as JSON`" @click="copyCode">
+        <UButton
+          color="neutral"
+          variant="outline"
+          :title="`Copy ${title} as JSON`"
+          @click="copyCode"
+        >
           {{ copyLabel }}
-        </NButton>
+        </UButton>
       </div>
     </div>
     <div class="panel-body">
       <JsonCodeBlock :code="code" />
     </div>
-  </NCard>
+  </UCard>
 </template>

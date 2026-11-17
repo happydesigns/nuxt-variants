@@ -9,11 +9,14 @@ const resolutionOrder = computed(() => props.variant?.activeFeatures ?? []);
 </script>
 
 <template>
-  <NCard>
+  <UCard :ui="{ body: 'p-0 sm:p-0' }">
     <div class="composition-panel">
       <div class="composition-head">
         <h2>Resolution order</h2>
-        <p>Inherited features merge from left to right. The selected variant is applied last.</p>
+        <p>
+          Active inheritance traversal. Later parents take priority with their complete config; the
+          selected variant wins last.
+        </p>
       </div>
 
       <div class="composition-row">
@@ -21,9 +24,9 @@ const resolutionOrder = computed(() => props.variant?.activeFeatures ?? []);
         <div class="flex flex-wrap gap2">
           <template v-for="(feature, index) in resolutionOrder" :key="feature">
             <span v-if="index" class="resolution-arrow" aria-hidden="true">→</span>
-            <NBadge :n="feature === variant?.name ? 'green' : 'gray'">
+            <UBadge :color="feature === variant?.name ? 'success' : 'neutral'">
               {{ feature }}
-            </NBadge>
+            </UBadge>
           </template>
           <span v-if="!resolutionOrder.length" class="muted">Disabled</span>
         </div>
@@ -32,12 +35,17 @@ const resolutionOrder = computed(() => props.variant?.activeFeatures ?? []);
       <div class="composition-row">
         <span class="composition-label">Direct parents</span>
         <div class="flex flex-wrap gap2">
-          <NBadge v-for="parent in variant?.extends ?? []" :key="parent" n="gray">
+          <UBadge
+            v-for="parent in variant?.extends ?? []"
+            :key="parent"
+            color="neutral"
+            variant="soft"
+          >
             {{ parent }}
-          </NBadge>
+          </UBadge>
           <span v-if="!variant?.extends.length" class="muted">None</span>
         </div>
       </div>
     </div>
-  </NCard>
+  </UCard>
 </template>

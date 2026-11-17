@@ -56,7 +56,7 @@ const highlightedLines = computed(() => highlightJson(props.code).split("\n"));
     v-for="(line, index) in highlightedLines"
     :key="index"
     class="json-line"
-  ><span class="json-line-number">{{ index + 1 }}</span><span
+  ><span class="json-line-number" aria-hidden="true">{{ index + 1 }}</span><span
     class="json-line-content"
     v-html="line || '&nbsp;'"
   /></span></code></pre>
