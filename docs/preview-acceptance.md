@@ -91,11 +91,47 @@ teardown. No additional cache or worker layer is justified by this evidence.
   external-import warnings. Successful builds do not establish every Docus
   image route or unrelated DevTools panel as accepted.
 
+## Follow-up review against the release
+
+A direct check used the normalizer and compiled configuration path from the
+`v0.2.0` Git tag and the built preview's `/core` entry. For each registry
+name, it applied the consumer's own app defaults, then disabled each feature
+individually. Config and ordered features matched in all 380 UI cases
+(19 names × 20 settings) and 90 Course cases (9 names × 10 settings).
+These checks cover resolution. Collection validation, queries and SSR still
+need an application pilot.
+
+One deliberate difference matters for upgrades. If two parents share a base
+value, the first overrides it and the second inherits it, 0.2.0 returns the
+first parent's override. The preview returns the second parent's inherited
+value. Their feature lists are identical. The precedence fix already exists
+on `main` at `489e481` and takes effect when upgrading from the release.
+
+Three cases in the portable entry remain open.
+
+- TypeScript accepts a string `title` on one parent and a numeric `title`
+  supplied through another parent's override. A child still types the result
+  as an optional string, and its accepted `title?.toUpperCase()` call throws.
+- The Course registry declares feature names and supplies values through
+  app config. The resolver returns `courseProgress.storagePrefix` at runtime,
+  but TypeScript rejects access to `courseProgress` on the active result.
+- A config value that is a class instance loses its prototype during cloning.
+  The plain-data boundary should reject it before copying it.
+
+Give the resolver typed application defaults at construction time, then check
+per-call overrides against the resulting config shape. Cover both type cases
+in a packed TypeScript consumer before promoting the preview. Use UI's article
+and event collections for the pilot because they already derive both content
+schemas and rendering features from the registry. Compare a real
+shared-field change with typed presets and check what must be edited, which
+documents the schema accepts, and what SSR renders.
+
 ## Next steps
 
 1. Review the local comparison with `pnpm compare:prepare` and `pnpm compare`.
    Decide whether the reduced coupling and inspector information are useful.
-2. Pilot the optional Content entry in one isolated consumer checkout, with
+2. Close the portable data and typing gaps above. Pilot the optional Content
+   entry in one isolated consumer checkout, with
    its real schemas, generated types, queries and SSR/browser flows. Keep the
    productive application on its current module until that acceptance passes.
 3. Verify the actual Nuxt Content v4 adapter contract and resolve the upstream
