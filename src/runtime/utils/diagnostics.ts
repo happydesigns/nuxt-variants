@@ -187,6 +187,7 @@ export function collectVariantDiagnostics(
   }
 
   const emittedCycles = new Set<string>();
+  const acyclic = new Set<string>();
 
   function cycleKey(cycle: string[]): string {
     const nodes = cycle.slice(0, -1);
@@ -195,7 +196,8 @@ export function collectVariantDiagnostics(
     return rotations.map((rotation) => rotation.join(" -> ")).sort()[0]!;
   }
 
-  function visit(variant: string, path: string[]): void {
+  function visit(variant: string, path: string[]): boolean {
+    if (acyclic.has(variant)) return true;
     const existingIndex = path.indexOf(variant);
     if (existingIndex !== -1) {
       const cycle = [...path.slice(existingIndex), variant];
@@ -210,12 +212,17 @@ export function collectVariantDiagnostics(
           message: `Variant inheritance cycle detected: ${cycle.join(" -> ")}.`,
         });
       }
-      return;
+      return false;
     }
 
+    let hasNoCycles = true;
     for (const parent of graph[variant] ?? []) {
-      if (keys.has(parent)) visit(parent, [...path, variant]);
+      if (keys.has(parent) && !visit(parent, [...path, variant])) hasNoCycles = false;
     }
+    // Only memoize proven acyclic subgraphs. Paths containing cycles still
+    // enumerate the same canonical cycle diagnostics as before.
+    if (hasNoCycles) acyclic.add(variant);
+    return hasNoCycles;
   }
 
   for (const key of keys) visit(key, []);
