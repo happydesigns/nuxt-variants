@@ -5,6 +5,10 @@
   --ui-header-height: 3.25rem;
 }
 
+:root:not(.dark) {
+  --ui-primary: var(--ui-color-primary-800);
+}
+
 body {
   background: var(--ui-bg);
   color: var(--ui-text);
