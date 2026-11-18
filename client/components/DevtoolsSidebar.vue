@@ -42,7 +42,7 @@ function select(name: string) {
         :active="entry.name === selected"
         :aria-current="entry.name === selected ? 'true' : undefined"
         :title="entry.name"
-        class="group justify-start"
+        class="group justify-start hover:bg-elevated/50 aria-[current=true]:hover:bg-elevated"
         @click="select(entry.name)"
       >
         <span class="min-w-0 truncate font-mono group-aria-[current=true]:text-primary">
