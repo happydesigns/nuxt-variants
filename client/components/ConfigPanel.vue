@@ -12,28 +12,29 @@ const copyLabel = computed(() => `Copy ${props.title} as JSON`);
 </script>
 
 <template>
-  <section class="min-w-0">
-    <h3 class="text-sm font-medium text-muted">{{ title }}</h3>
-    <ProsePre
-      :code="code"
-      language="json"
-      :copy="{ 'aria-label': copyLabel, title: copyLabel }"
-      :ui="{
-        root: 'mt-2 mb-0',
-        base: 'max-h-[32rem] scheme-light dark:scheme-dark',
-        copy: 'lg:opacity-100',
-      }"
-      tabindex="0"
-      :aria-label="title"
+  <ProsePre
+    :code="code"
+    :filename="title"
+    language="json"
+    :copy="{ 'aria-label': copyLabel, title: copyLabel }"
+    :ui="{
+      root: 'm-0 min-w-0',
+      header: 'min-h-11 pe-12',
+      icon: 'hidden',
+      filename: 'truncate',
+      base: 'max-h-[32rem] scheme-light dark:scheme-dark',
+      copy: 'top-2 lg:opacity-100',
+    }"
+    tabindex="0"
+    :aria-label="title"
+  >
+    <code
+      ><template v-for="(line, index) in lines" :key="index"
+        ><span v-for="token in line" :key="token.offset" :style="token.htmlStyle">{{
+          token.content
+        }}</span
+        >{{ index < lines.length - 1 ? "\n" : "" }}</template
+      ></code
     >
-      <code
-        ><template v-for="(line, index) in lines" :key="index"
-          ><span v-for="token in line" :key="token.offset" :style="token.htmlStyle">{{
-            token.content
-          }}</span
-          >{{ index < lines.length - 1 ? "\n" : "" }}</template
-        ></code
-      >
-    </ProsePre>
-  </section>
+  </ProsePre>
 </template>

@@ -42,7 +42,7 @@ body {
 .fields-table tbody tr {
   border-top: 1px solid var(--ui-border);
 }
-@container (max-width: 35rem) {
+@container (max-width: 40rem) {
   .fields-table,
   .fields-table tbody {
     display: block;
@@ -56,8 +56,10 @@ body {
   }
   .fields-table tbody tr {
     display: grid;
-    gap: 0.35rem;
-    padding: 0.75rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    padding: 0.625rem 0.75rem;
   }
   .fields-table tbody tr:first-child {
     border-top: 0;
@@ -65,5 +67,14 @@ body {
   .fields-table tbody :is(th, td) {
     display: block;
     padding: 0;
+  }
+  .fields-table .field-source {
+    grid-area: 1 / 2;
+    max-width: 11rem;
+    text-align: end;
+    font-size: 0.75rem;
+  }
+  .fields-table .field-value {
+    grid-column: 1 / -1;
   }
 }

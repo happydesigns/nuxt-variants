@@ -2,6 +2,7 @@
 import type { VariantEntry } from "~/types/devtools";
 import { getValueSources } from "~/utils/value-sources";
 const props = defineProps<{ variant: VariantEntry; entries: VariantEntry[] }>();
+const emit = defineEmits<{ selectSource: [variant: string] }>();
 const query = ref("");
 const pageSize = 40;
 const limit = ref(pageSize);
@@ -70,19 +71,28 @@ watch(query, () => {
         <tbody>
           <tr v-for="row in visible" :key="row.label">
             <th scope="row" class="text-start font-mono text-highlighted">{{ row.label }}</th>
-            <td class="font-mono text-default">
+            <td class="field-value font-mono text-default">
               <details v-if="row.display.length > 120">
                 <summary class="cursor-pointer text-muted">{{ row.display.slice(0, 64) }}…</summary>
                 <pre class="mt-1 whitespace-pre-wrap wrap-anywhere">{{ row.display }}</pre>
               </details>
               <span v-else>{{ row.display }}</span>
             </td>
-            <td>
-              <template v-if="row.input">
-                <span class="font-mono">{{ row.variant }}</span>
+            <td class="field-source">
+              <template v-if="row.input && row.variant">
+                <button
+                  v-if="row.variant !== variant.name"
+                  type="button"
+                  class="cursor-pointer rounded-sm font-mono underline decoration-dotted underline-offset-4 hover:text-primary"
+                  :aria-label="`Inspect source variant ${row.variant}`"
+                  @click="emit('selectSource', row.variant)"
+                >
+                  {{ row.variant }}
+                </button>
+                <span v-else class="font-mono">{{ row.variant }}</span>
                 <span class="text-dimmed"> · </span>
                 <span
-                  class="text-xs"
+                  class="inline-block text-xs"
                   :class="row.input === 'App config override' ? 'text-primary' : 'text-muted'"
                   >{{ row.input }}</span
                 >
