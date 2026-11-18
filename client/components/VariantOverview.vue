@@ -5,14 +5,20 @@ const names = computed(() => new Set(props.entries.map((entry) => entry.name)));
 defineEmits<{ select: [name: string] }>();
 </script>
 <template>
-  <section
-    v-if="variant.extends.length || variant.activeFeatures.length > 1 || variant.sources.length"
-    aria-labelledby="variant-composition"
-    class="border-t border-default pt-5"
+  <UCard
+    id="variant-composition"
+    as="section"
+    aria-labelledby="variant-composition-heading"
+    tabindex="-1"
+    variant="subtle"
+    class="scroll-mt-4"
+    :ui="{ header: 'px-3 py-2.5 sm:px-4', body: 'px-3 py-3 sm:px-4 sm:py-3' }"
   >
-    <h2 id="variant-composition" class="mb-3 text-base font-semibold text-highlighted">
-      Composition
-    </h2>
+    <template #header>
+      <h2 id="variant-composition-heading" class="text-base font-semibold text-highlighted">
+        Composition
+      </h2>
+    </template>
     <dl
       class="grid content-start gap-x-4 gap-y-2 text-sm sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-baseline"
     >
@@ -82,5 +88,5 @@ defineEmits<{ select: [name: string] }>();
         </dd>
       </template>
     </dl>
-  </section>
+  </UCard>
 </template>

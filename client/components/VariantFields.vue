@@ -31,9 +31,19 @@ watch(query, () => {
 });
 </script>
 <template>
-  <section aria-labelledby="variant-fields" class="inspector-fields flex flex-col gap-3">
-    <div class="flex flex-wrap items-center justify-between gap-2">
-      <h2 id="variant-fields" class="text-base font-semibold text-highlighted">Fields</h2>
+  <UCard
+    id="variant-fields"
+    as="section"
+    aria-labelledby="variant-fields-heading"
+    tabindex="-1"
+    class="inspector-fields scroll-mt-4"
+    :ui="{
+      header: 'flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:px-4',
+      body: 'p-0 sm:p-0',
+    }"
+  >
+    <template #header>
+      <h2 id="variant-fields-heading" class="text-base font-semibold text-highlighted">Fields</h2>
       <UInput
         v-model="query"
         :disabled="rows.length === 0"
@@ -43,8 +53,8 @@ watch(query, () => {
         icon="i-lucide-search"
         class="min-w-0 max-w-full sm:w-60"
       />
-    </div>
-    <div v-if="visible.length" class="overflow-hidden rounded-lg border border-default">
+    </template>
+    <div v-if="visible.length">
       <table class="fields-table">
         <caption class="sr-only">
           Resolved fields for
@@ -83,7 +93,7 @@ watch(query, () => {
         </tbody>
       </table>
     </div>
-    <p v-else class="text-sm text-muted" role="status">
+    <p v-else class="px-3 py-4 text-sm text-muted sm:px-4" role="status">
       {{
         rows.length
           ? "No matching fields."
@@ -94,12 +104,12 @@ watch(query, () => {
     </p>
     <UButton
       v-if="matches.length > limit"
-      class="self-start"
+      class="m-3 sm:m-4"
       color="neutral"
       variant="subtle"
       @click="limit += pageSize"
     >
       Show {{ Math.min(pageSize, matches.length - limit) }} more fields
     </UButton>
-  </section>
+  </UCard>
 </template>

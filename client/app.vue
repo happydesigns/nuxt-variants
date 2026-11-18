@@ -4,6 +4,13 @@ const { currentVariant, data, error, pending, reload, routeVariant, selected, of
   useVariantDevtoolsData();
 const heading = useTemplateRef("heading");
 const details = useTemplateRef("details");
+const hasComposition = computed(() => {
+  const variant = currentVariant.value;
+  return (
+    !!variant &&
+    (variant.extends.length > 0 || variant.activeFeatures.length > 1 || variant.sources.length > 0)
+  );
+});
 
 watch(selected, () => details.value?.scrollIntoView({ block: "start" }), { flush: "post" });
 
@@ -62,6 +69,28 @@ async function inspectRelative(name: string) {
               />
             </template>
           </UDashboardNavbar>
+          <UDashboardToolbar
+            v-if="currentVariant && !error"
+            as="nav"
+            aria-label="Variant sections"
+            class="min-h-10 justify-start gap-1 py-1"
+          >
+            <UButton href="#variant-fields" external color="neutral" variant="ghost" size="sm"
+              >Fields</UButton
+            >
+            <UButton
+              v-if="hasComposition"
+              href="#variant-composition"
+              external
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              >Composition</UButton
+            >
+            <UButton href="#variant-json" external color="neutral" variant="ghost" size="sm"
+              >JSON</UButton
+            >
+          </UDashboardToolbar>
         </template>
         <template #body>
           <LoadStatePanel
@@ -83,16 +112,19 @@ async function inspectRelative(name: string) {
                 :entries="data.variants"
               />
               <VariantOverview
+                v-if="hasComposition"
                 :variant="currentVariant"
                 :entries="data.variants"
                 @select="inspectRelative"
               />
               <section
+                id="variant-json"
                 :key="currentVariant.name"
-                aria-labelledby="variant-json"
-                class="@container min-w-0 border-t border-default pt-5"
+                aria-labelledby="variant-json-heading"
+                tabindex="-1"
+                class="@container min-w-0 scroll-mt-4"
               >
-                <h2 id="variant-json" class="mb-3 text-base font-semibold text-highlighted">
+                <h2 id="variant-json-heading" class="mb-3 text-base font-semibold text-highlighted">
                   JSON
                 </h2>
                 <div class="grid min-w-0 gap-4 @3xl:grid-cols-2">
