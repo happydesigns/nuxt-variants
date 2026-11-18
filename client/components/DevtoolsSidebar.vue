@@ -38,15 +38,16 @@ function select(name: string) {
         :key="entry.name"
         color="neutral"
         variant="ghost"
-        active-color="primary"
         active-variant="soft"
         :active="entry.name === selected"
         :aria-current="entry.name === selected ? 'true' : undefined"
         :title="entry.name"
-        class="justify-start"
+        class="group justify-start"
         @click="select(entry.name)"
       >
-        <span class="min-w-0 truncate font-mono">{{ entry.name }}</span>
+        <span class="min-w-0 truncate font-mono group-aria-[current=true]:text-primary">
+          {{ entry.name }}
+        </span>
         <span v-if="entry.name === routeVariant" class="ms-auto text-xs">Current route</span>
         <span v-else-if="!entry.active" class="ms-auto text-xs text-muted">Disabled</span>
       </UButton>
