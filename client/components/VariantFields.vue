@@ -135,7 +135,7 @@ async function copyFieldLink(field: string) {
           Resolved fields for
           {{ variant.name }}
         </caption>
-        <thead>
+        <thead class="bg-elevated/40">
           <tr>
             <th scope="col" class="w-[32%] text-start">Field</th>
             <th scope="col" class="text-start">Value</th>
@@ -165,14 +165,14 @@ async function copyFieldLink(field: string) {
                 />
               </div>
             </th>
-            <td class="field-value font-mono text-default">
+            <td class="field-value font-mono text-highlighted">
               <details v-if="row.display.length > 120">
-                <summary class="cursor-pointer text-muted">{{ row.display.slice(0, 64) }}…</summary>
+                <summary class="cursor-pointer">{{ row.display.slice(0, 64) }}…</summary>
                 <pre class="mt-1 whitespace-pre-wrap wrap-anywhere">{{ row.display }}</pre>
               </details>
               <span v-else>{{ row.display }}</span>
             </td>
-            <td class="field-source">
+            <td class="field-source text-toned">
               <template v-if="row.input && row.variant">
                 <button
                   v-if="row.variant !== variant.name"

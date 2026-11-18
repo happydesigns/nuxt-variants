@@ -105,7 +105,7 @@ async function inspectRelative(name: string) {
       >
         <template #header>
           <UDashboardNavbar
-            :ui="{ left: 'min-w-0', title: 'min-w-0 font-mono', right: 'shrink-0' }"
+            :ui="{ left: 'min-w-0', title: 'min-w-0 font-mono text-lg', right: 'shrink-0' }"
           >
             <template #title>
               <span

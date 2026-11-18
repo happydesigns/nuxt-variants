@@ -30,7 +30,6 @@ body {
 }
 .fields-table thead {
   color: var(--ui-text-muted);
-  background: var(--ui-bg-elevated);
   font-size: 0.75rem;
 }
 .fields-table tbody {
@@ -83,5 +82,15 @@ body {
   }
   .fields-table .field-value {
     grid-column: 1 / -1;
+  }
+}
+@container (max-width: 26rem) {
+  .fields-table tbody tr {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fields-table .field-source {
+    grid-area: auto;
+    max-width: none;
+    text-align: start;
   }
 }

@@ -51,9 +51,10 @@ const unappliedParents = computed(() => {
           />
           <UBadge
             v-if="name === variant.name"
+            color="neutral"
             variant="soft"
             aria-current="true"
-            class="min-w-0 font-mono wrap-anywhere"
+            class="min-w-0 font-mono wrap-anywhere text-primary"
           >
             {{ name }}
           </UBadge>
@@ -61,7 +62,7 @@ const unappliedParents = computed(() => {
             v-else
             :disabled="!names.has(name)"
             color="neutral"
-            variant="subtle"
+            variant="outline"
             size="sm"
             class="min-w-0 flex-wrap font-mono wrap-anywhere"
             @click="emit('select', name)"
