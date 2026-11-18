@@ -1,4 +1,4 @@
-# Platform preview acceptance
+# Composable Variants preview acceptance
 
 Local preview `0.3.0-next.0`, reviewed on 17 November 2026 on
 `codex/comark-devframe-preview`, based on `626806d`. The visual comparison
@@ -139,12 +139,32 @@ or needs to explain a resolved field. In the running Event example the new
 field selector identifies `header.title` as a registry default from `header`
 and `label` as an app-config override from `event`.
 
+## Data records beyond pages
+
+On 18 November 2026, the UI playground's `user` data collection resolved to
+one feature and seven schema fields. The direct user schema and the composed
+schema agreed on the parsed values or issue paths and messages in five sample
+cases. Low-level Zod issue metadata differed between the two installed Zod
+versions. This collection has no inheritance to simplify.
+
+Course's `CourseActionSchema` uses a strict discriminated union for five
+action types. For each type, the field schema composed with `/schemas`
+accepted a valid record and rejected a record missing a required field.
+When an unexpected field was added, the original union rejected the record
+and the composed schema stripped the field in all five cases. Composition
+copies object fields into a new schema. Keep strict record validation with
+the domain schema when that behavior forms part of the data contract.
+
 ## Next steps
 
-1. Review the local comparison with `pnpm compare:prepare` and `pnpm compare`.
-   Decide whether the reduced coupling and inspector information are useful.
-2. Before migrating a consumer, verify its full Nuxt page, generated types
-   and browser flows in an isolated checkout.
+1. Pilot the packed preview in an isolated Course checkout. Change a real
+   inherited setting such as `courseProgress.storagePrefix`, check the
+   generated type, inspect the winning override and verify the reader's
+   progress survives a reload under the configured key.
+2. Compare that change with Course's existing integration. Record what the
+   maintainer had to edit and whether the inspector explained the effective
+   value. Use that result to decide on adoption. Keep simple data collections
+   on their direct schemas.
 3. Verify the actual Nuxt Content v4 adapter contract and resolve the upstream
    DevTools peer matrix before a stable release. Keep the opt-in preview until
    those checks are complete.
