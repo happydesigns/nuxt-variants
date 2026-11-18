@@ -14,17 +14,14 @@ const {
 } = useVariantDevtoolsData();
 const heading = useTemplateRef("heading");
 const details = useTemplateRef("details");
-const hasComposition = computed(() => {
+const hasInheritance = computed(() => {
   const variant = currentVariant.value;
-  return (
-    !!variant &&
-    (variant.extends.length > 0 || variant.activeFeatures.length > 1 || variant.sources.length > 0)
-  );
+  return !!variant && (variant.extends.length > 0 || variant.activeFeatures.length > 1);
 });
 const sectionLinks = computed(() => [
   { id: "variant-fields", label: "Fields" },
-  ...(hasComposition.value ? [{ id: "variant-composition", label: "Composition" }] : []),
-  { id: "variant-json", label: "JSON" },
+  ...(hasInheritance.value ? [{ id: "variant-composition", label: "Inheritance" }] : []),
+  { id: "variant-json", label: "Configuration" },
 ]);
 const activeSection = ref("variant-fields");
 const overridesOnly = ref(false);
@@ -169,34 +166,13 @@ async function inspectRelative(name: string) {
                 :linked-field="linkedField"
                 @select-source="inspectRelative"
               />
-              <VariantOverview
-                v-if="hasComposition"
+              <VariantInheritance
+                v-if="hasInheritance"
                 :variant="currentVariant"
                 :entries="data.variants"
                 @select="inspectRelative"
               />
-              <UCard
-                id="variant-json"
-                :key="currentVariant.name"
-                as="section"
-                aria-labelledby="variant-json-heading"
-                tabindex="-1"
-                class="@container min-w-0 scroll-mt-4"
-                :ui="{ header: 'px-3 py-2.5 sm:px-4', body: 'px-3 py-3 sm:px-4 sm:py-3' }"
-              >
-                <template #header>
-                  <h2 id="variant-json-heading" class="text-base font-semibold text-highlighted">
-                    JSON
-                  </h2>
-                </template>
-                <div class="grid min-w-0 gap-4 @3xl:grid-cols-2">
-                  <LazyConfigPanel title="Resolved config" :value="currentVariant.resolvedConfig" />
-                  <LazyConfigPanel
-                    title="Raw inputs"
-                    :value="{ base: currentVariant.base, app: currentVariant.app }"
-                  />
-                </div>
-              </UCard>
+              <VariantConfiguration :key="currentVariant.name" :variant="currentVariant" />
             </template>
             <p v-else class="text-sm text-muted" role="status">No variants registered.</p>
           </div>

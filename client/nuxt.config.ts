@@ -9,7 +9,6 @@ export default defineNuxtConfig({
         "lucide:search",
         "lucide:refresh-cw",
         "lucide:loader-circle",
-        "lucide:chevron-right",
         "lucide:copy",
         "lucide:copy-check",
         "lucide:link",

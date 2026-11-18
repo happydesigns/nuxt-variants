@@ -70,7 +70,7 @@ after CSS transitions finished.
    local `/__nuxt-variants/devtools/?transport=legacy` URL and select `course`
    to inspect `courseProgress.storagePrefix`. In the preview, **Fields** shows
    the value, variant and app override together. Use the sidebar menu on
-   small screens, then scroll down to **Composition** and **JSON**.
+   small screens, then scroll down to **Inheritance** and **Configuration**.
    The Course reader selects the variant in its composable, independently
    of page metadata.
 5. For the upgrade test, build each playground with `NITRO_PRESET=github_pages`,
