@@ -45,6 +45,10 @@ body {
 .fields-table tbody tr[data-linked-field] {
   background: color-mix(in oklab, var(--ui-primary) 12%, transparent);
 }
+.fields-table tbody tr[data-linked-field]:focus {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: -5px;
+}
 @container (max-width: 40rem) {
   .fields-table,
   .fields-table tbody {
