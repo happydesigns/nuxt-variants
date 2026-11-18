@@ -8,20 +8,18 @@ const registrySources = computed(() =>
 </script>
 
 <template>
-  <UCard
-    id="variant-json"
-    as="section"
-    aria-labelledby="variant-json-heading"
-    tabindex="-1"
-    class="@container min-w-0 scroll-mt-4"
-    :ui="{ header: 'px-3 py-2.5 sm:px-4', body: 'space-y-3 px-3 py-3 sm:px-4 sm:py-3' }"
-  >
-    <template #header>
-      <h2 id="variant-json-heading" class="text-base font-semibold text-highlighted">
-        Configuration
-      </h2>
-    </template>
-    <dl v-if="registrySources.length" class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+  <section aria-labelledby="variant-json" class="min-w-0 space-y-3">
+    <h2
+      id="variant-json"
+      tabindex="-1"
+      class="w-fit scroll-mt-4 rounded-sm px-3 text-base font-semibold text-highlighted focus-visible:outline-2 focus-visible:outline-primary sm:px-4"
+    >
+      Configuration
+    </h2>
+    <dl
+      v-if="registrySources.length"
+      class="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-3 sm:px-4"
+    >
       <dt class="text-sm text-muted">Registry sources</dt>
       <dd>
         <ul role="list" class="flex flex-wrap gap-1.5">
@@ -37,9 +35,15 @@ const registrySources = computed(() =>
         </ul>
       </dd>
     </dl>
-    <div class="grid min-w-0 gap-4 @3xl:grid-cols-2">
-      <LazyConfigPanel title="Effective configuration" :value="variant.resolvedConfig" />
-      <LazyConfigPanel title="Variant inputs" :value="{ base: variant.base, app: variant.app }" />
-    </div>
-  </UCard>
+    <ProseCodeGroup
+      aria-label="Configuration views"
+      :ui="{ root: 'm-0 min-w-0', triggerIcon: 'hidden' }"
+    >
+      <LazyConfigPanel filename="Effective configuration" :value="variant.resolvedConfig" />
+      <LazyConfigPanel
+        filename="Variant inputs"
+        :value="{ base: variant.base, app: variant.app }"
+      />
+    </ProseCodeGroup>
+  </section>
 </template>

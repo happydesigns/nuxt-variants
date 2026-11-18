@@ -19,14 +19,23 @@ const hasInheritance = computed(() => {
   return !!variant && (variant.extends.length > 0 || variant.activeFeatures.length > 1);
 });
 const sectionLinks = computed(() => [
-  { id: "variant-fields", label: "Fields" },
   ...(hasInheritance.value ? [{ id: "variant-composition", label: "Inheritance" }] : []),
+  { id: "variant-fields", label: "Fields" },
   { id: "variant-json", label: "Configuration" },
 ]);
 const activeSection = ref("variant-fields");
 const overridesOnly = ref(false);
 
-watch(selected, () => details.value?.scrollIntoView({ block: "start" }), { flush: "post" });
+watch(
+  selected,
+  () => {
+    const target = linkedField.value
+      ? details.value?.querySelector("#variant-fields")
+      : details.value;
+    target?.scrollIntoView({ block: "start" });
+  },
+  { flush: "post" },
+);
 
 watch(
   [details, sectionLinks, selected],
@@ -39,29 +48,41 @@ watch(
     });
     const updateActiveSection = () => {
       const top = scrollPanel.getBoundingClientRect().top;
+      const activeElement = document.activeElement;
+      const linkedRow = activeElement?.matches("tr[data-linked-field]")
+        ? activeElement.getBoundingClientRect()
+        : undefined;
+      if (linkedRow && linkedRow.bottom > top && linkedRow.top < top + scrollPanel.clientHeight) {
+        activeSection.value = "variant-fields";
+        return;
+      }
       const lastVisible = sections.findLast(
         (section) => section.getBoundingClientRect().top <= top + 32,
       );
       const atEnd =
-        scrollPanel.scrollTop > 0 &&
         scrollPanel.scrollHeight - scrollPanel.clientHeight - scrollPanel.scrollTop <= 1;
       // A short section near the end may be visible without reaching the top.
       const focused = sections.find(
         (section) =>
-          section === document.activeElement && section.getBoundingClientRect().top >= top,
+          section.closest("section")?.contains(activeElement) &&
+          section.getBoundingClientRect().top >= top,
       );
       activeSection.value =
-        (atEnd ? (focused ?? sections.at(-1)) : (lastVisible ?? sections[0]))?.id ??
-        "variant-fields";
+        (
+          (atEnd ? focused : undefined) ??
+          (atEnd && scrollPanel.scrollTop > 0 ? sections.at(-1) : (lastVisible ?? sections[0]))
+        )?.id ?? "variant-fields";
     };
     const observer = new ResizeObserver(updateActiveSection);
     observer.observe(content);
     observer.observe(scrollPanel);
     scrollPanel.addEventListener("scroll", updateActiveSection, { passive: true });
+    scrollPanel.addEventListener("focusin", updateActiveSection);
     updateActiveSection();
     onCleanup(() => {
       observer.disconnect();
       scrollPanel.removeEventListener("scroll", updateActiveSection);
+      scrollPanel.removeEventListener("focusin", updateActiveSection);
     });
   },
   { flush: "post" },
@@ -158,6 +179,12 @@ async function inspectRelative(name: string) {
             <DiagnosticsPanel v-if="data.diagnostics.length" :diagnostics="data.diagnostics" />
             <p v-if="linkNotice" role="status" class="text-sm text-muted">{{ linkNotice }}</p>
             <template v-if="currentVariant">
+              <VariantInheritance
+                v-if="hasInheritance"
+                :variant="currentVariant"
+                :entries="data.variants"
+                @select="inspectRelative"
+              />
               <VariantFields
                 :key="currentVariant.name"
                 v-model:overrides-only="overridesOnly"
@@ -165,12 +192,6 @@ async function inspectRelative(name: string) {
                 :entries="data.variants"
                 :linked-field="linkedField"
                 @select-source="inspectRelative"
-              />
-              <VariantInheritance
-                v-if="hasInheritance"
-                :variant="currentVariant"
-                :entries="data.variants"
-                @select="inspectRelative"
               />
               <VariantConfiguration :key="currentVariant.name" :variant="currentVariant" />
             </template>

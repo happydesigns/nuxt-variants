@@ -35,10 +35,11 @@ contributing variants in resolution order. **Configuration** provides the
 effective configuration and variant inputs for copying.
 
 The panel follows the Nuxt UI dashboard group, sidebar, panel and navbar
-composition. The detail view starts with fields, followed by inheritance
-and configuration. The field table keeps native headers and stacks rows at narrow panel
-widths. It initially renders up to 40 values and formats more on request.
-JSON blocks sit side by side when the panel has room.
+composition. The detail view starts with inheritance when applicable, then
+shows fields and configuration. The field table keeps native headers and
+stacks rows at narrow panel widths. It initially renders up to 40 values
+and formats more on request. The configuration code group displays one
+view at a time.
 Route-only notifications preserve the resolved registry. Refresh preserves
 a manually selected variant. See the [Nuxt UI dashboard](https://ui.nuxt.com/docs/components/dashboard-group) and
 [design system](https://ui.nuxt.com/docs/getting-started/theme/design-system).

@@ -32,9 +32,16 @@ const unappliedParents = computed(() => {
       </h2>
     </template>
 
-    <div v-if="variant.activeFeatures.length > 1">
-      <h3 id="resolution-order" class="mb-2 text-sm text-muted">Resolution order</h3>
-      <ol aria-labelledby="resolution-order" role="list" class="flex flex-wrap gap-x-3 gap-y-2">
+    <div
+      v-if="variant.activeFeatures.length > 1"
+      class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:gap-4"
+    >
+      <h3 id="resolution-order" class="shrink-0 text-sm text-muted">Resolution order</h3>
+      <ol
+        aria-labelledby="resolution-order"
+        role="list"
+        class="flex min-w-0 flex-wrap gap-x-3 gap-y-2"
+      >
         <li
           v-for="(name, index) in variant.activeFeatures"
           :key="name"
