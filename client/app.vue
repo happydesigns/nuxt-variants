@@ -15,7 +15,7 @@ const {
 const heading = useTemplateRef("heading");
 const details = useTemplateRef("details");
 const sectionLinks = [
-  { id: "variant-composition", label: "Inheritance" },
+  { id: "variant-composition", label: "Composition" },
   { id: "variant-fields", label: "Fields" },
   { id: "variant-json", label: "Configuration" },
 ];
@@ -175,7 +175,7 @@ async function inspectRelative(name: string) {
             <DiagnosticsPanel v-if="data.diagnostics.length" :diagnostics="data.diagnostics" />
             <p v-if="linkNotice" role="status" class="text-sm text-muted">{{ linkNotice }}</p>
             <template v-if="currentVariant">
-              <VariantInheritance
+              <VariantComposition
                 :variant="currentVariant"
                 :entries="data.variants"
                 @select="inspectRelative"

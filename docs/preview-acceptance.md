@@ -30,12 +30,12 @@ Run `pnpm compare:prepare` and `pnpm compare`, then open
 setting and compare the release, live and offline inspectors. The offline
 snapshot shows the state at server startup. Select **event** in the live
 inspector. Under **Fields**, `header.title` comes from the header registry
-default and `label` from the event app override. **Inheritance** links to
+default and `label` from the event app override. **Composition** links to
 contributing variants in resolution order. **Configuration** provides the
 effective configuration and variant inputs for copying.
 
 The panel follows the Nuxt UI dashboard group, sidebar, panel and navbar
-composition. The detail view starts with inheritance when applicable, then
+composition. The detail view starts with the variant composition, then
 shows fields and configuration. The field table keeps native headers and
 stacks rows at narrow panel widths. It initially renders up to 40 values
 and formats more on request. The configuration code group displays one

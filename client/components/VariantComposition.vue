@@ -27,11 +27,11 @@ const unappliedParents = computed(() => {
   >
     <template #header>
       <h2 id="variant-composition-heading" class="text-base font-semibold text-highlighted">
-        Inheritance
+        Composition
       </h2>
     </template>
 
-    <div class="flex min-h-7 flex-wrap items-center gap-x-3 gap-y-2">
+    <div class="flex min-h-7 items-center">
       <ol
         v-if="variant.activeFeatures.length"
         aria-label="Resolution order"
@@ -52,9 +52,9 @@ const unappliedParents = computed(() => {
           <UBadge
             v-if="name === variant.name"
             color="neutral"
-            variant="soft"
+            variant="outline"
             aria-current="true"
-            class="min-w-0 font-mono wrap-anywhere text-primary"
+            class="min-w-0 px-2.5 py-1.5 font-mono wrap-anywhere text-primary"
           >
             {{ name }}
           </UBadge>
@@ -75,7 +75,6 @@ const unappliedParents = computed(() => {
         </li>
       </ol>
       <p v-if="!variant.active" class="text-sm text-muted">Variant disabled</p>
-      <p v-else-if="!directParents.size" class="text-sm text-muted">No parents</p>
     </div>
 
     <div v-if="unappliedParents.length">
