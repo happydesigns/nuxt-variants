@@ -20,6 +20,29 @@ function trace(overrides: VariantOverrideRegistry = {}) {
   );
 }
 describe("inspector value sources", () => {
+  it("shows empty objects and null fields without a fabricated scalar source", () => {
+    const { variants } = createVariantDevtoolsData(
+      {
+        configKey: "variants",
+        registry: {
+          record: { config: { empty: {}, shared: {}, nested: { value: null }, items: [] } },
+        },
+        sources: {},
+      },
+      { record: { config: { shared: {} } } },
+    );
+    const rows = getValueSources(variants[0]!, variants);
+    const origin = { variant: "record", input: "Registry default" };
+    expect(rows).toContainEqual({ path: ["empty"], value: {}, ...origin });
+    expect(rows).toContainEqual({ path: ["nested", "value"], value: null, ...origin });
+    expect(rows).toContainEqual({ path: ["shared"], value: {} });
+    expect(rows).toContainEqual({
+      path: ["items"],
+      value: [],
+      variant: "record",
+      input: "Registry default",
+    });
+  });
   it("retains complete-parent precedence and identifies equal-valued overrides", () => {
     expect(trace()).toEqual(
       expect.arrayContaining([

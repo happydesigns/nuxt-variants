@@ -1,123 +1,58 @@
 <script setup lang="ts">
-import type { DevtoolsData, VariantEntry } from "~/types/devtools";
+import type { VariantEntry } from "~/types/devtools";
 import { filterVariants } from "~/utils/filter-variants";
-
-const props = defineProps<{
-  data: DevtoolsData;
-  routeVariant?: string;
-  selected?: string;
-  pending?: boolean;
-  error?: string;
-}>();
-
-const emit = defineEmits<{
-  "update:selected": [value: string];
-}>();
-
+const props = defineProps<{ entries: VariantEntry[]; routeVariant?: string }>();
+const selected = defineModel<string>("selected");
+const open = ref(false);
 const query = ref("");
-const filteredVariants = computed(() => filterVariants(props.data.variants, query.value));
-
-function plural(count: number, singular: string, pluralForm = `${singular}s`) {
-  return count === 1 ? singular : pluralForm;
-}
-
-function variantMeta(variant: VariantEntry) {
-  const keyText = `${variant.configKeys.length} ${plural(variant.configKeys.length, "key")}`;
-
-  if (variant.extends.length === 0) {
-    return `${keyText} / base`;
-  }
-
-  return `${keyText} / extends ${variant.extends.length}`;
-}
-
-function selectVariant(event: Event) {
-  const target = event.target;
-
-  if (target instanceof HTMLSelectElement) {
-    emit("update:selected", target.value);
-  }
+const filtered = computed(() => filterVariants(props.entries, query.value));
+function select(name: string) {
+  selected.value = name;
+  open.value = false;
 }
 </script>
-
 <template>
-  <aside class="sidebar n-bg-base">
-    <div class="sidebar-head">
-      <h2>Variants</h2>
-      <p>{{ data.variants.length }} variant definitions</p>
-    </div>
-
-    <div
-      class="sidebar-health"
-      :class="{ 'has-issues': error || data.diagnostics.length > 0 }"
-      role="status"
-    >
-      <span>{{
-        error
-          ? "Connection unavailable"
-          : pending
-            ? "Updating registry"
-            : data.diagnostics.length
-              ? "Needs attention"
-              : "Registry is valid"
-      }}</span>
-      <UBadge
-        :color="
-          error ? 'error' : pending ? 'neutral' : data.diagnostics.length ? 'warning' : 'success'
-        "
+  <UDashboardSidebar
+    id="registry"
+    v-model:open="open"
+    :default-size="15"
+    :menu="{ title: 'Variants' }"
+    :ui="{ root: 'bg-elevated/30', header: 'border-b border-default', body: 'gap-3 py-3 px-3' }"
+  >
+    <template #header>
+      <UIcon name="i-lucide-git-branch" class="size-5 text-primary" />
+      <h2 class="min-w-0 truncate text-sm font-semibold text-highlighted">Variants</h2>
+      <UBadge color="neutral" variant="subtle" size="sm">{{ entries.length }}</UBadge>
+    </template>
+    <UInput
+      v-model="query"
+      type="search"
+      aria-label="Filter variants"
+      placeholder="Filter variants"
+      icon="i-lucide-search"
+      class="w-full"
+    />
+    <nav aria-label="Variants" class="flex flex-col gap-0.5">
+      <UButton
+        v-for="entry in filtered"
+        :key="entry.name"
+        color="neutral"
+        variant="ghost"
+        active-color="primary"
+        active-variant="soft"
+        :active="entry.name === selected"
+        :aria-current="entry.name === selected ? 'true' : undefined"
+        :title="entry.name"
+        class="justify-start"
+        @click="select(entry.name)"
       >
-        {{
-          error
-            ? "Offline"
-            : pending
-              ? "Loading"
-              : data.diagnostics.length
-                ? `${data.diagnostics.length} ${plural(data.diagnostics.length, "issue")}`
-                : "No issues"
-        }}
-      </UBadge>
-    </div>
-
-    <div class="mobile-variant-picker">
-      <label for="variant-picker">Variant</label>
-      <select id="variant-picker" :value="selected" @change="selectVariant">
-        <option v-for="variant in data.variants" :key="variant.name" :value="variant.name">
-          {{ variant.name }}{{ variant.name === routeVariant ? " (current route)" : "" }}
-        </option>
-      </select>
-    </div>
-
-    <div class="sidebar-search">
-      <UInput
-        class="w-full"
-        aria-label="Filter variants"
-        v-model="query"
-        icon="i-lucide-search"
-        placeholder="Filter variants"
-      />
-      <span class="search-count">{{ filteredVariants.length }} of {{ data.variants.length }}</span>
-    </div>
-
-    <nav class="variant-list" aria-label="Variants">
-      <button
-        v-for="variant in filteredVariants"
-        :key="variant.name"
-        class="variant-nav"
-        :class="{ 'is-active': variant.name === selected }"
-        type="button"
-        :aria-current="variant.name === selected ? 'page' : undefined"
-        @click="emit('update:selected', variant.name)"
-      >
-        <span class="variant-heading">
-          <span class="variant-name">{{ variant.name }}</span>
-          <span v-if="variant.name === routeVariant" class="route-label">current route</span>
-        </span>
-        <span class="variant-row-meta">
-          <span class="variant-meta">{{ variantMeta(variant) }}</span>
-          <span v-if="!variant.active" class="inactive-label">disabled</span>
-        </span>
-      </button>
-      <p v-if="!filteredVariants.length" class="empty-state">No variants match “{{ query }}”.</p>
+        <span class="min-w-0 truncate font-mono">{{ entry.name }}</span>
+        <span v-if="entry.name === routeVariant" class="ms-auto text-xs">Current route</span>
+        <span v-else-if="!entry.active" class="ms-auto text-xs text-muted">Disabled</span>
+      </UButton>
+      <p v-if="query && !filtered.length" class="px-2 py-1 text-sm text-muted" role="status">
+        No matching variants.
+      </p>
     </nav>
-  </aside>
+  </UDashboardSidebar>
 </template>

@@ -14,29 +14,31 @@ const emptyData: DevtoolsData = {
 export function useVariantDevtoolsData() {
   const baseData = shallowRef<DevtoolsData>({ ...emptyData });
   const host = useVariantHostContext();
-  const data = computed(() => {
-    if (!host.context.value) return baseData.value;
+  const metadata = computed(() => {
     const snapshot = baseData.value;
-    return createVariantDevtoolsData(
-      {
-        configKey: snapshot.configKey,
-        registry: Object.fromEntries(
-          snapshot.variants.map((entry) => [entry.name, entry.base ?? {}]),
-        ),
-        sources: Object.fromEntries(snapshot.variants.map((entry) => [entry.name, entry.sources])),
-      },
-      host.context.value.overrides,
-    );
+    return {
+      configKey: snapshot.configKey,
+      registry: Object.fromEntries(
+        snapshot.variants.map((entry) => [entry.name, entry.base ?? {}]),
+      ),
+      sources: Object.fromEntries(snapshot.variants.map((entry) => [entry.name, entry.sources])),
+    };
   });
+  const data = computed(() =>
+    host.overrides.value
+      ? createVariantDevtoolsData(metadata.value, host.overrides.value)
+      : baseData.value,
+  );
   const pending = ref(true);
   const error = ref<string>();
   const selected = ref<string>();
   const transportLabel = ref("");
   let transport: InspectorTransport | undefined;
   let disposed = false;
+  let reading = false;
 
   const legacyRoute = useNuxtRouteVariant();
-  const routeVariant = computed(() => host.context.value?.variant ?? legacyRoute.value);
+  const routeVariant = computed(() => host.variant.value ?? legacyRoute.value);
   const currentVariant = computed(() =>
     data.value.variants.find((variant) => variant.name === selected.value),
   );
@@ -51,6 +53,8 @@ export function useVariantDevtoolsData() {
   }
 
   async function loadData() {
+    if (reading || disposed) return;
+    reading = true;
     pending.value = true;
     error.value = undefined;
 
@@ -68,10 +72,11 @@ export function useVariantDevtoolsData() {
         transportLabel.value = transport.label;
       }
       const [snapshot] = await Promise.all([transport.read(), host.refresh()]);
+      if (disposed) return;
       baseData.value = snapshot;
       if (
-        !selectRouteVariant() &&
-        !data.value.variants.some((variant) => variant.name === selected.value)
+        !data.value.variants.some((variant) => variant.name === selected.value) &&
+        !selectRouteVariant()
       ) {
         selected.value = data.value.variants[0]?.name;
       }
@@ -80,6 +85,7 @@ export function useVariantDevtoolsData() {
       transport = undefined;
       error.value = cause instanceof Error ? cause.message : "Failed to load DevTools data.";
     } finally {
+      reading = false;
       pending.value = false;
     }
   }

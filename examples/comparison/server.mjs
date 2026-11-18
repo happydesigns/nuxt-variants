@@ -44,7 +44,7 @@ const documents = {
   },
   event: {
     title: "Offene Sprechstunde",
-    body: "Das Seitenlabel kommt aus der App-Konfiguration. Im Inspector zeigt Value source für das Feld label die Variante event und den Override.",
+    body: "Im Inspector steht beim Feld label, dass die Variante event den Wert aus der App-Konfiguration übernimmt.",
   },
   snippet: {
     title: "Weniger reicht oft aus",

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
   title: string;
-  description: string;
   value: unknown;
 }>();
 
@@ -40,26 +39,23 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <UCard :ui="{ body: 'p-0 sm:p-0' }">
-    <div class="panel-head">
-      <div class="panel-head-copy">
-        <div>
-          <h2>{{ title }}</h2>
-          <p>{{ description }}</p>
-        </div>
-        <UButton
-          color="neutral"
-          variant="outline"
-          :title="`Copy ${title} as JSON`"
-          @click="copyCode"
-        >
-          {{ copyLabel }}
-        </UButton>
-      </div>
+  <section class="min-w-0">
+    <div class="mb-2 flex items-center justify-between gap-2">
+      <h2 class="text-sm font-semibold text-highlighted">{{ title }}</h2>
+      <UButton
+        color="neutral"
+        variant="outline"
+        :title="`Copy ${title} as JSON`"
+        :aria-label="copyStatus === 'idle' ? `Copy ${title} as JSON` : copyLabel"
+        @click="copyCode"
+      >
+        <span aria-live="polite">{{ copyLabel }}</span>
+      </UButton>
     </div>
-    <div class="panel-body">
-      <slot />
-      <JsonCodeBlock :code="code" />
-    </div>
-  </UCard>
+    <pre
+      class="overflow-auto rounded-lg border border-default bg-elevated/40 p-3 font-mono text-sm leading-6"
+      tabindex="0"
+      :aria-label="title"
+    ><code>{{ code }}</code></pre>
+  </section>
 </template>
