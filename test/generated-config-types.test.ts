@@ -60,7 +60,11 @@ function checkConsumer(
       [
         join(directory, "schema.d.ts"),
         `declare module 'nuxt/schema' { export interface AppConfig { variants: ${appConfigType} } }
-declare module 'vue-router' { interface RouteMeta {} }`,
+declare module '#app' { export interface PageMeta { [key: string]: unknown } }
+declare module 'vue-router' {
+  type PageMeta = import('#app').PageMeta;
+  export interface RouteMeta extends PageMeta {}
+}`,
       ],
       [
         join(directory, "consumer.ts"),
@@ -119,7 +123,28 @@ describe.each([false, true])("generated config contracts (exact optional: %s)", 
 const disabled: Config = {};
 const active: Config = { value: { title: 'own' } };
 // @ts-expect-error An existing own object must retain its title.
-const invalid: Config = { value: {} };`,
+const invalid: Config = { value: {} };
+const knownRouteVariant: import('vue-router').RouteMeta['variant'] = 'parent';
+// @ts-expect-error Without page restrictions, route metadata still checks registry names.
+const unknownRouteVariant: import('vue-router').RouteMeta['variant'] = 'missing';`,
+        exact,
+      ),
+    ).toEqual([]);
+  });
+
+  it("keeps router metadata compatible with an app's narrower page variants", () => {
+    expect(
+      checkConsumer(
+        { target: {}, article: {}, event: {}, hero: {} },
+        "{}",
+        `declare module '#app' {
+  interface PageMeta { variant?: 'article' | 'event' }
+}
+const article: import('vue-router').RouteMeta = { variant: 'article' };
+const event: import('vue-router').RouteMeta = { variant: 'event' };
+const unassigned: import('vue-router').RouteMeta = {};
+// @ts-expect-error A registered feature can be excluded from page metadata.
+const hero: import('vue-router').RouteMeta = { variant: 'hero' };`,
         exact,
       ),
     ).toEqual([]);
