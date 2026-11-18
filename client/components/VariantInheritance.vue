@@ -31,24 +31,24 @@ const unappliedParents = computed(() => {
       </h2>
     </template>
 
-    <div
-      v-if="variant.activeFeatures.length > 1"
-      class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:gap-4"
-    >
-      <h3 id="resolution-order" class="shrink-0 text-sm text-muted">Resolution order</h3>
+    <div class="flex min-h-7 flex-wrap items-center gap-x-3 gap-y-2">
       <ol
-        aria-labelledby="resolution-order"
+        v-if="variant.activeFeatures.length"
+        aria-label="Resolution order"
         role="list"
-        class="flex min-w-0 flex-wrap gap-x-3 gap-y-2"
+        class="flex min-w-0 flex-wrap items-center gap-2"
       >
         <li
           v-for="(name, index) in variant.activeFeatures"
           :key="name"
-          class="inline-flex max-w-full items-center gap-1.5"
+          class="inline-flex max-w-full items-center gap-2"
         >
-          <span aria-hidden="true" class="shrink-0 font-mono text-xs tabular-nums text-muted">
-            {{ index + 1 }}.
-          </span>
+          <UIcon
+            v-if="index > 0"
+            name="i-lucide-arrow-right"
+            aria-hidden="true"
+            class="size-4 shrink-0 text-muted rtl:rotate-180"
+          />
           <UBadge
             v-if="name === variant.name"
             variant="soft"
@@ -73,6 +73,8 @@ const unappliedParents = computed(() => {
           </UButton>
         </li>
       </ol>
+      <p v-if="!variant.active" class="text-sm text-muted">Variant disabled</p>
+      <p v-else-if="!directParents.size" class="text-sm text-muted">No parents</p>
     </div>
 
     <div v-if="unappliedParents.length">

@@ -14,16 +14,12 @@ const {
 } = useVariantDevtoolsData();
 const heading = useTemplateRef("heading");
 const details = useTemplateRef("details");
-const hasInheritance = computed(() => {
-  const variant = currentVariant.value;
-  return !!variant && (variant.extends.length > 0 || variant.activeFeatures.length > 1);
-});
-const sectionLinks = computed(() => [
-  ...(hasInheritance.value ? [{ id: "variant-composition", label: "Inheritance" }] : []),
+const sectionLinks = [
+  { id: "variant-composition", label: "Inheritance" },
   { id: "variant-fields", label: "Fields" },
   { id: "variant-json", label: "Configuration" },
-]);
-const activeSection = ref("variant-fields");
+];
+const activeSection = ref("variant-composition");
 const overridesOnly = ref(false);
 
 watch(
@@ -38,11 +34,11 @@ watch(
 );
 
 watch(
-  [details, sectionLinks, selected],
-  ([content, links], _, onCleanup) => {
+  [details, selected],
+  ([content], _, onCleanup) => {
     const scrollPanel = content?.parentElement;
     if (!content || !scrollPanel) return;
-    const sections = links.flatMap(({ id }) => {
+    const sections = sectionLinks.flatMap(({ id }) => {
       const section = content.querySelector<HTMLElement>(`#${id}`);
       return section ? [section] : [];
     });
@@ -71,7 +67,7 @@ watch(
         (
           (atEnd ? focused : undefined) ??
           (atEnd && scrollPanel.scrollTop > 0 ? sections.at(-1) : (lastVisible ?? sections[0]))
-        )?.id ?? "variant-fields";
+        )?.id ?? "variant-composition";
     };
     const observer = new ResizeObserver(updateActiveSection);
     observer.observe(content);
@@ -180,7 +176,6 @@ async function inspectRelative(name: string) {
             <p v-if="linkNotice" role="status" class="text-sm text-muted">{{ linkNotice }}</p>
             <template v-if="currentVariant">
               <VariantInheritance
-                v-if="hasInheritance"
                 :variant="currentVariant"
                 :entries="data.variants"
                 @select="inspectRelative"
