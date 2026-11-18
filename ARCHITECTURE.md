@@ -93,7 +93,7 @@ remain internal unless explicitly documented otherwise.
 
 ## Optional Platform Adapters
 
-The `0.3.0-next.0` preview exposes the existing resolver through `/core` and
+The `0.3` preview exposes the existing resolver through `/core` and
 adds optional `/content` and `/devtools` integrations. The approved scope and
 tradeoffs are recorded in `docs/content/docs/10.platform-preview.md`.
 

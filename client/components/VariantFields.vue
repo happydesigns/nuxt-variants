@@ -45,9 +45,7 @@ watch(query, () => {
       <table class="fields-table">
         <caption class="sr-only">
           Resolved fields for
-          {{
-            variant.name
-          }}
+          {{ variant.name }}
         </caption>
         <thead>
           <tr>

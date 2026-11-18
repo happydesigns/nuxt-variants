@@ -84,7 +84,8 @@ import {variantContent,variantField} from '@happydesigns/nuxt-variants/content';
 import {createVariantsDevframe,createVariantDevtoolsData} from '@happydesigns/nuxt-variants/devtools';
 import {comarkContent,generateSourceTypes} from 'comark-content';
 import {createBuild} from 'devframe/adapters/build';
-import {existsSync} from 'node:fs';
+import {existsSync,readFileSync} from 'node:fs';
+import {join} from 'node:path';
 const resolver=createVariantResolver({article:{config:{title:'Own'}}});
 const instance=comarkContent('packed',{source:{schema:{type:'object',properties:{variant:variantField()}},keys:()=>['page.md'],getItem:()=> '---\\nvariant: article\\n---\\nBody',getItemRaw:()=>''},plugins:[variantContent({resolver})],logger:false,onError:'throw'});
 try{
@@ -93,9 +94,13 @@ try{
  assert.equal(instance.resolveVariant('article').config.title,'Own');
  assert.match(await generateSourceTypes(instance),/variant\\??: "article"/);
  const definition=createVariantsDevframe({snapshot:()=>createVariantDevtoolsData({configKey:'variants',registry:resolver.registry,sources:{}},{})});
- assert.ok(existsSync(definition.clientAssets+'/index.html'));
  await createBuild(definition,{outDir:'offline'});
  assert.ok(existsSync('offline/__connection.json'));
+ const html = readFileSync('offline/index.html', 'utf8');
+ assert.ok(html.includes('id="__nuxt"'), 'offline index must mount the Nuxt app');
+ const entry = html.match(/<script[^>]*src="([^"]+)"/)?.[1];
+ assert.ok(entry?.startsWith('./_nuxt/'), 'inspector entry must load from its mount directory');
+ assert.ok(existsSync(join('offline', entry)), 'inspector entry must exist in the offline copy');
  console.log('packed Content plugin, typegen, default client assets and offline DevFrame build passed');
 }finally{await instance.dispose();}
 `,
