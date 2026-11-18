@@ -71,3 +71,53 @@ if (maybe.active) {
   // @ts-expect-error The optional app config can replace the registry string with a number.
   maybe.config.title.toUpperCase();
 }
+
+// Separately declared entries can have optional or widened parent names.
+const optionalParent: { extends?: "numeric" } = {};
+optionalParent.extends = "numeric";
+const dynamicParent = { extends: "numeric" };
+const mixed = createVariantResolver({
+  text: { config: { title: "Text" } },
+  numeric: { config: { title: 7 } },
+  optionalParent,
+  dynamicParent,
+  optional: ["text", "optionalParent"],
+  dynamic: ["text", "dynamicParent"],
+});
+const optional = mixed.resolve("optional");
+if (optional.active) {
+  // @ts-expect-error The optional parent can contribute a number.
+  optional.config.title?.toUpperCase();
+}
+const dynamic = mixed.resolve("dynamic");
+if (dynamic.active) {
+  // @ts-expect-error A dynamically chosen parent can contribute either title type.
+  dynamic.config.title?.toUpperCase();
+}
+declare const documentName: "text" | "numeric";
+const selected = mixed.resolve(documentName);
+if (selected.active && selected.name === "numeric") selected.config.title.toFixed();
+if (selected.active && selected.name === "text") selected.config.title.toUpperCase();
+
+declare const conditionalEntry: { config: { title: number } } | { active: false };
+const fromEntry = createVariantResolver({
+  base: { config: { title: "Text" } },
+  conditionalEntry,
+  page: ["base", "conditionalEntry"],
+}).resolve("page");
+if (fromEntry.active) {
+  // @ts-expect-error The conditional entry can supply a numeric title.
+  fromEntry.config.title?.toUpperCase();
+}
+
+declare const conditionalDefaults:
+  | { base: { config: { title: number } } }
+  | { other: { active: false } };
+const fromDefaults = createVariantResolver(
+  { base: { config: { title: "Text" } }, other: {} },
+  conditionalDefaults,
+).resolve("base");
+if (fromDefaults.active) {
+  // @ts-expect-error The selected defaults can replace the string with a number.
+  fromDefaults.config.title.toUpperCase();
+}

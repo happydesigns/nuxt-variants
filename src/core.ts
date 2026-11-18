@@ -14,25 +14,37 @@ export { VariantRegistryError } from "./runtime/utils/diagnostics";
 export type { VariantRegistryInput, VariantOverrideRegistry };
 export type VariantKey<R> = keyof R & string;
 // A typed defaults map can omit an entry or its config at runtime.
-type Own<E> = "config" extends keyof NonNullable<E>
-  ? NonNullable<E> extends { config?: infer C }
-    ? [E] extends [{ config: unknown }]
-      ? C
-      : Partial<C>
-    : {}
-  : {};
+type EntryConfig<E> = E extends { config?: infer C }
+  ? "config" extends keyof E
+    ? C
+    : never
+  : never;
+type Own<E> = [EntryConfig<E>] extends [never]
+  ? {}
+  : [E] extends [{ config: unknown }]
+    ? EntryConfig<E>
+    : Partial<EntryConfig<E>>;
 type Parents<E> = E extends readonly string[]
   ? E[number]
-  : E extends { extends: infer P }
+  : E extends { extends?: infer P }
     ? P extends readonly string[]
       ? P[number]
-      : P
+      : Extract<P, string>
     : never;
-type Contributions<R, K, Seen = never> = K extends keyof R
-  ? K extends Seen
-    ? never
-    : Own<R[K]> | Contributions<R, Parents<R[K]>, Seen | K>
-  : never;
+// Walk a generation of parents together so shared ancestors contribute once.
+// A widened parent name can resolve to any registered entry.
+type OwnAt<R, Names> = Names extends keyof R ? Own<R[Names]> : never;
+type Contributions<
+  R,
+  P,
+  Seen = never,
+  Fields = never,
+  Next extends keyof R = Exclude<Extract<keyof R, P>, Seen>,
+> = string extends P
+  ? Fields | OwnAt<R, keyof R>
+  : [Next] extends [never]
+    ? Fields
+    : Contributions<R, Parents<R[Next]>, Seen | Next, Fields | OwnAt<R, Next>>;
 type Keys<U> = U extends unknown ? keyof U : never;
 type Value<U, K extends PropertyKey> = U extends unknown
   ? K extends keyof U
@@ -56,7 +68,11 @@ type InheritedValue<U> =
   | NonObjects<U>
   | ([Objects<U>] extends [never] ? never : Inherited<Objects<U>>);
 type Inherited<U> = { [K in Keys<U>]?: InheritedValue<Value<U, K>> };
-type Field<T, K extends PropertyKey> = K extends keyof T ? T[K] : undefined;
+type Field<T, K extends PropertyKey> = T extends unknown
+  ? K extends keyof T
+    ? T[K]
+    : undefined
+  : never;
 type Guaranteed<T> = {
   [K in keyof T]-?: {} extends Pick<T, K>
     ? never
@@ -115,15 +131,17 @@ type WithDefaults<R, D> = {
     config: Merge<Own<R[K]>, Own<Field<D, K>>>;
   };
 };
-export type VariantResolution<R, K extends keyof R> = {
-  name: K;
-  features: readonly VariantKey<R>[];
-} & (
-  | { active: true; config: ResolvedVariantConfig<R, K> }
-  | { active: false; config: { [P in keyof ResolvedVariantConfig<R, K>]?: never } }
-);
+export type VariantResolution<R, K extends keyof R> = K extends keyof R
+  ? {
+      name: K;
+      features: readonly VariantKey<R>[];
+    } & (
+      | { active: true; config: ResolvedVariantConfig<R, K> }
+      | { active: false; config: { [P in keyof ResolvedVariantConfig<R, K>]?: never } }
+    )
+  : never;
 
-export interface VariantResolver<R extends VariantRegistryInput> {
+export interface VariantResolver<in out R extends VariantRegistryInput> {
   readonly registry: ReturnType<typeof normalizeVariantRegistry>;
   readonly names: readonly VariantKey<R>[];
   isName(value: unknown): value is VariantKey<R>;
@@ -134,18 +152,36 @@ export interface VariantResolver<R extends VariantRegistryInput> {
   ): VariantResolution<R, K>;
 }
 
-function assertPlainData(value: unknown, active = new WeakSet<object>()): void {
+function assertPlainData(value: unknown, checked = new WeakMap<object, boolean>()): void {
   if (value && typeof value === "object") {
     const prototype = Object.getPrototypeOf(value);
     if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null)
       throw new Error("[nuxt-variants] Registry config must use plain data objects and arrays.");
-    if (active.has(value)) throw new Error("[nuxt-variants] Cyclic config data is not supported.");
-    active.add(value);
-    for (const item of Object.values(value)) assertPlainData(item, active);
-    active.delete(value);
+    const complete = checked.get(value);
+    if (complete === false) throw new Error("[nuxt-variants] Cyclic config data is not supported.");
+    if (complete) return;
+    checked.set(value, false);
+    // Cloning drops symbols and non-enumerable fields and invokes getters.
+    // Validate descriptors so the value we copy is exactly the declared data.
+    for (const key of Reflect.ownKeys(value)) {
+      if (Array.isArray(value) && key === "length") continue;
+      const descriptor = Object.getOwnPropertyDescriptor(value, key)!;
+      if (typeof key !== "string" || !descriptor.enumerable || !("value" in descriptor))
+        throw new Error(
+          "[nuxt-variants] Config fields must be enumerable, string-keyed data properties.",
+        );
+      assertPlainData(descriptor.value, checked);
+    }
+    checked.set(value, true);
   }
   if (typeof value === "function" || typeof value === "symbol")
     throw new Error("[nuxt-variants] Config must contain cloneable plain data.");
+}
+
+function assertPlainMap(value: unknown): void {
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw new Error("[nuxt-variants] Registry and override maps must be plain objects.");
+  assertPlainData(value);
 }
 
 function freeze<T>(value: T): T {
@@ -171,8 +207,8 @@ export function createVariantResolver<const R extends VariantRegistryInput>(
   input: R,
   defaults: VariantOverrideRegistry = {},
 ) {
-  assertPlainData(input);
-  assertPlainData(defaults);
+  assertPlainMap(input);
+  assertPlainMap(defaults);
   const normalized = normalizeVariantRegistry(input);
   assertValidVariantInputs({}, defaults);
   assertValidVariantRegistry(normalized, defaults);
@@ -186,34 +222,46 @@ export function createVariantResolver<const R extends VariantRegistryInput>(
   const names = Object.freeze(Object.keys(registry)) as readonly VariantKey<R>[];
   const isName = (value: unknown): value is VariantKey<R> =>
     typeof value === "string" && Object.hasOwn(registry, value);
+  const resolvedDefaults = new Map<string, Record<string, unknown>>();
+  function getDefaultConfig(name: string, lineage: readonly string[]) {
+    const cached = resolvedDefaults.get(name);
+    if (cached) return cached;
+    const config = resolveVariantConfigFromLineage(lineage, registry, {});
+    resolvedDefaults.set(name, config);
+    return config;
+  }
   return Object.freeze({
     registry,
     names,
     isName,
     resolve<K extends VariantKey<R>>(
       name: K,
-      overrides: VariantOverrides<R> = {},
+      overrides?: VariantOverrides<R>,
     ): VariantResolution<R, K> {
       if (!isName(name)) throw new Error(`[nuxt-variants] Unknown variant "${String(name)}".`);
-      assertPlainData(overrides);
-      assertValidVariantInputs({}, overrides);
+      if (overrides !== undefined) assertPlainMap(overrides);
+      const entries = overrides ?? {};
+      const keys = Object.keys(entries);
       // Graph structure is immutable and was validated once. Validate only
       // the supplied override keys here, without traversing the graph again.
-      const knownOverrides = Object.fromEntries(
-        Object.keys(overrides)
-          .filter(isName)
-          .map((key) => [key, {}]),
-      );
-      assertValidVariantRegistry(knownOverrides, overrides);
-      const runtime = overrides as VariantOverrideRegistry;
-      const lineage = hasVariantActivityOverrides(runtime)
-        ? [...resolveVariantFeatures(name, registry, runtime)]
-        : (plan[name] ?? []);
+      if (keys.length) {
+        assertValidVariantInputs({}, entries);
+        const known = Object.fromEntries(keys.filter(isName).map((key) => [key, {}]));
+        assertValidVariantRegistry(known, entries);
+      }
+      const runtime = entries as VariantOverrideRegistry;
+      const lineage =
+        keys.length && hasVariantActivityOverrides(runtime)
+          ? [...resolveVariantFeatures(name, registry, runtime)]
+          : (plan[name] ?? []);
+      const config = keys.length
+        ? resolveVariantConfigFromLineage(lineage, registry, runtime)
+        : getDefaultConfig(name, lineage);
       return {
         name,
         active: lineage.includes(name),
         features: [...lineage],
-        config: structuredClone(resolveVariantConfigFromLineage(lineage, registry, runtime)),
+        config: structuredClone(config),
         // Registry validation plus the shared resolver establish this mapped
         // type at runtime; TypeScript cannot infer recursive config merges.
       } as unknown as VariantResolution<R, K>;

@@ -67,6 +67,43 @@ describe("portable resolver", () => {
     expect(resolver.resolve("base").config.items).toEqual(["one"]);
     expect(Object.isFrozen(resolver.registry.base?.config)).toBe(true);
   });
+  it("reuses immutable defaults independently of caller-owned results and overrides", () => {
+    const resolver = createVariantResolver(registry);
+    const first = resolver.resolve("article");
+    first.config.links?.push("changed");
+    const runtime = { right: { config: { links: ["request"] } } };
+    expect(resolver.resolve("article", runtime).config.links).toEqual(["request"]);
+    runtime.right.config.links[0] = "second request";
+    expect(resolver.resolve("article", runtime).config.links).toEqual(["second request"]);
+    expect(resolver.resolve("article", {}).config.links).toEqual(["right"]);
+    expect(resolver.resolve("article", { right: { active: false } }).config.links).toEqual([
+      "base",
+    ]);
+  });
+  it("accepts shared config objects and rejects malformed top-level maps", () => {
+    const shared = { label: "Shared" };
+    const resolver = createVariantResolver({ item: { config: { first: shared, second: shared } } });
+    expect(resolver.resolve("item").config).toEqual({ first: shared, second: shared });
+    expect(() => createVariantResolver([] as never)).toThrow(/maps must be plain objects/);
+    expect(() => createVariantResolver({ item: {} }, false as never)).toThrow(
+      /maps must be plain objects/,
+    );
+    expect(() => resolver.resolve("item", [] as never)).toThrow(/maps must be plain objects/);
+  });
+  it("rejects fields that cannot round-trip through a plain-data copy", () => {
+    let getterReads = 0;
+    const computed = {
+      get label() {
+        getterReads++;
+        return "text";
+      },
+    };
+    const hidden = Object.defineProperty({}, "label", { value: "text" });
+    for (const config of [computed, hidden, { [Symbol("label")]: "text" }]) {
+      expect(() => createVariantResolver({ page: { config } })).toThrow(/data properties/);
+    }
+    expect(getterReads).toBe(0);
+  });
   it("rejects invalid graphs, unknown names, and structural overrides", () => {
     expect(() => createVariantResolver({ a: ["missing"] })).toThrow(/unknown/i);
     const resolver = createVariantResolver(registry);
