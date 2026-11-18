@@ -139,9 +139,10 @@ when strictness or object-level refinements are part of the contract.
 
 ## Compatibility boundaries
 
-- Comark Content 0.6.2 exposes the semantic-field registration used by
-  `/content`. Course's 0.4.1 lacks `addFieldType` and the corresponding
-  extensible schema type. Use the existing Nuxt integration in that consumer.
+- Course's local upgrade from Comark Content 0.4.1 to 0.6.2 enables
+  `/content`. The packed adapter preserved all 11 Course documents in a
+  snapshot round trip and generated the nine registry names for both data
+  and queries. [Course upgrade and reproduction](./course-pilot.md#content-adapter-on-the-upgraded-course-reader)
 - On 18 November 2026, npm's latest Nuxt Content was 3.17.0. Nuxt Content v4
   is planned to use Comark Content. Verify the wrapper with a real file,
   generated type and identity round trip once it is available.

@@ -94,10 +94,48 @@ response with the standard `nuxt-variants:get-snapshot` RPC. The static
 inspector loaded all 28 variants and displayed the Course field's source
 without a live Course server or host authorization.
 
-The Nuxt adapter was exercised
-with the Course lockfile's Comark Content 0.4.1. Using the optional `/content`
-extension would require a separate upgrade. The 0.4.1 SDK lacks the runtime
-`addFieldType` method and has an incompatible schema type. The Nuxt adapter
-and `/core` work independently of this SDK. The DevTools 4 host also
-has an unresolved Vite DevTools peer range in this consumer. These are
-separate compatibility checks before adopting the whole preview stack.
+The original comparison used Comark Content 0.4.1. Its SDK lacked
+`addFieldType` and the extensible schema type needed by the optional
+`/content` adapter. The original DevTools 4 host also reported a Vite
+DevTools peer-range mismatch.
+
+## Content adapter on the upgraded Course reader
+
+Course commit `c381901` on the local branch `codex/update-comark-content`
+uses Comark Content 0.6.2, Comark and `@comark/vue` 0.9.2, and Nuxt 4.6.4.
+The reader continues to use the released Variants 0.2.0. The optional adapter
+was tested separately with the candidate tarball identified above.
+
+The adapter parsed all 11 real documents using Course's Markdown plugins
+and registry. The parser-free runtime loaded the resulting JSON snapshot
+without a default variant. Each document retained its path, frontmatter,
+render nodes and stored `course` identity. The generated document and
+query types listed all nine variant names. The resolver applied a
+`courseProgress.storagePrefix` override after hydration.
+
+Comark 0.9 defaults to flat heading IDs. The reader sets `headingIds: "nested"`
+so existing links such as `#project-setup-installing-dependencies` continue
+to reach the same subsection. Chromium opened this original link at the
+expected heading in desktop and mobile profiles. The static build artifacts
+from 0.4.1 and 0.6.2 matched on all 11 paths, frontmatter objects and render
+trees. Course passed 114 repository tests, type checking, a production API
+check with the Markdown sources unavailable, and 12 browser tests against
+49 prerendered routes. The frozen install reported no peer issues in this
+workspace.
+
+To repeat this check, install the Course checkout from its frozen lockfile.
+From the built Variants checkout run:
+
+```sh
+node examples/comparison/course-content.mjs ../course-comark-update
+```
+
+To compare the old and new static builds as well, build the Course playground
+with the Pages preset on both revisions. Pass the old build's
+`playground/.output/public/api/course-preview/snapshot.json` as the second
+argument. The check compares every path, frontmatter field and render node
+from the two build artifacts, including highlighted code and heading IDs.
+
+To test the distribution, copy the same script into an isolated consumer
+containing the packed candidate and its Comark Content peer. Run it there
+with the absolute path to the installed Course checkout.
