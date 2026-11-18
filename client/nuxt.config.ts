@@ -8,6 +8,7 @@ export default defineNuxtConfig({
       icons: [
         "lucide:search",
         "lucide:refresh-cw",
+        "lucide:check",
         "lucide:loader-circle",
         "lucide:copy",
         "lucide:copy-check",

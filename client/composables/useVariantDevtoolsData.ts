@@ -12,10 +12,11 @@ const emptyData: DevtoolsData = {
 };
 
 export function useVariantDevtoolsData() {
-  const baseData = shallowRef<DevtoolsData>({ ...emptyData });
+  const baseData = shallowRef<DevtoolsData>();
+  const hasSnapshot = computed(() => baseData.value !== undefined);
   const host = useVariantHostContext();
   const metadata = computed(() => {
-    const snapshot = baseData.value;
+    const snapshot = baseData.value ?? emptyData;
     return {
       configKey: snapshot.configKey,
       registry: Object.fromEntries(
@@ -27,7 +28,7 @@ export function useVariantDevtoolsData() {
   const data = computed(() =>
     host.overrides.value
       ? createVariantDevtoolsData(metadata.value, host.overrides.value)
-      : baseData.value,
+      : (baseData.value ?? emptyData),
   );
   const pending = ref(true);
   const error = ref<string>();
@@ -57,7 +58,7 @@ export function useVariantDevtoolsData() {
   }
 
   async function loadData() {
-    if (reading || disposed) return;
+    if (reading || disposed) return false;
     reading = true;
     pending.value = true;
     error.value = undefined;
@@ -71,12 +72,12 @@ export function useVariantDevtoolsData() {
         transport = await createInspectorTransport(base);
         if (disposed) {
           transport.close();
-          return;
+          return false;
         }
         offline.value = transport.offline;
       }
       const [snapshot] = await Promise.all([transport.read(), host.refresh()]);
-      if (disposed) return;
+      if (disposed) return false;
       baseData.value = snapshot;
       if (initialLoad) {
         initialLoad = false;
@@ -93,10 +94,12 @@ export function useVariantDevtoolsData() {
       ) {
         selected.value = data.value.variants[0]?.name;
       }
+      return true;
     } catch (cause) {
       transport?.close();
       transport = undefined;
       error.value = cause instanceof Error ? cause.message : "Failed to load DevTools data.";
+      return false;
     } finally {
       reading = false;
       pending.value = false;
@@ -124,6 +127,7 @@ export function useVariantDevtoolsData() {
     data,
     error,
     pending,
+    hasSnapshot,
     routeVariant,
     selected,
     linkedField: computed(() =>

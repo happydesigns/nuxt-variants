@@ -5,6 +5,7 @@ const {
   data,
   error,
   pending,
+  hasSnapshot,
   reload,
   routeVariant,
   selected,
@@ -21,6 +22,24 @@ const sectionLinks = [
 ];
 const activeSection = ref("variant-composition");
 const overridesOnly = ref(false);
+const refreshed = ref(false);
+const refreshStatus = computed(() => {
+  if (pending.value && hasSnapshot.value) return "Refreshing registry…";
+  return refreshed.value ? "Registry refreshed" : "";
+});
+let refreshFeedback: ReturnType<typeof setTimeout> | undefined;
+
+async function refreshRegistry() {
+  if (pending.value) return;
+  clearTimeout(refreshFeedback);
+  refreshed.value = false;
+  if (await reload()) {
+    refreshed.value = true;
+    refreshFeedback = setTimeout(() => (refreshed.value = false), 1600);
+  }
+}
+
+onScopeDispose(() => clearTimeout(refreshFeedback));
 
 watch(
   selected,
@@ -105,6 +124,7 @@ async function inspectRelative(name: string) {
       >
         <template #header>
           <UDashboardNavbar
+            class="overflow-y-hidden [scrollbar-gutter:stable]"
             :ui="{ left: 'min-w-0', title: 'min-w-0 font-mono text-lg', right: 'shrink-0' }"
           >
             <template #title>
@@ -128,19 +148,28 @@ async function inspectRelative(name: string) {
             <template #right>
               <span v-if="offline" class="text-xs text-muted">Offline snapshot</span>
               <UButton
+                v-else-if="hasSnapshot"
                 color="neutral"
                 variant="ghost"
-                icon="i-lucide-refresh-cw"
+                :icon="refreshed ? 'i-lucide-check' : 'i-lucide-refresh-cw'"
                 aria-label="Refresh registry"
-                title="Refresh registry"
-                :loading="pending"
-                :disabled="pending"
-                @click="reload"
+                :aria-disabled="pending || undefined"
+                :title="refreshStatus || 'Refresh registry'"
+                class="cursor-pointer aria-disabled:cursor-pointer"
+                :ui="{
+                  leadingIcon: pending
+                    ? 'motion-safe:animate-spin motion-safe:[animation-delay:150ms]'
+                    : refreshed
+                      ? 'text-primary'
+                      : undefined,
+                }"
+                @click="refreshRegistry"
               />
+              <span class="sr-only" role="status">{{ refreshStatus }}</span>
             </template>
           </UDashboardNavbar>
           <UDashboardToolbar
-            v-if="currentVariant && !error"
+            v-if="currentVariant"
             as="nav"
             aria-label="Variant sections"
             class="min-h-10 items-stretch justify-start gap-1"
@@ -162,13 +191,13 @@ async function inspectRelative(name: string) {
         </template>
         <template #body>
           <LoadStatePanel
-            v-if="error || (pending && !currentVariant)"
+            v-if="error || (pending && !hasSnapshot)"
             :error="error"
             :pending="pending"
-            @retry="reload"
+            @retry="refreshRegistry"
           />
           <div
-            v-else
+            v-if="hasSnapshot"
             ref="details"
             class="flex min-w-0 scroll-mt-4 flex-col gap-5 sm:scroll-mt-6 sm:gap-6"
           >
