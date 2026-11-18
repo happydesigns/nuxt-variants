@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { useVariantDevtoolsData } from "~/composables/useVariantDevtoolsData";
-const { currentVariant, data, error, pending, reload, routeVariant, selected, offline } =
-  useVariantDevtoolsData();
+const {
+  currentVariant,
+  data,
+  error,
+  pending,
+  reload,
+  routeVariant,
+  selected,
+  offline,
+  linkedField,
+  linkNotice,
+} = useVariantDevtoolsData();
 const heading = useTemplateRef("heading");
 const details = useTemplateRef("details");
 const hasComposition = computed(() => {
@@ -17,6 +27,7 @@ const sectionLinks = computed(() => [
   { id: "variant-json", label: "JSON" },
 ]);
 const activeSection = ref("variant-fields");
+const overridesOnly = ref(false);
 
 watch(selected, () => details.value?.scrollIntoView({ block: "start" }), { flush: "post" });
 
@@ -118,7 +129,7 @@ async function inspectRelative(name: string) {
             v-if="currentVariant && !error"
             as="nav"
             aria-label="Variant sections"
-            class="min-h-10 justify-start gap-1 py-1"
+            class="min-h-10 items-stretch justify-start gap-1"
           >
             <UButton
               v-for="section in sectionLinks"
@@ -129,7 +140,7 @@ async function inspectRelative(name: string) {
               color="neutral"
               variant="ghost"
               size="sm"
-              class="border-b-2 border-transparent aria-[current=location]:border-primary aria-[current=location]:text-primary"
+              class="rounded-none border-b-2 border-transparent aria-[current=location]:border-primary aria-[current=location]:text-primary"
               @click="activeSection = section.id"
               >{{ section.label }}</UButton
             >
@@ -148,11 +159,14 @@ async function inspectRelative(name: string) {
             class="flex min-w-0 scroll-mt-4 flex-col gap-5 sm:scroll-mt-6 sm:gap-6"
           >
             <DiagnosticsPanel v-if="data.diagnostics.length" :diagnostics="data.diagnostics" />
+            <p v-if="linkNotice" role="status" class="text-sm text-muted">{{ linkNotice }}</p>
             <template v-if="currentVariant">
               <VariantFields
                 :key="currentVariant.name"
+                v-model:overrides-only="overridesOnly"
                 :variant="currentVariant"
                 :entries="data.variants"
+                :linked-field="linkedField"
                 @select-source="inspectRelative"
               />
               <VariantOverview

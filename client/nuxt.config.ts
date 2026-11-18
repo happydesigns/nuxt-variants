@@ -12,6 +12,7 @@ export default defineNuxtConfig({
         "lucide:chevron-right",
         "lucide:copy",
         "lucide:copy-check",
+        "lucide:link",
         "lucide:git-branch",
         "lucide:menu",
         "lucide:panel-left-close",

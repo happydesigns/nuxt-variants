@@ -42,6 +42,9 @@ body {
 .fields-table tbody tr {
   border-top: 1px solid var(--ui-border);
 }
+.fields-table tbody tr[data-linked-field] {
+  background: color-mix(in oklab, var(--ui-primary) 12%, transparent);
+}
 @container (max-width: 40rem) {
   .fields-table,
   .fields-table tbody {

@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import type { VariantEntry } from "~/types/devtools";
 import { getValueSources } from "~/utils/value-sources";
-const props = defineProps<{ variant: VariantEntry; entries: VariantEntry[] }>();
+const props = defineProps<{
+  variant: VariantEntry;
+  entries: VariantEntry[];
+  linkedField?: string;
+}>();
 const emit = defineEmits<{ selectSource: [variant: string] }>();
-const query = ref("");
+const overridesOnly = defineModel<boolean>("overridesOnly", { required: true });
+const query = ref(props.linkedField ?? "");
+const linkedField = ref(props.linkedField);
+const tableBody = useTemplateRef("tableBody");
+const toast = useToast();
 const pageSize = 40;
 const limit = ref(pageSize);
 const rows = computed(() =>
@@ -19,7 +27,11 @@ const rows = computed(() =>
 );
 const matches = computed(() => {
   const term = query.value.trim().toLowerCase();
-  return term ? rows.value.filter((row) => row.label.toLowerCase().includes(term)) : rows.value;
+  return rows.value.filter((row) => {
+    if (overridesOnly.value && row.input !== "App config override") return false;
+    if (linkedField.value !== undefined) return row.label === linkedField.value;
+    return row.label.toLowerCase().includes(term);
+  });
 });
 const visible = computed(() =>
   matches.value.slice(0, limit.value).map((row) => ({
@@ -27,9 +39,42 @@ const visible = computed(() =>
     display: JSON.stringify(row.value) ?? "undefined",
   })),
 );
+const emptyMessage = computed(() => {
+  if (!props.variant.active) return "This variant is disabled.";
+  if (linkedField.value && !rows.value.some((row) => row.label === linkedField.value))
+    return "The linked field is not present in this variant.";
+  if (!rows.value.length) return "No configuration fields.";
+  return overridesOnly.value ? "No matching fields with app overrides." : "No matching fields.";
+});
 watch(query, () => {
+  linkedField.value = undefined;
+});
+watch([query, overridesOnly], () => {
   limit.value = pageSize;
 });
+
+onMounted(async () => {
+  if (!linkedField.value) return;
+  await nextTick();
+  const row = tableBody.value?.querySelector<HTMLElement>("tr[data-linked-field]");
+  row?.focus({ preventScroll: true });
+  row?.scrollIntoView({ block: "nearest" });
+});
+
+async function copyFieldLink(field: string) {
+  const url = new URL(window.location.href);
+  // A shared link opens without the Nuxt dock's parent channel.
+  if (url.searchParams.get("host") === "nuxt") url.searchParams.delete("host");
+  url.searchParams.set("variant", props.variant.name);
+  url.searchParams.set("field", field);
+  url.hash = "variant-fields";
+  try {
+    await navigator.clipboard.writeText(url.href);
+    toast.add({ title: "Field link copied", icon: "i-lucide-copy-check" });
+  } catch {
+    toast.add({ title: "Could not copy field link", color: "error" });
+  }
+}
 </script>
 <template>
   <UCard
@@ -39,12 +84,18 @@ watch(query, () => {
     tabindex="-1"
     class="inspector-fields scroll-mt-4"
     :ui="{
-      header: 'flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:px-4',
+      header:
+        'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-2.5 sm:px-4 @lg:grid-cols-[minmax(0,1fr)_15rem_auto]',
       body: 'p-0 sm:p-0',
     }"
   >
     <template #header>
-      <h2 id="variant-fields-heading" class="text-base font-semibold text-highlighted">Fields</h2>
+      <h2
+        id="variant-fields-heading"
+        class="col-span-2 text-base font-semibold text-highlighted @lg:col-span-1"
+      >
+        Fields
+      </h2>
       <UInput
         v-model="query"
         :disabled="rows.length === 0"
@@ -52,7 +103,13 @@ watch(query, () => {
         placeholder="Find a field"
         type="search"
         icon="i-lucide-search"
-        class="min-w-0 max-w-full sm:w-60"
+        class="min-w-0"
+      />
+      <UCheckbox
+        v-model="overridesOnly"
+        :disabled="rows.length === 0"
+        label="Overrides only"
+        size="sm"
       />
     </template>
     <div v-if="visible.length">
@@ -68,9 +125,29 @@ watch(query, () => {
             <th scope="col" class="w-[26%] text-start">Source</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="row in visible" :key="row.label">
-            <th scope="row" class="text-start font-mono text-highlighted">{{ row.label }}</th>
+        <tbody ref="tableBody">
+          <tr
+            v-for="row in visible"
+            :key="row.label"
+            :data-linked-field="row.label === linkedField ? '' : undefined"
+            :tabindex="row.label === linkedField ? -1 : undefined"
+            class="group"
+          >
+            <th scope="row" class="text-start font-mono text-highlighted">
+              <div class="flex items-start gap-1">
+                <span class="min-w-0">{{ row.label }}</span>
+                <UButton
+                  color="neutral"
+                  variant="ghost"
+                  size="xs"
+                  icon="i-lucide-link"
+                  class="-my-0.5 shrink-0 p-1 text-muted lg:opacity-0 lg:group-hover:opacity-100 lg:focus-visible:opacity-100"
+                  :aria-label="`Copy link to ${row.label}`"
+                  :title="`Copy link to ${row.label}`"
+                  @click="copyFieldLink(row.label)"
+                />
+              </div>
+            </th>
             <td class="field-value font-mono text-default">
               <details v-if="row.display.length > 120">
                 <summary class="cursor-pointer text-muted">{{ row.display.slice(0, 64) }}…</summary>
@@ -104,13 +181,7 @@ watch(query, () => {
       </table>
     </div>
     <p v-else class="px-3 py-4 text-sm text-muted sm:px-4" role="status">
-      {{
-        rows.length
-          ? "No matching fields."
-          : variant.active
-            ? "No configuration fields."
-            : "This variant is disabled."
-      }}
+      {{ emptyMessage }}
     </p>
     <UButton
       v-if="matches.length > limit"

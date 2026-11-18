@@ -32,10 +32,14 @@ export function useVariantDevtoolsData() {
   const pending = ref(true);
   const error = ref<string>();
   const selected = ref<string>();
+  const linkedVariant = ref<string>();
+  const linkedField = ref<string>();
+  const linkNotice = ref<string>();
   const offline = ref(false);
   let transport: InspectorTransport | undefined;
   let disposed = false;
   let reading = false;
+  let initialLoad = true;
 
   const legacyRoute = useNuxtRouteVariant();
   const routeVariant = computed(() => host.variant.value ?? legacyRoute.value);
@@ -74,6 +78,15 @@ export function useVariantDevtoolsData() {
       const [snapshot] = await Promise.all([transport.read(), host.refresh()]);
       if (disposed) return;
       baseData.value = snapshot;
+      if (initialLoad) {
+        initialLoad = false;
+        const requested = linkedVariant.value;
+        if (requested && data.value.variants.some((variant) => variant.name === requested)) {
+          selected.value = requested;
+        } else if (requested) {
+          linkNotice.value = `Variant "${requested}" was not found in this registry.`;
+        }
+      }
       if (
         !data.value.variants.some((variant) => variant.name === selected.value) &&
         !selectRouteVariant()
@@ -91,10 +104,16 @@ export function useVariantDevtoolsData() {
   }
 
   onMounted(() => {
+    const params = new URLSearchParams(window.location.search);
+    linkedVariant.value = params.get("variant") || undefined;
+    linkedField.value = params.get("field") || undefined;
     void loadData();
   });
 
-  watch(routeVariant, selectRouteVariant);
+  watch(routeVariant, () => {
+    if (initialLoad || (linkedVariant.value && selected.value === linkedVariant.value)) return;
+    selectRouteVariant();
+  });
   onScopeDispose(() => {
     disposed = true;
     transport?.close();
@@ -107,6 +126,10 @@ export function useVariantDevtoolsData() {
     pending,
     routeVariant,
     selected,
+    linkedField: computed(() =>
+      selected.value === linkedVariant.value ? linkedField.value : undefined,
+    ),
+    linkNotice,
     offline,
     reload: loadData,
   };
