@@ -12,6 +12,7 @@ const query = ref(props.linkedField ?? "");
 const linkedField = ref(props.linkedField);
 const tableBody = useTemplateRef("tableBody");
 const toast = useToast();
+const fieldLinkToastId = "variant-field-link";
 const pageSize = 40;
 const limit = ref(pageSize);
 const rows = computed(() =>
@@ -70,9 +71,19 @@ async function copyFieldLink(field: string) {
   url.hash = "variant-fields";
   try {
     await navigator.clipboard.writeText(url.href);
-    toast.add({ title: "Field link copied", icon: "i-lucide-copy-check" });
+    toast.add({
+      id: fieldLinkToastId,
+      title: "Field link copied",
+      icon: "i-lucide-copy-check",
+      color: "primary",
+    });
   } catch {
-    toast.add({ title: "Could not copy field link", color: "error" });
+    toast.add({
+      id: fieldLinkToastId,
+      title: "Could not copy field link",
+      icon: undefined,
+      color: "error",
+    });
   }
 }
 </script>
