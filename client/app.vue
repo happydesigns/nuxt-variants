@@ -22,6 +22,14 @@ const sectionLinks = [
 ];
 const activeSection = ref("variant-composition");
 const overridesOnly = ref(false);
+const currentGroups = computed(() => {
+  const name = currentVariant.value?.name;
+  return name
+    ? Object.entries(data.value.groups ?? {})
+        .filter(([, names]) => names.includes(name))
+        .map(([group]) => group)
+    : [];
+});
 const refreshed = ref(false);
 const refreshStatus = computed(() => {
   if (pending.value && hasSnapshot.value) return "Refreshing registry…";
@@ -115,6 +123,7 @@ async function inspectRelative(name: string) {
       <DevtoolsSidebar
         v-model:selected="selected"
         :entries="data.variants"
+        :groups="data.groups"
         :route-variant="routeVariant"
       />
       <UDashboardPanel
@@ -207,6 +216,7 @@ async function inspectRelative(name: string) {
               <VariantComposition
                 :variant="currentVariant"
                 :entries="data.variants"
+                :groups="currentGroups"
                 @select="inspectRelative"
               />
               <VariantFields

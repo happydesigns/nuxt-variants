@@ -1,7 +1,11 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { comarkContent, generateSourceTypes } from "comark-content";
 import snapshot from "comark-content/sources/snapshot";
-import { createVariantResolver, type ResolvedVariantConfig } from "../../src/core";
+import {
+  createVariantResolver,
+  defineVariantGroups,
+  type ResolvedVariantConfig,
+} from "../../src/core";
 import { variantContent, variantField } from "../../src/content";
 import {
   createVariantsDevframe,
@@ -19,6 +23,22 @@ const registry = {
 } as const;
 
 describe("portable resolver", () => {
+  it("defines overlapping groups with literal, immutable membership", () => {
+    const resolver = createVariantResolver(registry);
+    const groupInput = { editorial: ["article"], "With base": ["article", "base"] } as const;
+    const groups = defineVariantGroups(resolver, groupInput);
+    expectTypeOf(groups.editorial).toEqualTypeOf<readonly ["article"]>();
+    expect(groups["With base"]).toEqual(["article", "base"]);
+    expect(groups.editorial).not.toBe(groupInput.editorial);
+    expect(Object.isFrozen(groups.editorial)).toBe(true);
+    expect(() => {
+      // @ts-expect-error Names in a group must belong to the resolver.
+      defineVariantGroups(resolver, { editorial: ["unknown"] });
+    }).toThrow(/editorial.*unknown/);
+    expect(() => defineVariantGroups(resolver, { editorial: ["article", "article"] })).toThrow(
+      /duplicate/,
+    );
+  });
   it("retains complete-parent precedence and independent request overrides", () => {
     const resolver = createVariantResolver(registry);
     const overrides = { right: { active: false }, article: { config: { count: 2 } } };
@@ -138,6 +158,95 @@ describe("portable resolver", () => {
 });
 
 describe("Comark Content adapter", () => {
+  it("uses one group for field choices, document selection and generated types", async () => {
+    const resolver = createVariantResolver({ ...registry, event: { extends: "base" } });
+    const groups = defineVariantGroups(resolver, { Editorial: ["article", "event"] });
+    const files: Record<string, string> = {
+      "article.md": "---\nvariant: article\n---\nArticle",
+      "event.md": "---\nvariant: event\n---\nEvent",
+    };
+    const field = variantField(groups.Editorial);
+    const instance = comarkContent("editorialtest", {
+      source: {
+        schema: { type: "object", properties: { variant: field } },
+        keys: () => Object.keys(files),
+        getItem: (key) => files[key]!,
+        getItemRaw: (key) => files[key]!,
+      },
+      plugins: [variantContent({ resolver, allowedVariants: groups.Editorial })],
+      logger: false,
+      onError: "throw",
+    });
+    try {
+      expect(field.enum).toEqual(["article", "event"]);
+      const article = (await instance.get("/article"))!;
+      expectTypeOf(instance.variantName(article)).toEqualTypeOf<"article" | "event">();
+      expect(instance.variantName(article)).toBe("article");
+      expect(instance.variantName((await instance.get("/event"))!)).toBe("event");
+      const types = await generateSourceTypes(instance);
+      expect(types).toContain('variant?: "article" | "event"');
+      expect(types).toContain('\'data.variant\'?: "article" | "event"');
+      const restored = comarkContent("restoreeditorial", {
+        source: snapshot(JSON.parse(JSON.stringify(await instance.snapshot()))),
+        plugins: [variantContent({ resolver, allowedVariants: groups.Editorial })],
+        logger: false,
+        onError: "throw",
+      });
+      try {
+        expect(restored.variantName((await restored.get("/event"))!)).toBe("event");
+        expect(() =>
+          restored.variantName({
+            ...article,
+            data: {},
+            meta: { ...article.meta, variant: { name: "base" } },
+          }),
+        ).toThrow(/base.*not allowed.*article.*event/);
+      } finally {
+        await restored.dispose();
+      }
+    } finally {
+      await instance.dispose();
+    }
+  });
+
+  it("rejects out-of-group names, defaults and mismatched field choices", async () => {
+    const resolver = createVariantResolver(registry);
+    const { Editorial } = defineVariantGroups(resolver, { Editorial: ["article"] });
+    expect(() => {
+      // @ts-expect-error A registry name outside the allowed group cannot be the default.
+      variantContent({ resolver, allowedVariants: Editorial, defaultVariant: "base" });
+    }).toThrow(/Default variant.*base.*outside/);
+    const text = "---\nvariant: base\n---\nBody";
+    const source = {
+      schema: { type: "object", properties: { variant: variantField() } },
+      keys: () => ["entry.md"],
+      getItem: () => text,
+      getItemRaw: () => text,
+    } as const;
+    const options = {
+      plugins: [variantContent({ resolver, allowedVariants: Editorial })] as const,
+    };
+    const instance = comarkContent("outsidegroup", {
+      source,
+      ...options,
+      logger: false,
+      onError: "throw",
+    });
+    try {
+      await expect(instance.get("/entry")).rejects.toThrow(/base.*not allowed.*article/);
+      expect(() =>
+        comarkContent("mismatchedgroups", {
+          ...options,
+          source: {
+            ...source,
+            schema: { type: "object", properties: { variant: variantField(["base"]) } },
+          },
+        }),
+      ).toThrow(/choices must match/);
+    } finally {
+      await instance.dispose();
+    }
+  });
   function content(text: string, name = "platform") {
     const resolver = createVariantResolver(registry);
     return comarkContent(name, {
@@ -226,10 +335,16 @@ describe("Comark Content adapter", () => {
 describe("DevFrame inspector", () => {
   it("reads current data through one namespaced query without caching overrides", async () => {
     let overrides = {};
+    const resolver = createVariantResolver(registry);
+    const groups = defineVariantGroups(resolver, {
+      Editorial: ["article"],
+      Features: ["base", "left"],
+    });
     const metadata = {
       configKey: "variants",
-      registry: createVariantResolver(registry).registry,
+      registry: resolver.registry,
       sources: {},
+      groups,
     };
     const definition = createVariantsDevframe({
       snapshot: () => createVariantDevtoolsData(metadata, overrides),
@@ -247,6 +362,7 @@ describe("DevFrame inspector", () => {
     const before: VariantDevtoolsData = await ctx.scope("nuxt-variants").rpc.call("get-snapshot");
     overrides = { right: { active: false } };
     const after: VariantDevtoolsData = await ctx.scope("nuxt-variants").rpc.call("get-snapshot");
+    expect(after.groups).toEqual(groups);
     expect(before.variants.find((v) => v.name === "article")?.resolvedConfig.title).toBe("Base");
     expect(after.variants.find((v) => v.name === "article")?.resolvedConfig.title).toBe("Left");
     const methods = [...ctx.rpc.definitions.values()].filter((v) =>

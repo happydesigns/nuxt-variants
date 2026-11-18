@@ -152,6 +152,32 @@ export interface VariantResolver<in out R extends VariantRegistryInput> {
   ): VariantResolution<R, K>;
 }
 
+export type VariantGroups<Name extends string = string> = Readonly<Record<string, readonly Name[]>>;
+
+/** Defines ordered, reusable selections from a named registry. Groups may overlap. */
+export function defineVariantGroups<
+  const R extends VariantRegistryInput,
+  const Groups extends VariantGroups<VariantKey<NoInfer<R>>>,
+>(
+  resolver: VariantResolver<R>,
+  groups: Groups,
+): { readonly [K in keyof Groups]: Readonly<Groups[K]> } {
+  assertPlainMap(groups);
+  for (const [group, names] of Object.entries(groups)) {
+    if (!group.trim() || !Array.isArray(names) || names.length === 0)
+      throw new Error(
+        `[nuxt-variants] Group "${group}" must have a name and at least one variant.`,
+      );
+    for (const name of names) {
+      if (!resolver.isName(name))
+        throw new Error(`[nuxt-variants] Group "${group}" contains unknown variant "${name}".`);
+    }
+    if (new Set(names).size !== names.length)
+      throw new Error(`[nuxt-variants] Group "${group}" contains duplicate variants.`);
+  }
+  return freeze(structuredClone(groups));
+}
+
 function assertPlainData(value: unknown, checked = new WeakMap<object, boolean>()): void {
   if (value && typeof value === "object") {
     const prototype = Object.getPrototypeOf(value);

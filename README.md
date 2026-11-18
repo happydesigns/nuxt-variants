@@ -33,6 +33,8 @@ The preparation command builds the preview and downloads the integrity-checked
 released inspector once, so the comparison also shows the real old UI.
 Select `event` in the live inspector. In **Fields**, the `label` row shows
 the app-config override that supplies `Veranstaltung`.
+Filter by **Editorial** to see the two presets allowed by the example Comark
+source. The selected preset's **Composition** shows its group memberships.
 
 With a local happydesigns UI checkout and its dependencies installed, run
 `pnpm compare:presets ../ui` after building the preview. The pilot reads its

@@ -1,6 +1,7 @@
 import { collectVariantDiagnostics } from "./diagnostics";
 import type { VariantSource } from "../../utils/layer-sources";
 import { createVariantGraph, type VariantGraph } from "./graph";
+import type { VariantGroups } from "../../core";
 import {
   listVariantEntries,
   resolveVariantConfigFromLineage,
@@ -17,6 +18,7 @@ export interface VariantDevtoolsMetadata {
   configKey: string;
   registry: VariantRegistry;
   sources: VariantSources;
+  groups?: VariantGroups;
 }
 
 export interface VariantDevtoolsEntry {
@@ -36,6 +38,7 @@ export interface VariantDevtoolsData {
   variants: VariantDevtoolsEntry[];
   graph: VariantGraph;
   diagnostics: ReturnType<typeof collectVariantDiagnostics>;
+  groups?: VariantGroups;
 }
 
 /** Creates an inspector snapshot from the immutable registry and current app-config overrides. */
@@ -43,10 +46,11 @@ export function createVariantDevtoolsData(
   metadata: VariantDevtoolsMetadata,
   appRegistry: VariantOverrideRegistry,
 ): VariantDevtoolsData {
-  const { configKey, registry, sources } = metadata;
+  const { configKey, registry, sources, groups } = metadata;
 
   return {
     configKey,
+    ...(groups && { groups }),
     variants: listVariantEntries(registry, appRegistry).map((entry) => {
       const activeFeatures = [...resolveVariantFeatures(entry.name, registry, appRegistry)];
 

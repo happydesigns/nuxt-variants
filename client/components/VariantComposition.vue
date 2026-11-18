@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { VariantEntry } from "~/types/devtools";
 
-const props = defineProps<{ variant: VariantEntry; entries: VariantEntry[] }>();
+const props = defineProps<{ variant: VariantEntry; entries: VariantEntry[]; groups: string[] }>();
 const emit = defineEmits<{ select: [name: string] }>();
 const names = computed(() => new Set(props.entries.map((entry) => entry.name)));
 const directParents = computed(() => new Set(props.variant.extends));
@@ -23,12 +23,27 @@ const unappliedParents = computed(() => {
     aria-labelledby="variant-composition-heading"
     tabindex="-1"
     class="scroll-mt-4"
-    :ui="{ header: 'px-3 py-2.5 sm:px-4', body: 'space-y-3 px-3 py-3 sm:px-4 sm:py-3' }"
+    :ui="{
+      header: 'flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 py-2.5 sm:px-4',
+      body: 'space-y-3 px-3 py-3 sm:px-4 sm:py-3',
+    }"
   >
     <template #header>
       <h2 id="variant-composition-heading" class="text-base font-semibold text-highlighted">
         Composition
       </h2>
+      <ul
+        v-if="groups.length"
+        class="flex min-w-0 flex-wrap gap-1.5"
+        aria-label="Groups"
+        role="list"
+      >
+        <li v-for="group in groups" :key="group" class="min-w-0">
+          <UBadge color="neutral" variant="soft" class="max-w-full wrap-anywhere">{{
+            group
+          }}</UBadge>
+        </li>
+      </ul>
     </template>
 
     <div class="flex min-h-7 items-center">

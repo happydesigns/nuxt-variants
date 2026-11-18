@@ -10,7 +10,7 @@ import { comarkContent } from "comark-content";
 import snapshot from "comark-content/sources/snapshot";
 import { createDevServer } from "devframe/adapters/dev";
 import { createBuild } from "devframe/adapters/build";
-import { createVariantResolver } from "../../dist/core.mjs";
+import { createVariantResolver, defineVariantGroups } from "../../dist/core.mjs";
 import { variantContent, variantField } from "../../dist/content.mjs";
 import { createVariantsDevframe, createVariantDevtoolsData } from "../../dist/devtools.mjs";
 
@@ -56,6 +56,11 @@ const documents = {
   },
 };
 const resolver = createVariantResolver(registry);
+const groups = defineVariantGroups(resolver, {
+  Editorial: ["article", "event"],
+  "Content presets": ["article", "event", "snippet", "course"],
+  Features: ["header", "toc", "authors", "progress"],
+});
 let state = { document: "article", toc: true, header: true };
 const overrides = (current = state) => ({
   toc: { active: current.toc },
@@ -68,23 +73,40 @@ const sourceFiles = Object.fromEntries(
     `---\ntitle: ${doc.title}\nvariant: ${name}\n---\n${doc.body}`,
   ]),
 );
-const content = comarkContent("comparison", {
-  source: {
-    schema: { type: "object", properties: { variant: variantField() } },
-    keys: () => Object.keys(sourceFiles),
-    getItem: (key) => sourceFiles[key],
-    getItemRaw: (key) => sourceFiles[key],
-  },
-  plugins: [variantContent({ resolver })],
-  onError: "throw",
-  logger: false,
-});
-// A real parsed JSON snapshot is the preview's runtime source.
-const restored = comarkContent("comparisonruntime", {
-  source: snapshot(JSON.parse(JSON.stringify(await content.snapshot()))),
-  plugins: [variantContent({ resolver })],
-  logger: false,
-});
+async function createComparisonSource(name, keys, allowedVariants) {
+  const plugins = [variantContent({ resolver, ...(allowedVariants && { allowedVariants }) })];
+  const content = comarkContent(name, {
+    source: {
+      schema: { type: "object", properties: { variant: variantField(allowedVariants) } },
+      keys: () => keys,
+      getItem: (key) => sourceFiles[key],
+      getItemRaw: (key) => sourceFiles[key],
+    },
+    plugins,
+    onError: "throw",
+    logger: false,
+  });
+  try {
+    // The comparison resolves documents from the parsed JSON snapshot.
+    return comarkContent(`${name}runtime`, {
+      source: snapshot(JSON.parse(JSON.stringify(await content.snapshot()))),
+      plugins,
+      onError: "throw",
+      logger: false,
+    });
+  } finally {
+    await content.dispose();
+  }
+}
+const editorial = new Set(groups.Editorial);
+const editorialKeys = groups.Editorial.map((name) => `${name}.md`);
+const [editorialSource, otherSource] = await Promise.all([
+  createComparisonSource("editorial", editorialKeys, groups.Editorial),
+  createComparisonSource(
+    "comparison",
+    Object.keys(sourceFiles).filter((key) => !editorialKeys.includes(key)),
+  ),
+]);
 
 // Read the actual released helper implementation from this checkout's tag.
 // It never writes or checks out baseline source, and is demo tooling only.
@@ -128,6 +150,7 @@ function canonical(value) {
 }
 async function comparison() {
   const current = state;
+  const restored = editorial.has(current.document) ? editorialSource : otherSource;
   const file = await restored.get("/" + current.document);
   const name = restored.variantName(file);
   const legacy = resolveBaseline(name, overrides(current));
@@ -143,7 +166,7 @@ async function comparison() {
     inspector: `http://127.0.0.1:${framePort}/__nuxt-variants/devtools/?transport=devframe`,
   };
 }
-const metadata = { configKey: "variants", registry, sources: {} };
+const metadata = { configKey: "variants", registry, sources: {}, groups };
 const frame = createVariantsDevframe({
   clientAssets,
   snapshot: () => createVariantDevtoolsData(metadata, overrides()),
@@ -268,8 +291,7 @@ console.log(`Offline: http://127.0.0.1:${port}/offline/?transport=devframe`);
 async function close() {
   await frameServer.close();
   server.close();
-  await restored.dispose();
-  await content.dispose();
+  await Promise.all([editorialSource.dispose(), otherSource.dispose()]);
 }
 process.once("SIGINT", () => {
   void close().then(() => process.exit());

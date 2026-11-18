@@ -23,6 +23,7 @@ export function useVariantDevtoolsData() {
         snapshot.variants.map((entry) => [entry.name, entry.base ?? {}]),
       ),
       sources: Object.fromEntries(snapshot.variants.map((entry) => [entry.name, entry.sources])),
+      ...(snapshot.groups && { groups: snapshot.groups }),
     };
   });
   const data = computed(() =>
