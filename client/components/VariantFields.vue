@@ -35,8 +35,8 @@ watch(query, () => {
     <div class="flex flex-wrap items-center justify-between gap-2">
       <h2 id="variant-fields" class="text-base font-semibold text-highlighted">Fields</h2>
       <UInput
-        v-if="rows.length > 1"
         v-model="query"
+        :disabled="rows.length === 0"
         aria-label="Find a field"
         placeholder="Find a field"
         type="search"

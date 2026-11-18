@@ -21,7 +21,11 @@ async function inspectRelative(name: string) {
         :entries="data.variants"
         :route-variant="routeVariant"
       />
-      <UDashboardPanel id="inspector" role="main" :ui="{ body: 'gap-4 sm:gap-5' }">
+      <UDashboardPanel
+        id="inspector"
+        role="main"
+        :ui="{ body: 'gap-4 [scrollbar-gutter:stable] sm:gap-5' }"
+      >
         <template #header>
           <UDashboardNavbar
             :ui="{ left: 'min-w-0', title: 'min-w-0 font-mono', right: 'shrink-0' }"
