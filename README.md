@@ -12,7 +12,7 @@ can choose a variant from a data record, a route or its own code.
 **Nuxt Variants** is the Nuxt integration. It provides `useVariant` for layouts
 and components and ships in `@happydesigns/nuxt-variants`.
 
-This branch contains the local `0.3.0-next.0` platform preview. Optional
+This branch contains the local `0.3.0-next.1` platform preview. Optional
 `/core`, `/content`, and `/devtools` entry points add portable resolution,
 Comark Content integration, and a DevFrame inspector. The Nuxt module and
 existing schema helpers remain available. See the [preview guide](docs/content/docs/10.platform-preview.md).
@@ -31,8 +31,8 @@ course fixtures, interactive overrides, and legacy/live/offline inspectors.
 It does not change another application or publish a package.
 The preparation command builds the preview and downloads the integrity-checked
 released inspector once, so the comparison also shows the real old UI.
-Select `event` in the live inspector and open **Final Config → Value source**.
-The `label` field shows the app-config override that supplies `Veranstaltung`.
+Select `event` in the live inspector. In **Fields**, the `label` row shows
+the app-config override that supplies `Veranstaltung`.
 
 With a local happydesigns UI checkout and its dependencies installed, run
 `pnpm compare:presets ../ui` after building the preview. The pilot reads its
