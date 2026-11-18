@@ -22,7 +22,6 @@ const unappliedParents = computed(() => {
     as="section"
     aria-labelledby="variant-composition-heading"
     tabindex="-1"
-    variant="subtle"
     class="scroll-mt-4"
     :ui="{ header: 'px-3 py-2.5 sm:px-4', body: 'space-y-3 px-3 py-3 sm:px-4 sm:py-3' }"
   >

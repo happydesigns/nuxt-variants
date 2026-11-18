@@ -116,11 +116,17 @@ async function copyFieldLink(field: string) {
         icon="i-lucide-search"
         class="min-w-0"
       />
-      <UCheckbox
-        v-model="overridesOnly"
+      <UButton
+        :active="overridesOnly"
+        :aria-pressed="overridesOnly"
         :disabled="rows.length === 0"
-        label="Overrides only"
-        size="sm"
+        type="button"
+        color="neutral"
+        variant="outline"
+        active-color="primary"
+        active-variant="soft"
+        label="App overrides only"
+        @click="overridesOnly = !overridesOnly"
       />
     </template>
     <div v-if="visible.length">

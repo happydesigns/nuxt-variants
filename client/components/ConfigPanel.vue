@@ -22,7 +22,7 @@ const copyLabel = computed(() => `Copy ${props.filename} as JSON`);
       :copy="{ 'aria-label': copyLabel, title: copyLabel }"
       :ui="{
         root: 'm-0 min-w-0',
-        base: 'max-h-[32rem] scheme-light dark:scheme-dark',
+        base: 'max-h-[32rem] rounded-none border-0 -outline-offset-3 scheme-light dark:scheme-dark',
         copy: 'top-2 lg:opacity-100',
       }"
       tabindex="0"
