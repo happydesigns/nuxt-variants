@@ -13,12 +13,16 @@ const copyLabel = computed(() => `Copy ${props.title} as JSON`);
 
 <template>
   <section class="min-w-0">
-    <h2 class="text-sm font-semibold text-highlighted">{{ title }}</h2>
+    <h3 class="text-sm font-medium text-muted">{{ title }}</h3>
     <ProsePre
       :code="code"
       language="json"
       :copy="{ 'aria-label': copyLabel, title: copyLabel }"
-      :ui="{ root: 'mt-2 mb-0', base: 'scheme-light dark:scheme-dark', copy: 'lg:opacity-100' }"
+      :ui="{
+        root: 'mt-2 mb-0',
+        base: 'max-h-[32rem] scheme-light dark:scheme-dark',
+        copy: 'lg:opacity-100',
+      }"
       tabindex="0"
       :aria-label="title"
     >

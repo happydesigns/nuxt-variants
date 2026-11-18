@@ -68,12 +68,11 @@ after CSS transitions finished.
    for `@nuxt/devtools` 4.2.0, a playground dev dependency on `devframe`
    1.3.5, and `variants: { devtools: 'devframe' }`. Open the inspector's
    local `/__nuxt-variants/devtools/?transport=legacy` URL and select `course`
-   to inspect `courseProgress.storagePrefix`. In the preview, Fields opens
-   first and shows the value, variant and app override together. Use the
-   sidebar menu on small screens. The field search, Composition and JSON
-   tabs were also exercised with this Course registry. The Course reader selects this
-   variant in its composable; its route does not declare a variant in page
-   metadata.
+   to inspect `courseProgress.storagePrefix`. In the preview, **Fields** shows
+   the value, variant and app override together. Use the sidebar menu on
+   small screens, then scroll down to **Composition** and **JSON**.
+   The Course reader selects the variant in its composable, independently
+   of page metadata.
 5. For the upgrade test, build each playground with `NITRO_PRESET=github_pages`,
    `NUXT_APP_BASE_URL=/course/` and `pnpm --filter @happydesigns/course-playground build`.
    Serve both static outputs successively from the **same origin** at `/course/`.

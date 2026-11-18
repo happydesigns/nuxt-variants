@@ -3,16 +3,15 @@ import { useVariantDevtoolsData } from "~/composables/useVariantDevtoolsData";
 const { currentVariant, data, error, pending, reload, routeVariant, selected, offline } =
   useVariantDevtoolsData();
 const heading = useTemplateRef("heading");
+const details = useTemplateRef("details");
+
+watch(selected, () => details.value?.scrollIntoView({ block: "start" }), { flush: "post" });
+
 async function inspectRelative(name: string) {
   selected.value = name;
   await nextTick();
-  heading.value?.focus();
+  heading.value?.focus({ preventScroll: true });
 }
-const tabs = [
-  { label: "Fields", slot: "fields", value: "fields" },
-  { label: "Composition", slot: "composition", value: "composition" },
-  { label: "JSON", slot: "json", value: "json" },
-];
 </script>
 <template>
   <UApp>
@@ -67,47 +66,42 @@ const tabs = [
             :pending="pending"
             @retry="reload"
           />
-          <template v-else>
+          <div
+            v-else
+            ref="details"
+            class="flex min-w-0 scroll-mt-4 flex-col gap-5 sm:scroll-mt-6 sm:gap-6"
+          >
             <DiagnosticsPanel v-if="data.diagnostics.length" :diagnostics="data.diagnostics" />
-            <UTabs
-              v-if="currentVariant"
-              :items="tabs"
-              variant="link"
-              default-value="fields"
-              size="md"
-              :ui="{
-                root: 'w-full min-w-0 items-stretch gap-4',
-                list: 'justify-start',
-                trigger: 'grow-0',
-                content: 'w-full min-w-0',
-              }"
-            >
-              <template #fields>
-                <VariantFields
-                  :key="currentVariant.name"
-                  :variant="currentVariant"
-                  :entries="data.variants"
-                />
-              </template>
-              <template #composition>
-                <VariantOverview
-                  :variant="currentVariant"
-                  :entries="data.variants"
-                  @select="inspectRelative"
-                />
-              </template>
-              <template #json>
-                <div class="grid min-w-0 gap-5 xl:grid-cols-2">
+            <template v-if="currentVariant">
+              <VariantFields
+                :key="currentVariant.name"
+                :variant="currentVariant"
+                :entries="data.variants"
+              />
+              <VariantOverview
+                :variant="currentVariant"
+                :entries="data.variants"
+                @select="inspectRelative"
+              />
+              <section
+                :key="currentVariant.name"
+                aria-labelledby="variant-json"
+                class="@container min-w-0 border-t border-default pt-5"
+              >
+                <h2 id="variant-json" class="mb-3 text-base font-semibold text-highlighted">
+                  JSON
+                </h2>
+                <div class="grid min-w-0 gap-4 @3xl:grid-cols-2">
                   <LazyConfigPanel title="Resolved config" :value="currentVariant.resolvedConfig" />
                   <LazyConfigPanel
                     title="Raw inputs"
                     :value="{ base: currentVariant.base, app: currentVariant.app }"
                   />
                 </div>
-              </template>
-            </UTabs>
+              </section>
+            </template>
             <p v-else class="text-sm text-muted" role="status">No variants registered.</p>
-          </template>
+          </div>
         </template>
       </UDashboardPanel>
     </UDashboardGroup>

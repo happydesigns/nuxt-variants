@@ -31,16 +31,19 @@ watch(query, () => {
 });
 </script>
 <template>
-  <div v-if="rows.length" class="inspector-fields flex flex-col gap-3">
-    <UInput
-      v-if="rows.length > 1"
-      v-model="query"
-      aria-label="Find a field"
-      placeholder="Find a field"
-      type="search"
-      icon="i-lucide-search"
-      class="w-full sm:max-w-72"
-    />
+  <section aria-labelledby="variant-fields" class="inspector-fields flex flex-col gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <h2 id="variant-fields" class="text-base font-semibold text-highlighted">Fields</h2>
+      <UInput
+        v-if="rows.length > 1"
+        v-model="query"
+        aria-label="Find a field"
+        placeholder="Find a field"
+        type="search"
+        icon="i-lucide-search"
+        class="min-w-0 max-w-full sm:w-60"
+      />
+    </div>
     <div v-if="visible.length" class="overflow-hidden rounded-lg border border-default">
       <table class="fields-table">
         <caption class="sr-only">
@@ -64,10 +67,10 @@ watch(query, () => {
               </details>
               <span v-else>{{ row.display }}</span>
             </td>
-            <td class="field-source">
+            <td>
               <template v-if="row.input">
-                <span class="block font-mono text-sm">{{ row.variant }}</span>
-                <span class="source-separator" aria-hidden="true"> · </span>
+                <span class="font-mono">{{ row.variant }}</span>
+                <span class="text-dimmed"> · </span>
                 <span
                   class="text-xs"
                   :class="row.input === 'App config override' ? 'text-primary' : 'text-muted'"
@@ -80,7 +83,15 @@ watch(query, () => {
         </tbody>
       </table>
     </div>
-    <p v-else class="text-sm text-muted" role="status">No matching fields.</p>
+    <p v-else class="text-sm text-muted" role="status">
+      {{
+        rows.length
+          ? "No matching fields."
+          : variant.active
+            ? "No configuration fields."
+            : "This variant is disabled."
+      }}
+    </p>
     <UButton
       v-if="matches.length > limit"
       class="self-start"
@@ -90,8 +101,5 @@ watch(query, () => {
     >
       Show {{ Math.min(pageSize, matches.length - limit) }} more fields
     </UButton>
-  </div>
-  <p v-else class="text-sm text-muted" role="status">
-    {{ variant.active ? "No configuration fields." : "This variant is disabled." }}
-  </p>
+  </section>
 </template>

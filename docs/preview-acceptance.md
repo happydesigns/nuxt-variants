@@ -28,18 +28,18 @@ Nuxt Content v4 was a real identity round trip on the wrapper.
 Run `pnpm compare:prepare` and `pnpm compare`, then open
 [the comparison](http://127.0.0.1:4192/). Select **event**, change the TOC
 setting and compare the release, live and offline inspectors. The offline
-snapshot shows the state at server startup. In the live inspector select
-**event → Fields**. `header.title` comes from the header registry default.
-`label` comes from the event app override. **Composition** opens the contributing
-variants. **JSON** exposes the inputs and resolved config for copying.
+snapshot shows the state at server startup. Select **event** in the live
+inspector. Under **Fields**, `header.title` comes from the header registry
+default and `label` from the event app override. **Composition** links to the
+contributing variants. **JSON** provides both inputs and resolved config for copying.
 
 The panel follows the Nuxt UI dashboard group, sidebar, panel and navbar
-composition. Tabs put fields first. The field table keeps native headers
-and stacks rows at narrow panel widths. The panel initially renders up to 40
-values, formats more as requested and mounts the JSON view on demand.
+composition. The detail view starts with fields, followed by composition and
+JSON. The field table keeps native headers and stacks rows at narrow panel
+widths. It initially renders up to 40 values and formats more on request.
+JSON blocks sit side by side when the panel has room.
 Route-only notifications preserve the resolved registry. Refresh preserves
-a manually selected variant. See the [Nuxt UI dashboard](https://ui.nuxt.com/docs/components/dashboard-group),
-[tabs](https://ui.nuxt.com/docs/components/tabs) and
+a manually selected variant. See the [Nuxt UI dashboard](https://ui.nuxt.com/docs/components/dashboard-group) and
 [design system](https://ui.nuxt.com/docs/getting-started/theme/design-system).
 
 ## Candidate checks on 18 November 2026

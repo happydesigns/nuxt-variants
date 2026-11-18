@@ -42,9 +42,6 @@ body {
 .fields-table tbody tr {
   border-top: 1px solid var(--ui-border);
 }
-.source-separator {
-  display: none;
-}
 @container (max-width: 35rem) {
   .fields-table,
   .fields-table tbody {
@@ -68,13 +65,5 @@ body {
   .fields-table tbody :is(th, td) {
     display: block;
     padding: 0;
-  }
-  .field-source .font-mono {
-    display: inline;
-    font-size: 0.75rem;
-  }
-  .source-separator {
-    display: inline;
-    color: var(--ui-text-muted);
   }
 }
