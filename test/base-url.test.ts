@@ -13,7 +13,7 @@ describe("custom app base URL", async () => {
       "/__nuxt-variants/devtools/data.json",
     );
 
-    expect(html).toContain("Nuxt Variants DevTools");
+    expect(html).toContain("Composable Variants DevTools");
     expect(html).toContain("/nested/__nuxt-variants/devtools/_nuxt/");
     expect(data.variants.map(({ name }) => name)).toEqual(["content"]);
   });

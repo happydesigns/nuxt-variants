@@ -18,7 +18,7 @@ export default defineNuxtConfig({
     baseURL: "./",
     cdnURL: "./",
     head: {
-      title: "Nuxt Variants DevTools",
+      title: "Composable Variants DevTools",
       htmlAttrs: {
         class: "dark",
       },

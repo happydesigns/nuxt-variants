@@ -1,13 +1,14 @@
 # Architecture
 
-Nuxt Variants is a capability model for Nuxt page types. A registry describes
-which small capabilities a page variant owns, and the module projects that one
-model into runtime layout behavior, generated TypeScript types, Nuxt Content
-schemas, diagnostics, and development tooling.
+Composable Variants models named variants as a graph of reusable capabilities.
+The portable resolver computes the active features and configuration for a
+name supplied by the application. Nuxt Variants integrates that model with
+Nuxt layouts, generated types and DevTools. The optional Comark Content plugin
+binds a content record to a variant name.
 
 ## Product Boundary
 
-Nuxt Variants owns:
+The core and its integrations provide the following capabilities.
 
 - a named, directed inheritance graph;
 - deterministic config resolution for graph entries;

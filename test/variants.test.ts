@@ -193,7 +193,7 @@ describe("nuxt-variants e2e", async () => {
   describe("Nuxt DevTools", () => {
     it("serves the client app and variant inspector data in dev", async () => {
       const html = await fetchText("/__nuxt-variants/devtools");
-      expect(html).toContain("<title>Nuxt Variants DevTools</title>");
+      expect(html).toContain("<title>Composable Variants DevTools</title>");
       expect(html).toContain('id="__nuxt"');
       expect(html).toContain('data-nuxt-data="nuxt-app"');
       expect(html).toContain('baseURL:"/__nuxt-variants/devtools/"');

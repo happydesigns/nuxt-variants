@@ -3,11 +3,12 @@ export default defineAppConfig({
     locale: "en",
   },
   header: {
-    title: "Nuxt Variants",
+    title: "Composable Variants",
   },
   seo: {
-    title: "Nuxt Variants",
-    description: "Centralized, deeply merged layout variant configuration for Nuxt applications.",
+    title: "Composable Variants",
+    description:
+      "Compose reusable features into named variants and inspect their resolved configuration.",
   },
   github: {
     url: "https://github.com/happydesigns/nuxt-variants",

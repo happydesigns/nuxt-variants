@@ -1,13 +1,16 @@
-# Nuxt Variants
+# Composable Variants
 
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
-Nuxt Variants is a small Nuxt module for building one shared layout that can behave differently per page. Define reusable feature configs, compose them into named page variants, and resolve the merged result in your layout with `useVariant`.
+Composable Variants lets applications define reusable features, combine them
+into named variants and resolve their effective configuration. An application
+can choose a variant from a data record, a route or its own code.
 
-The package name is `@happydesigns/nuxt-variants`.
+**Nuxt Variants** is the Nuxt integration. It provides `useVariant` for layouts
+and components and ships in `@happydesigns/nuxt-variants`.
 
 This branch contains the local `0.3.0-next.0` platform preview. Optional
 `/core`, `/content`, and `/devtools` entry points add portable resolution,

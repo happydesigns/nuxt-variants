@@ -28,7 +28,7 @@ const currentVariantSummary = computed(() => {
   const variant = currentVariant.value;
 
   if (!variant) {
-    return "Select a variant to inspect how Nuxt Variants resolves it.";
+    return "Select a variant to see its active features and resolved configuration.";
   }
 
   const configCount = Object.keys(variant.resolvedConfig).length;

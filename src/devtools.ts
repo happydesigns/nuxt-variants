@@ -20,7 +20,7 @@ export interface VariantsDevframeOptions {
 export function createVariantsDevframe(options: VariantsDevframeOptions) {
   return defineDevframe({
     id: VARIANTS_DEVFRAME_ID,
-    name: "Variants",
+    name: "Composable Variants",
     version: packageMetadata.version,
     packageName: "@happydesigns/nuxt-variants",
     description: "Inspect variant inheritance, current config and diagnostics.",

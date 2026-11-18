@@ -1,11 +1,11 @@
 ---
-title: Nuxt Variants
-description: Build one shared Nuxt layout and drive page-specific behavior from a typed variant graph.
+title: Composable Variants
+description: Define reusable features for your data and applications. Use Nuxt Variants to drive layout behavior from the same registry.
 ---
 
 ::u-page-hero
 ---
-headline: Composable page behavior for Nuxt
+headline: Nuxt Variants
 title: Share one layout without hard-coding every page type.
 description: Name reusable capabilities such as headers, tables of contents, and navigation, compose them into page variants, and resolve the result from any Nuxt layout.
 links:

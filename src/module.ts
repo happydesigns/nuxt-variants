@@ -342,7 +342,7 @@ declare module 'vue-router' {
           ctx.docks.register({
             id: "nuxt-variants",
             type: "iframe",
-            title: "Variants",
+            title: "Composable Variants",
             icon: `${devtoolsRoute}/variants.svg`,
             groupId: NUXT_DEVTOOLS_GROUP_ID,
             url: `${devtoolsRoute}/?transport=devframe&host=nuxt`,
