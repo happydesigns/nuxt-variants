@@ -1,173 +1,151 @@
-# Composable Variants preview acceptance
+# Composable Variants acceptance
 
-Local preview `0.3.0-next.0`, reviewed on 17 November 2026 on
-`codex/comark-devframe-preview`, based on `626806d`. The visual comparison
-uses the released `v0.2.0` resolver and its integrity-checked published UI.
-Nothing was pushed or published, and no productive consumer was migrated.
+This report compares the local `0.3.0-next.1` candidate on
+`codex/comark-devframe-preview` with the released `0.2.0`. The comparison
+uses the release's resolver and integrity-checked inspector.
 
-## Decision
+## Adoption decision
 
-Keep one package for now. The optional `/core`, `/content`, and `/devtools`
-entries share the existing resolution rules. Nuxt remains an adapter, while
-Comark Content owns document identity and DevFrame owns inspector transport.
-The existing Nuxt composable and schema contracts stay in place; the native
-DevFrame dock is opt-in. A separate package becomes useful when an actual
-non-Nuxt consumer needs an independent dependency or release lifecycle.
+Use the Nuxt adapter for applications that compose capabilities across layers.
+Course is the first adoption candidate. Its reader consumes nine features.
+Changing one inherited setting takes one app-config edit in either version.
+The new inspector identifies the winning input directly, and the learner's
+saved checkpoint survives both upgrade and rollback. See the
+[Course pilot](./course-pilot.md) for the real consumer and reproduction steps.
 
-The inspector now uses Nuxt UI 4.10 primitives and semantic theme tokens.
-Its domain layout, compact mobile selector, and JSON visualization remain
-custom. This is an implementation choice, not a claim of formal Nuxt UI or
-accessibility certification.
+Keep a single distribution with optional `/core`, `/content` and `/devtools`
+entry points. A standalone consumer can resolve plain data without loading Nuxt,
+Vue, Comark or DevFrame. Installing the package still brings its declared Nuxt
+tooling dependencies. Revisit packaging when another consumer needs to avoid
+that installation or needs a different release cycle.
 
-## Completed checks
+A separate architecture review via the Claude CLI (Fable 5.2) reached the
+same recommendation from a short design summary. Its release criterion for
+Nuxt Content v4 was a real identity round trip on the wrapper.
 
-| Check                                  | Result                                                                                                                                       |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frozen workspace installation          | Passed without changing the lockfile                                                                                                         |
-| Quality checks                         | Formatting, lint, module/playground/client typechecks and all 135 tests passed with a single test worker                                     |
-| `pnpm prepack` and `pnpm test:package` | Real tarball, isolated consumer, packed types, Content typegen and offline assets passed                                                     |
-| Core import isolation                  | Resolution works without Nuxt, Vue, Content or DevFrame installed in the consumer                                                            |
-| Consumer resolution shadows            | 70 cases across the actual UI and Course registries/defaults; config and features equal                                                      |
-| Diagnostic parity                      | 1,536 cases against `626806d`; exact diagnostic arrays and order equal                                                                       |
-| Production and docs builds             | Both passed with Nuxt 4.5.1, Vue 3.5.44 and Vite 8.3.8                                                                                       |
-| Production HTTP                        | `/`, `/article`, `/event`, `/landing`, `/blog` returned 200; inspector and snapshot routes returned 404                                      |
-| Documentation HTTP                     | Built documentation home and `/docs/platform-preview` returned 200                                                                           |
-| Production output inspection           | New host-channel and snapshot-protocol strings absent                                                                                        |
-| Native Nuxt DevTools 4.2               | Article selected automatically; disabling TOC updated features/config immediately; navigation selected Event without reopening the inspector |
-| Comparison browser flows               | Article, snippet, course and disabled capabilities remained equivalent; actual released UI, live UI and offline UI loaded                    |
-| Inspector interaction                  | Keyboard selection, name filtering, JSON copy, visible disconnect state and Retry recovery without page reload passed                        |
-| Responsive inspector                   | Desktop and 390 x 844 viewport inspected; compact selection worked, with no document-level horizontal overflow                               |
+## What to compare locally
 
-The native Nuxt test host was stopped after acceptance. The artificial
-comparison can remain available on loopback ports 4192/4193. It changes
-only its in-memory fixture state. Its offline view intentionally preserves
-the startup snapshot.
+Run `pnpm compare:prepare` and `pnpm compare`, then open
+[the comparison](http://127.0.0.1:4192/). Select **event**, change the TOC
+setting and compare the release, live and offline inspectors. The offline
+snapshot shows the state at server startup. In the live inspector select
+**event → Fields**. `header.title` comes from the header registry default.
+`label` comes from the event app override. **Composition** opens the contributing
+variants. **JSON** exposes the inputs and resolved config for copying.
 
-One concurrent docs-build/test run exceeded the existing five-second limit in
-three compiler tests. The unchanged suite passed with one worker in 89 seconds;
-no assertions or time limits were relaxed. A full `pnpm check` had also passed
-before the final dependency-resolution cleanup.
+The panel follows the Nuxt UI dashboard group, sidebar, panel and navbar
+composition. Tabs put fields first. The field table keeps native headers
+and stacks rows at narrow panel widths. The panel initially renders up to 40
+values, formats more as requested and mounts the JSON view on demand.
+Route-only notifications preserve the resolved registry. Refresh preserves
+a manually selected variant. See the [Nuxt UI dashboard](https://ui.nuxt.com/docs/components/dashboard-group),
+[tabs](https://ui.nuxt.com/docs/components/tabs) and
+[design system](https://ui.nuxt.com/docs/getting-started/theme/design-system).
 
-The tarball with the field inspector is approximately 233 kB compressed and
-857 kB unpacked.
-Core imports do not load the platform peers, but installing this combined
-package still installs its declared Nuxt tooling dependencies.
-The workspace explicitly pins the matching Vite DevTools kit for build types;
-Nuxt DevTools kit 4.2 references those types without declaring the dependency.
-This prevents an older hoisted kit from silently controlling compilation.
-Documentation pins Docus 5.15.0. Rechecking 5.12.3 with the new toolchain
-exposed unresolved nested module dependencies (UI color mode/fonts and robots'
-site config). The accepted newer Docus version avoids adding workspace-only
-dependency workarounds for those modules.
+## Candidate checks on 18 November 2026
 
-## Performance
+| Criterion                    | Result                                                                                                                                                                                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Install, types and packaging | Frozen pnpm install, module/playground/inspector typechecks, separate Docus typecheck and isolated tarball consumer passed. The pack test verifies actual boot HTML and a loadable relative JS entry in the offline copy.       |
+| Correctness                  | All 139 repository tests in 18 files passed with Vitest 5.1.0 and one worker.                                                                                                                                                   |
+| Development hosts            | The real Nuxt DevTools 4.2 dock selected Article automatically, updated its fields when TOC was disabled and followed navigation to Event. The release, standalone live and offline panels all rendered in the comparison.      |
+| Interaction                  | Keyboard variant search and selection, tab traversal, parent navigation and direct field provenance checked. At 390 px, selection returned focus to the sidebar button. At 320 px the document width and content width matched. |
+| Production                   | Five playground routes returned 200. Inspector and snapshot routes returned 404. Inspector protocol strings were absent from the production assets.                                                                             |
+| Documentation                | Docus production build passed. In the served page, choosing Summary and changing the delimiter updated the real resolved data. The guide links and runnable examples were also checked.                                         |
 
-`pnpm bench` passed. For the 24-entry chain fixture, the existing compiled
-config path averaged 0.0311 ms and the portable path averaged 0.0376 ms
-including validation and isolated copies. The portable call took 1.21 times
-as long in this run. Relative errors were 1.34% and 1.74%. These figures
-measure isolated calls on the local machine.
+With a 1,000-field snapshot the inspector initially mounted 40 data rows.
+**Show more** mounted the next 40, and searching immediately found the final
+field. A simulated HTTP 503 displayed **Retry** and recovered in place.
 
-Compile the immutable resolver once per content/application instance. Keep
-snapshots identity-only and resolve current overrides when needed. The Nuxt
-path retains its existing compiled plans. Inspector refresh has no polling;
-the Nuxt page sends scoped change notifications and closes its channel on
-teardown. No additional cache or worker layer is justified by this evidence.
+In the final Course snapshot, ten measurements covered the active tab,
+selected variant, override text and hover states in both themes. The lowest
+text contrast was 5.81:1 on light surfaces and 6.58:1 on dark surfaces.
+The initial light palette fell to 2.20:1 on the selected variant. The
+[local read-only Course inspector](http://127.0.0.1:4197/?transport=devframe)
+contains the 28 host variants. Select **course** and search for
+`storagePrefix` to see the Course override.
 
-## Limits before release or adoption
+An isolated Nuxt 4.5.0 consumer, the module's declared minimum, rendered
+an inherited value into generated HTML using the packed adapter.
 
-- Comark Content 0.6.2 is tested. Nuxt Content v4 remains an integration
-  target; its final wrapper contract has not been accepted here.
-- The extension supports one top-level selector, plain-data resolver config,
-  and literal-name type generation. It does not replace application domain
-  schemas, refinements, or the existing Zod/Valibot schema helpers.
-- Resolution shadows do not prove a productive application's collection
-  schemas, SSR, content queries or complete browser migration.
-- Nuxt DevTools 4.2 requests `@vitejs/devtools ^0.8`, while the inspected
-  Vue DevTools v9 prereleases declare `^0.7.x`. The tested Variants dock works,
-  but that upstream prerelease peer mismatch remains. No forced peer override
-  was added. Existing tooling/TypeScript and Content/SQLite peer warnings also
-  remain outside this preview's scope.
-- Builds emit upstream export-pattern, annotation, MDC optimizer and image
-  external-import warnings. Successful builds do not establish every Docus
-  image route or unrelated DevTools panel as accepted.
+The final tarball measured 245,981 bytes compressed and 906,606 bytes unpacked.
+In the inspector HTML, initial scripts and styles (including preloads, excluding
+prefetches) measured 178,949 bytes gzipped, down from 185,314 in the preceding
+preview. The released inspector measured 62,035 bytes by the same method.
+This is a development-tool cost. For measurements from the actual deployed
+reader build, see the [Course pilot](./course-pilot.md).
 
-## Follow-up review against the release
+## Core correctness and cost
 
-A direct check used the normalizer and compiled configuration path from the
-`v0.2.0` Git tag and the built preview's `/core` entry. For each registry
-name, it applied the consumer's own app defaults, then disabled each feature
-individually. Config and ordered features matched in all 380 UI cases
-(19 names × 20 settings) and 90 Course cases (9 names × 10 settings).
-These checks cover resolution. The collection pilot below exercises the next
-three boundaries independently.
+- A release comparison covered the 19 UI and nine Course names with the
+  actual app defaults and each feature disabled in turn. Config and ordered
+  features matched in all 470 cases. Comparing the optimized portable branch
+  against `d08dbcb` reproduced these 470 results and a further 600 synthetic
+  chain cases, including active status.
+- One upgrade difference predates this branch. In a diamond, the first parent
+  overrides a shared base and the later parent inherits it. The release picks
+  the first override. The preview picks the later parent's inherited value,
+  following the precedence fix already on `main` at `489e481`.
+- The resolver caches one default result per name actually requested. Each
+  caller receives independent data. Calls supplying overrides resolve afresh.
+  The portable types handle optional, widened and union parents and app
+  defaults. On a 24-node shared-ancestor graph, TypeScript 6.0.2 reported
+  8,065 instantiations after the change and 103,732 before it.
+- Local median time per warm call, including the returned copy, went from
+  16.41 to 7.53 µs for alternating article/event, 11.86 to 7.61 µs for Course
+  and 35.18 to 6.02 µs for a 24-entry chain. Both portable versions used the
+  same process and inputs, 250 warmups and nine batches of 2,000 calls. These
+  figures measure repeated resolver calls. They do not measure reader latency.
+- On the final packaged build, `pnpm bench` completed 11 measurements. The
+  warm portable resolution for the 24-entry chain had a median of 2.5 µs.
+  The Nuxt compiled-config path measured 18.2 µs. Only the portable path
+  reuses the complete result for a previously requested default config.
 
-One deliberate difference matters for upgrades. If two parents share a base
-value, the first overrides it and the second inherits it, 0.2.0 returns the
-first parent's override. The preview returns the second parent's inherited
-value. Their feature lists are identical. The precedence fix already exists
-on `main` at `489e481` and takes effect when upgrading from the release.
+## Dependency policy for this candidate
 
-The portable resolver now infers typed application defaults supplied at
-construction. An override that introduces a sibling's field fails typechecking,
-including when passed as a variable. The Course-shaped contract reads inherited
-`courseProgress.storagePrefix` and accounts for disabled parents and an inactive
-root. A separate strict compile also passed with the actual Course registry
-and app defaults. Registry config, defaults and overrides reject class
-instances before copying. These changes apply to the optional entry.
+All direct dependencies now declare compatible semver ranges. The exact
+package manager is pnpm 12.21.0, and the lockfile records the tested workspace.
+Nuxt/Kit/Schema use 4.6.4, Nuxt UI 4.12.2, Vue 3.5.45 and Vitest/Coverage
+5.1.0. TypeScript 6.0.3 provides the compiler API used in tests and the
+comparison. Testing TypeScript 7.0.2 reproduced missing compiler functions
+and a `vue-tsc` startup failure. Node types follow the lowest supported
+Node major, 22. Docus uses its supported SQLite 12.x driver, the playground
+uses 13.x. Package age policy left Nuxt Content 3.16.2 and Lucide 1.2.155
+in the lockfile at the time of acceptance. See
+[pnpm's minimum release age](https://pnpm.io/supply-chain-security).
 
-## Article and event pilot
+`pnpm peers check` still reports six upstream-tooling conflicts. Vue
+DevTools and Unhead request an older Vite DevTools range. Two Nuxt Kit
+dependency trees supply older oxc-parser and unplugin peers for unctx.
+Module Builder and unbuild declare TypeScript 5.9 peers, and mkdist requests
+an older vue-sfc-transformer. The candidate passed the builds and tests
+with those warnings visible.
 
-`pnpm compare:presets ../ui` reads the UI checkout's registry, Zod traits and
-playground Markdown (tested at UI revision `f49467d`). One Comark instance
-resolves the document through the extension. A second uses typed arrays of
-features for each collection. Both
-use the same field validators, including a shared change that trims category
-text and rejects a blank category. Each approach needed one rule edit.
+## Where typed presets suffice
 
-All eight articles and four events passed both schemas before and after that
-change. Blank categories then failed in both collections, and malformed
-authors and locations failed their respective collection checks. Filtered
-SQLite queries agreed on published items in a selected category. The same Vue
-reader produced identical HTML in all 24 document and schema combinations.
-The fixture converts ISO date strings to Dates for the UI's existing Zod
-schemas. Full Nuxt page rendering and Nuxt Content v4 remain separate checks.
+`pnpm compare:presets ../ui` compares typed feature arrays with the Comark
+adapter on eight articles and four events. Both use the same field validators.
+Changing the shared category rule took one edit either way. Filtered SQLite
+results and all 24 document/schema HTML renderings agreed. Fixed collections
+like these can use typed presets. Dynamic activation, inheritance across layers
+and explaining the effective config justify using the resolver.
 
-For these two fixed collections, typed presets are sufficient. The graph earns
-its place where a layer composes more capabilities, switches them at runtime
-or needs to explain a resolved field. In the running Event example the new
-field selector identifies `header.title` as a registry default from `header`
-and `label` as an app-config override from `event`.
+For the UI playground's standalone user collection, both approaches agreed on
+parsed values or issue paths/messages in five cases. Its seven fields have no
+inheritance to simplify. Course actions are a different case. All five action
+schemas reject an extra field in the domain's strict discriminated union.
+Copying fields into a new schema strips that field. Keep the domain validator
+when strictness or object-level refinements are part of the contract.
 
-## Data records beyond pages
+## Compatibility boundaries
 
-On 18 November 2026, the UI playground's `user` data collection resolved to
-one feature and seven schema fields. The direct user schema and the composed
-schema agreed on the parsed values or issue paths and messages in five sample
-cases. Low-level Zod issue metadata differed between the two installed Zod
-versions. This collection has no inheritance to simplify.
-
-Course's `CourseActionSchema` uses a strict discriminated union for five
-action types. For each type, the field schema composed with `/schemas`
-accepted a valid record and rejected a record missing a required field.
-When an unexpected field was added, the original union rejected the record
-and the composed schema stripped the field in all five cases. Composition
-copies object fields into a new schema. Keep strict record validation with
-the domain schema when that behavior forms part of the data contract.
-
-## Next steps
-
-1. Pilot the packed preview in an isolated Course checkout. Change a real
-   inherited setting such as `courseProgress.storagePrefix`, check the
-   generated type, inspect the winning override and verify the reader's
-   progress survives a reload under the configured key.
-2. Compare that change with Course's existing integration. Record what the
-   maintainer had to edit and whether the inspector explained the effective
-   value. Use that result to decide on adoption. Keep simple data collections
-   on their direct schemas.
-3. Verify the actual Nuxt Content v4 adapter contract and resolve the upstream
-   DevTools peer matrix before a stable release. Keep the opt-in preview until
-   those checks are complete.
-4. Consider upstream contributions only for generic semantic-field/typegen
-   gaps demonstrated by the pilot. Variant composition and application layout
-   policy belong in this extension unless multiple upstream users need them.
+- Comark Content 0.6.2 exposes the semantic-field registration used by
+  `/content`. Course's 0.4.1 lacks `addFieldType` and the corresponding
+  extensible schema type. Use the existing Nuxt integration in that consumer.
+- On 18 November 2026, npm's latest Nuxt Content was 3.17.0. Nuxt Content v4
+  is planned to use Comark Content. Verify the wrapper with a real file,
+  generated type and identity round trip once it is available.
+  [Upstream design discussion](https://github.com/nuxt/content/discussions/3776)
+- The portable adapter supports one top-level selector, plain-data resolver
+  configuration and literal-name type generation. Keep Studio editing,
+  schema refinements and application layout policy in their owning tools.
