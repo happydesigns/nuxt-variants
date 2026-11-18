@@ -2,7 +2,7 @@ export default defineNuxtConfig({
   ssr: false,
   css: ["~/assets/styles.css"],
   modules: ["@nuxt/ui"],
-  ui: { fonts: false },
+  ui: { fonts: false, prose: true },
   icon: {
     clientBundle: {
       icons: [
@@ -10,6 +10,8 @@ export default defineNuxtConfig({
         "lucide:refresh-cw",
         "lucide:loader-circle",
         "lucide:chevron-right",
+        "lucide:copy",
+        "lucide:copy-check",
         "lucide:git-branch",
         "lucide:menu",
         "lucide:panel-left-close",

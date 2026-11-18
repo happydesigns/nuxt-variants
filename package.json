@@ -110,6 +110,7 @@
     "nuxt": "^4.6.4",
     "oxfmt": "^0.79.0",
     "oxlint": "^1.94.0",
+    "shiki": "^4.6.0",
     "tailwindcss": "^4.3.5",
     "typescript": "^6.0.3",
     "unbuild": "^3.6.1",

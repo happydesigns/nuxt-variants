@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useVariantDevtoolsData } from "~/composables/useVariantDevtoolsData";
-const { currentVariant, data, error, pending, reload, routeVariant, selected, transportLabel } =
+const { currentVariant, data, error, pending, reload, routeVariant, selected, offline } =
   useVariantDevtoolsData();
 const heading = useTemplateRef("heading");
 async function inspectRelative(name: string) {
@@ -46,7 +46,7 @@ const tabs = [
               >
             </template>
             <template #right>
-              <span v-if="transportLabel" class="text-xs text-muted">{{ transportLabel }}</span>
+              <span v-if="offline" class="text-xs text-muted">Offline snapshot</span>
               <UButton
                 color="neutral"
                 variant="ghost"
@@ -98,8 +98,8 @@ const tabs = [
               </template>
               <template #json>
                 <div class="grid min-w-0 gap-5 xl:grid-cols-2">
-                  <ConfigPanel title="Resolved config" :value="currentVariant.resolvedConfig" />
-                  <ConfigPanel
+                  <LazyConfigPanel title="Resolved config" :value="currentVariant.resolvedConfig" />
+                  <LazyConfigPanel
                     title="Raw inputs"
                     :value="{ base: currentVariant.base, app: currentVariant.app }"
                   />

@@ -3,7 +3,7 @@ import type { DevtoolsData } from "../types/devtools";
 import { VARIANTS_SNAPSHOT_RPC } from "../../src/runtime/utils/devtools-protocol";
 
 export interface InspectorTransport {
-  label: string;
+  offline: boolean;
   read(): Promise<DevtoolsData>;
   close(): void;
 }
@@ -20,7 +20,7 @@ export async function createInspectorTransport(base: URL): Promise<InspectorTran
         callTimeout: 8000,
       });
       return {
-        label: connectionMeta.backend === "static" ? "Offline snapshot" : "Live DevFrame",
+        offline: connectionMeta.backend === "static",
         read: () => client.call(VARIANTS_SNAPSHOT_RPC) as Promise<DevtoolsData>,
         close: () => client.close?.(),
       };
@@ -30,7 +30,7 @@ export async function createInspectorTransport(base: URL): Promise<InspectorTran
       throw new Error(`Inspector connection request failed with ${descriptor.status}.`);
   }
   return {
-    label: "Legacy JSON",
+    offline: false,
     async read() {
       const response = await fetch(new URL("data.json", base));
       if (!response.ok) throw new Error(`DevTools data request failed with ${response.status}.`);

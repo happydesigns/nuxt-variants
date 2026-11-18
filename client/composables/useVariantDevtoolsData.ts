@@ -32,7 +32,7 @@ export function useVariantDevtoolsData() {
   const pending = ref(true);
   const error = ref<string>();
   const selected = ref<string>();
-  const transportLabel = ref("");
+  const offline = ref(false);
   let transport: InspectorTransport | undefined;
   let disposed = false;
   let reading = false;
@@ -69,7 +69,7 @@ export function useVariantDevtoolsData() {
           transport.close();
           return;
         }
-        transportLabel.value = transport.label;
+        offline.value = transport.offline;
       }
       const [snapshot] = await Promise.all([transport.read(), host.refresh()]);
       if (disposed) return;
@@ -107,7 +107,7 @@ export function useVariantDevtoolsData() {
     pending,
     routeVariant,
     selected,
-    transportLabel,
+    offline,
     reload: loadData,
   };
 }
