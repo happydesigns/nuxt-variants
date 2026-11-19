@@ -1,0 +1,3 @@
+:root:not(.dark) {
+  --ui-primary: var(--ui-color-primary-800);
+}

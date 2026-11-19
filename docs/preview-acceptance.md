@@ -1,8 +1,39 @@
 # Composable Variants acceptance
 
-This report compares the local `0.3.0-next.1` candidate on
-`codex/comark-devframe-preview` with the released `0.2.0`. The comparison
-uses the release's resolver and integrity-checked inspector.
+This report compares Composable Variants on `codex/comark-devframe-preview`
+with the released `0.2.0`. The comparison uses the release's resolver and
+integrity-checked inspector.
+
+## 0.3.0-rc.1 acceptance
+
+The local tarball built from `5aba1f0` keeps the package name
+`@happydesigns/nuxt-variants`. Composable Variants is the product name.
+The same tarball went into an isolated package consumer and the Course app.
+
+| Check                  | Result                                                                                                                                                                                                                                                                                                                                                                                          |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repository and package | Lint, module, Playground and Inspector types, and all 144 tests passed. The isolated consumer imported the portable core without optional peers and verified Content type generation and offline DevFrame assets.                                                                                                                                                                               |
+| Playground and Docus   | Both production builds and the Docus typecheck passed. Article and Event switched by keyboard at 1440 and 390 px. The primary action measured 7.13:1 in the light desktop theme and 10.02:1 in the dark mobile theme. The tested Docus link measured 7.61:1.                                                                                                                                    |
+| Inspector              | The comparison opened the 0.2.0 JSON inspector, live DevFrame and a recorded snapshot. Keyboard filtering, override provenance, refresh after a TOC change and the mobile field link passed.                                                                                                                                                                                                    |
+| Course                 | Both production builds prerendered 49 routes. The candidate snapshot preserved the paths, frontmatter and render nodes of all 11 documents and stored the `course` identity. Both checkpoint states survived upgrade and rollback on desktop and mobile. The read-only inspector traced `storagePrefix` to the `courseProgress` app override in both the live JSON and recorded DevFrame views. |
+
+Course's native DevTools dock reaches its authorization prompt. Opening
+the Inspector from inside that dock requires the local host's approval.
+The [Nuxt Content release list](https://github.com/nuxt/content/releases)
+still lists 3.17.0 as latest on 19 November 2026. A v4 wrapper test needs
+an installable build.
+
+The RC tarball is 422,548 bytes compressed and 1,509,783 bytes unpacked.
+The initial inspector HTML references 203,145 bytes of gzipped scripts
+and styles, including preloads, compared with 62,035 bytes in 0.2.0.
+Those assets are used by the development inspector. On the measured
+production Course page, both builds loaded 67 JavaScript and three CSS
+resources. The RC transferred 64 more uncompressed JavaScript bytes
+and the same CSS. Both builds returned HTTP 404 for the inspector endpoint.
+
+The six existing peer dependency warnings remain. The final test run
+used one worker after the compiler test exceeded its timeout during a
+concurrent documentation build.
 
 ## Adoption decision
 
@@ -44,7 +75,7 @@ Route-only notifications preserve the resolved registry. Refresh preserves
 a manually selected variant. See the [Nuxt UI dashboard](https://ui.nuxt.com/docs/components/dashboard-group) and
 [design system](https://ui.nuxt.com/docs/getting-started/theme/design-system).
 
-## Candidate checks on 18 November 2026
+## Preview checks on 18 November 2026
 
 | Criterion                    | Result                                                                                                                                                                                                                          |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

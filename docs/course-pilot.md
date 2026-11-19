@@ -144,8 +144,15 @@ with the absolute path to the installed Course checkout.
 
 The combined pilot uses two local copies of Course `c381901`, both with
 Nuxt 4.6.4 and Comark Content 0.6.2. The baseline uses Variants 0.2.0.
-The candidate uses the packed Preview and registers the adapter on the
+The candidate uses the packed `0.3.0-rc.1` and registers the adapter on the
 same Comark Content instance used by the Course playground.
+
+Both builds prerendered 49 routes. All 11 documents had the same paths,
+frontmatter and render nodes. The candidate snapshot also carried their
+`course` identity. At 1440 and 390 pixels, the checked and unchecked
+Group ID states survived the same-origin version changes. The live
+read-only inspector and recorded DevFrame view both displayed
+`courseProgress · App config override` as the source of `cp18-progress`.
 
 Add the app-config override from step 2 to both copies. In the candidate,
 import the same `courseVariantRegistry` that Nuxt already uses, then
