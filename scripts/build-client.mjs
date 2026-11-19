@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const clientRoot = resolve(root, "client");
 const source = resolve(clientRoot, ".output/public");
-const target = resolve(root, "dist/client");
+const target = resolve(root, "packages/composable-variants/dist/client");
 
 const nuxtBin = resolve(root, "node_modules/nuxt/bin/nuxt.mjs");
 const build = spawnSync(process.execPath, [nuxtBin, "generate", clientRoot], {

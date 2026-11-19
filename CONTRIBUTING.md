@@ -71,6 +71,15 @@ numbers are environment-specific and are not a CI gate.
 If tests are not practical for a change, note the reason in the pull request or
 final summary.
 
+## Package Release Preparation
+
+Keep the version in the root `package.json` in sync with
+`packages/composable-variants/package.json`. Run `pnpm release:prepare` to
+verify the repository and produce both tarballs. pnpm resolves the Nuxt
+adapter's workspace dependency to the exact core version when packing.
+Publish the verified core archive before the Nuxt archive so the adapter's
+dependency can resolve.
+
 ## Commits
 
 Use Conventional Commits.

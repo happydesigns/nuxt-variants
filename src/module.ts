@@ -10,6 +10,7 @@ import {
   createResolver,
 } from "@nuxt/kit";
 import { addCustomTab, onDevtoolsReady, NUXT_DEVTOOLS_GROUP_ID } from "@nuxt/devtools-kit";
+import { inspectorAssets } from "@happydesigns/composable-variants/internal/inspector";
 import {
   assertValidVariantInputs,
   assertValidVariantRegistry,
@@ -123,10 +124,9 @@ export default defineNuxtModule<ModuleOptions>({
     ].join("\n");
     const devtoolsEnabled = nuxt.options.dev || process.env.NODE_ENV === "test";
     const sourceClientPath = resolver.resolve("../client/.output/public");
-    const builtClientPath = resolver.resolve("./client");
     const devtoolsClientPath = existsSync(join(sourceClientPath, "index.html"))
       ? sourceClientPath
-      : builtClientPath;
+      : inspectorAssets;
 
     if (devtoolsEnabled) {
       const variantSources = collectVariantSources(nuxt.options._layers, configKey);
@@ -324,7 +324,8 @@ declare module 'vue-router' {
           handler: resolver.resolve("./runtime/server/devtools-data.get"),
         });
         onDevtoolsReady(async (ctx) => {
-          const { createVariantsDevframe } = await import("./devtools");
+          const { createVariantsDevframe } =
+            await import("@happydesigns/composable-variants/devtools");
           const definition = createVariantsDevframe({
             clientAssets: devtoolsClientPath,
             basePath: `${devtoolsRoute}/`,

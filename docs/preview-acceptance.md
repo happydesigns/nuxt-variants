@@ -67,15 +67,12 @@ The new inspector identifies the winning input directly, and the learner's
 saved checkpoint survives both upgrade and rollback. See the
 [Course pilot](./course-pilot.md) for the real consumer and reproduction steps.
 
-Keep a single distribution with optional `/core`, `/content` and `/devtools`
-entry points. A standalone consumer can resolve plain data without loading Nuxt,
-Vue, Comark or DevFrame. Installing the package still brings its declared Nuxt
-tooling dependencies. Revisit packaging when another consumer needs to avoid
-that installation or needs a different release cycle.
-
-A separate architecture review via the Claude CLI (Fable 5.2) reached the
-same recommendation from a short design summary. Its release criterion for
-Nuxt Content v4 was a real identity round trip on the wrapper.
+The original acceptance above used one tarball. The follow-up packaging
+review with Fable 5.2 chose a separate `@happydesigns/composable-variants`
+distribution so a core-only installation can avoid Nuxt tooling. The Nuxt
+adapter depends on that package and retains its module and `/schemas` imports.
+The Comark Content entry is `/comark-content`. Nuxt Content v4 still needs a
+real identity round trip against its public plugin interface.
 
 ## What to compare locally
 

@@ -12,10 +12,11 @@ can choose a variant from a data record, a route or its own code.
 **Nuxt Variants** is the Nuxt integration. It provides `useVariant` for layouts
 and components and ships in `@happydesigns/nuxt-variants`.
 
-This branch contains the local `0.3.0-rc.1` release candidate. Optional
-`/core`, `/content`, and `/devtools` entry points add portable resolution,
-Comark Content integration, and a DevFrame inspector. The Nuxt module and
-existing schema helpers remain available. See the [preview guide](docs/content/docs/10.platform-preview.md)
+This branch contains the local `0.3.0-rc.1` release candidate. It builds
+`@happydesigns/composable-variants` for portable resolution with optional
+`/comark-content` and `/devtools` integrations. The Nuxt package depends on
+that core and provides the Nuxt module and existing `/schemas` helper.
+See the [preview guide](docs/content/docs/10.platform-preview.md)
 and [migration guide](docs/content/docs/9.migration-0-3.md).
 The [acceptance report](docs/preview-acceptance.md) records completed checks,
 performance costs, known limits, and the next adoption steps.

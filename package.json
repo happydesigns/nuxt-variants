@@ -31,15 +31,6 @@
       ],
       "schemas": [
         "./dist/schemas.d.mts"
-      ],
-      "core": [
-        "./dist/core.d.mts"
-      ],
-      "content": [
-        "./dist/content.d.mts"
-      ],
-      "devtools": [
-        "./dist/devtools.d.mts"
       ]
     }
   },
@@ -51,33 +42,21 @@
     "./schemas": {
       "types": "./dist/schemas.d.mts",
       "import": "./dist/schemas.mjs"
-    },
-    "./core": {
-      "types": "./dist/core.d.mts",
-      "import": "./dist/core.mjs"
-    },
-    "./content": {
-      "types": "./dist/content.d.mts",
-      "import": "./dist/content.mjs"
-    },
-    "./devtools": {
-      "types": "./dist/devtools.d.mts",
-      "import": "./dist/devtools.mjs"
     }
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
+    "build:portable": "unbuild packages/composable-variants",
     "build:client": "node scripts/build-client.mjs",
-    "prepack": "nuxt-module-build build && pnpm build:client",
-    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt prepare playground && pnpm build:client",
+    "prepack": "pnpm build:portable && nuxt-module-build build && pnpm build:client",
+    "dev:prepare": "pnpm build:portable && nuxt-module-build build --stub && nuxt-module-build prepare && nuxt prepare playground && pnpm build:client",
     "dev": "pnpm dev:prepare && nuxt dev playground",
     "dev:build": "nuxt build playground",
     "docs": "pnpm --dir docs dev",
     "docs:build": "pnpm --dir docs build",
-    "release": "pnpm release:auth && pnpm lint && pnpm typecheck && pnpm test && pnpm prepack && changelogen --release && npm publish && git push --follow-tags",
-    "release:auth": "npm whoami || npm login --auth-type=web",
+    "release:prepare": "pnpm check && pnpm prepack && pnpm test:package",
     "check": "pnpm dev:prepare && pnpm lint && pnpm typecheck && pnpm test",
     "lint": "oxfmt --check && oxlint .",
     "lint:fix": "oxfmt && oxlint .",
@@ -91,9 +70,9 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
+    "@happydesigns/composable-variants": "workspace:*",
     "@nuxt/devtools-kit": "^4.2.0",
-    "@nuxt/kit": "^4.6.4",
-    "defu": "^6.1.7"
+    "@nuxt/kit": "^4.6.4"
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.156",
@@ -123,15 +102,11 @@
     "zod": "^4.6.7"
   },
   "peerDependencies": {
-    "comark-content": "^0.6.2",
     "devframe": "^1.3.5",
     "valibot": "^1.0.0",
     "zod": "^4.0.0"
   },
   "peerDependenciesMeta": {
-    "comark-content": {
-      "optional": true
-    },
     "devframe": {
       "optional": true
     },

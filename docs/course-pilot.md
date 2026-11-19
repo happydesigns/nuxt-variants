@@ -159,8 +159,8 @@ import the same `courseVariantRegistry` that Nuxt already uses, then
 register the plugin in `packages/nuxt/preview/content.ts`:
 
 ```ts
-import { createVariantResolver } from "@happydesigns/nuxt-variants/core";
-import { variantContent } from "@happydesigns/nuxt-variants/content";
+import { createVariantResolver } from "@happydesigns/composable-variants";
+import { variantContent } from "@happydesigns/composable-variants/comark-content";
 import { courseVariantRegistry } from "../schemas/variants";
 
 const resolver = createVariantResolver(courseVariantRegistry);

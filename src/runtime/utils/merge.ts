@@ -1,8 +1,1 @@
-import { createDefu } from "defu";
-
-export const defuReplaceArray: ReturnType<typeof createDefu> = createDefu((obj, key, value) => {
-  if (Array.isArray(obj[key]) || Array.isArray(value)) {
-    obj[key] = value;
-    return true;
-  }
-});
+export { defuReplaceArray } from "@happydesigns/composable-variants/internal";

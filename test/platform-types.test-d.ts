@@ -1,5 +1,5 @@
-import { createVariantResolver } from "../src/core";
-import { variantContent } from "../src/content";
+import { createVariantResolver } from "@happydesigns/composable-variants";
+import { variantContent } from "@happydesigns/composable-variants/comark-content";
 import { comarkContent } from "comark-content";
 
 const resolver = createVariantResolver({

@@ -93,9 +93,11 @@ remain internal unless explicitly documented otherwise.
 
 ## Optional Platform Adapters
 
-The `0.3` preview exposes the existing resolver through `/core` and
-adds optional `/content` and `/devtools` integrations. The approved scope and
-tradeoffs are recorded in `docs/content/docs/10.platform-preview.md`.
+The `0.3` preview ships the portable resolver at the root of
+`@happydesigns/composable-variants`. Its `/comark-content` and `/devtools`
+entries use optional host peers. `@happydesigns/nuxt-variants` depends on the
+same version of that package for graph resolution, diagnostics and inspector
+assets. See the [preview guide](docs/content/docs/10.platform-preview.md).
 
 The Content adapter persists identity, not resolved presentation state. The
 DevFrame adapter exposes a read-only, uncached snapshot query; the host owns

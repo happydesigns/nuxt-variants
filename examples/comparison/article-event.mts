@@ -8,8 +8,11 @@ import sqlQuery from "comark-content/plugins/sql-query";
 import { createSSRApp, h } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { z } from "zod";
-import { createVariantResolver, type VariantRegistryInput } from "@happydesigns/nuxt-variants/core";
-import { variantContent } from "@happydesigns/nuxt-variants/content";
+import {
+  createVariantResolver,
+  type VariantRegistryInput,
+} from "@happydesigns/composable-variants";
+import { variantContent } from "@happydesigns/composable-variants/comark-content";
 import { createVariantSchemaResolver } from "@happydesigns/nuxt-variants/schemas";
 
 type Collection = "article" | "event";

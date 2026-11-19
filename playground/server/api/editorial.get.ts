@@ -1,5 +1,5 @@
 import { comarkContent } from "comark-content";
-import { variantContent, variantField } from "../../../src/content";
+import { variantContent, variantField } from "../../../packages/composable-variants/src/content";
 import { variantGroups, variantResolver } from "../../variant-groups";
 
 export default defineCachedEventHandler(

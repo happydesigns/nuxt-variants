@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { createVariantResolver } from "@happydesigns/nuxt-variants/core";
-import { variantContent, variantField } from "@happydesigns/nuxt-variants/content";
+import { createVariantResolver } from "@happydesigns/composable-variants";
+import { variantContent, variantField } from "@happydesigns/composable-variants/comark-content";
 
 if (!process.argv[2]) throw new Error("Pass the path to an installed Course checkout.");
 const course = resolve(process.argv[2]);

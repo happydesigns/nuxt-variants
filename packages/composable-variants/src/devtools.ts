@@ -1,6 +1,6 @@
-import { fileURLToPath } from "node:url";
 import packageMetadata from "../package.json";
 import { defineDevframe, defineRpcFunction } from "devframe";
+import { inspectorAssets } from "./inspector";
 import type { VariantDevtoolsData } from "./runtime/utils/devtools";
 import { VARIANTS_DEVFRAME_ID } from "./runtime/utils/devtools-protocol";
 
@@ -22,12 +22,12 @@ export function createVariantsDevframe(options: VariantsDevframeOptions) {
     id: VARIANTS_DEVFRAME_ID,
     name: "Composable Variants",
     version: packageMetadata.version,
-    packageName: "@happydesigns/nuxt-variants",
+    packageName: packageMetadata.name,
     description: "Inspect variant inheritance, current config and diagnostics.",
     homepage: "https://github.com/happydesigns/nuxt-variants",
     importMetaUrl: import.meta.url,
     basePath: options.basePath ?? "/__nuxt-variants/devtools/",
-    clientAssets: options.clientAssets ?? fileURLToPath(new URL("./client/", import.meta.url)),
+    clientAssets: options.clientAssets ?? inspectorAssets,
     setup(ctx) {
       ctx.scope(VARIANTS_DEVFRAME_ID).rpc.register(
         defineRpcFunction({
