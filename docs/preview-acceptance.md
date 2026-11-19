@@ -20,9 +20,12 @@ The same tarball went into an isolated package consumer and the Course app.
 The Course host registered the **Composable Variants** iframe under the
 Nuxt group. The registered snapshot query returned 28 variants, including
 the `cp18-progress` override. The iframe URL and its client entry both
-returned HTTP 200. The browser reached the native dock's authorization
-prompt. Opening the Inspector from inside that dock requires the local
-host's approval.
+returned HTTP 200. After authorizing a temporary Edge profile on the local
+Course host, the browser opened **Composable Variants** from the native
+Nuxt sidebar. The visible DevFrame panel showed `cp18-progress` for
+`courseProgress.storagePrefix` and traced it to
+`courseProgress · App config override`. The browser profile was closed,
+the test grants were removed, and the local host was stopped.
 
 The [Nuxt Content release list](https://github.com/nuxt/content/releases)
 still lists 3.17.0 as latest on 19 November 2026. A v4 wrapper test needs
