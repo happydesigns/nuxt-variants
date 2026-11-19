@@ -17,8 +17,13 @@ The same tarball went into an isolated package consumer and the Course app.
 | Inspector              | The comparison opened the 0.2.0 JSON inspector, live DevFrame and a recorded snapshot. Keyboard filtering, override provenance, refresh after a TOC change and the mobile field link passed.                                                                                                                                                                                                    |
 | Course                 | Both production builds prerendered 49 routes. The candidate snapshot preserved the paths, frontmatter and render nodes of all 11 documents and stored the `course` identity. Both checkpoint states survived upgrade and rollback on desktop and mobile. The read-only inspector traced `storagePrefix` to the `courseProgress` app override in both the live JSON and recorded DevFrame views. |
 
-Course's native DevTools dock reaches its authorization prompt. Opening
-the Inspector from inside that dock requires the local host's approval.
+The Course host registered the **Composable Variants** iframe under the
+Nuxt group. The registered snapshot query returned 28 variants, including
+the `cp18-progress` override. The iframe URL and its client entry both
+returned HTTP 200. The browser reached the native dock's authorization
+prompt. Opening the Inspector from inside that dock requires the local
+host's approval.
+
 The [Nuxt Content release list](https://github.com/nuxt/content/releases)
 still lists 3.17.0 as latest on 19 November 2026. A v4 wrapper test needs
 an installable build.
