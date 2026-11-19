@@ -16,6 +16,6 @@
     "tailwindcss": "^4.3.5"
   },
   "devDependencies": {
-    "@nuxt/content": "^3.16.2"
+    "@nuxt/content": "^3.17.0"
   }
 }

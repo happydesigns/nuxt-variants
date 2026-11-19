@@ -43,6 +43,21 @@ The six existing peer dependency warnings remain. The final test run
 used one worker after the compiler test exceeded its timeout during a
 concurrent documentation build.
 
+### Dependency refresh
+
+The inspector, Playground and Docus use Nuxt UI 4.13.0. The inspector's
+`App overrides only` filter uses its `UToggle` component. The refreshed
+lockfile moves Playground and Docus to Nuxt Content 3.17.0, Lucide to
+1.2.156 and Vitest and its coverage provider to 5.1.1. It keeps DevFrame
+at 1.3.5 to match the exact peers in the resolved Nuxt DevTools stack.
+
+All 144 tests and the packed consumer checks passed. The inspector toggle
+passed keyboard checks in Edge. The Playground and Docus production builds
+passed, with Article, Event and the migration guide verified in Edge. The
+packaged JavaScript, CSS and type declarations match the accepted Course
+tarball byte for byte. Four existing upstream peer warnings remained after
+the refresh.
+
 ## Adoption decision
 
 Use the Nuxt adapter for applications that compose capabilities across layers.

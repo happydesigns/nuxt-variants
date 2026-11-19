@@ -9,8 +9,8 @@
     "preview": "nuxt preview"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.155",
-    "@nuxt/content": "^3.16.2",
+    "@iconify-json/lucide": "^1.2.156",
+    "@nuxt/content": "^3.17.0",
     "better-sqlite3": "^12.11.1",
     "docus": "^5.15.0",
     "nuxt": "^4.6.4",
