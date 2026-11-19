@@ -139,3 +139,31 @@ from the two build artifacts, including highlighted code and heading IDs.
 To test the distribution, copy the same script into an isolated consumer
 containing the packed candidate and its Comark Content peer. Run it there
 with the absolute path to the installed Course checkout.
+
+## Upgrade and rollback with the adapter enabled
+
+The combined pilot uses two local copies of Course `c381901`, both with
+Nuxt 4.6.4 and Comark Content 0.6.2. The baseline uses Variants 0.2.0.
+The candidate uses the packed Preview and registers the adapter on the
+same Comark Content instance used by the Course playground.
+
+Add the app-config override from step 2 to both copies. In the candidate,
+import the same `courseVariantRegistry` that Nuxt already uses, then
+register the plugin in `packages/nuxt/preview/content.ts`:
+
+```ts
+import { createVariantResolver } from "@happydesigns/nuxt-variants/core";
+import { variantContent } from "@happydesigns/nuxt-variants/content";
+import { courseVariantRegistry } from "../schemas/variants";
+
+const resolver = createVariantResolver(courseVariantRegistry);
+const plugins = [variantContent({ resolver, defaultVariant: "course" })];
+```
+
+Pass `plugins` to the existing `comarkContent` call. A default covers the
+existing Markdown files. Run `pnpm exec nuxt prepare` in each
+`packages/nuxt` before building the playgrounds. Follow step 5 to test
+both checkpoint states on the same origin. With both static builds in
+place, pass the baseline snapshot and `--require-build-identity` to the
+comparison script. This checks that the application’s snapshot itself
+contains the selected name alongside the original paths, data and nodes.

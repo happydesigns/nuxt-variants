@@ -8,6 +8,10 @@ import { variantContent, variantField } from "@happydesigns/nuxt-variants/conten
 
 if (!process.argv[2]) throw new Error("Pass the path to an installed Course checkout.");
 const course = resolve(process.argv[2]);
+const baselineSnapshot = process.argv[3];
+const requireBuildIdentity = process.argv[4] === "--require-build-identity";
+if (requireBuildIdentity && !baselineSnapshot)
+  throw new Error("Pass the baseline snapshot before --require-build-identity.");
 const layer = join(course, "packages", "nuxt");
 const sourceDir = join(layer, "preview", "content");
 const fromCourse = createRequire(join(course, "package.json"));
@@ -47,14 +51,14 @@ try {
   const expected = await paths(baseline);
   assert.ok(expected.length > 0);
   assert.deepEqual(await paths(restored), expected);
-  if (process.argv[3]) {
+  if (baselineSnapshot) {
     // Compare two Nitro builds. Node and Nitro can tokenize Shiki spans differently.
     const openBuild = async (name, file) =>
       runtime(name, {
         source: snapshot(JSON.parse(await readFile(file, "utf8"))),
         onError: "throw",
       });
-    previousBuild = await openBuild("previousCourse", process.argv[3]);
+    previousBuild = await openBuild("previousCourse", baselineSnapshot);
     currentBuild = await openBuild(
       "currentCourse",
       join(course, "playground/.output/public/api/course-preview/snapshot.json"),
@@ -72,6 +76,7 @@ try {
       const current = await currentBuild.get(path);
       assert.deepEqual(current.nodes, previous.nodes, path);
       assert.deepEqual(current.data, previous.data, path);
+      if (requireBuildIdentity) assert.deepEqual(current.meta.variant, { name: "course" }, path);
     }
     assert.deepEqual(after.meta.variant, { name: "course" }, path);
     assert.equal(restored.variantName(after), "course");

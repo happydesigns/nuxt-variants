@@ -12,10 +12,11 @@ can choose a variant from a data record, a route or its own code.
 **Nuxt Variants** is the Nuxt integration. It provides `useVariant` for layouts
 and components and ships in `@happydesigns/nuxt-variants`.
 
-This branch contains the local `0.3.0-next.1` platform preview. Optional
+This branch contains the local `0.3.0-rc.1` release candidate. Optional
 `/core`, `/content`, and `/devtools` entry points add portable resolution,
 Comark Content integration, and a DevFrame inspector. The Nuxt module and
-existing schema helpers remain available. See the [preview guide](docs/content/docs/10.platform-preview.md).
+existing schema helpers remain available. See the [preview guide](docs/content/docs/10.platform-preview.md)
+and [migration guide](docs/content/docs/9.migration-0-3.md).
 The [acceptance report](docs/preview-acceptance.md) records completed checks,
 performance costs, known limits, and the next adoption steps.
 
@@ -35,6 +36,10 @@ Select `event` in the live inspector. In **Fields**, the `label` row shows
 the app-config override that supplies `Veranstaltung`.
 Filter by **Editorial** to see the two presets allowed by the example Comark
 source. The selected preset's **Composition** shows its group memberships.
+
+Run `pnpm dev` and open **Editorial documents** to see the Comark adapter
+in Nuxt. The article and event documents choose their variants in Markdown
+frontmatter. The page resolves the features using the app's live config.
 
 With a local happydesigns UI checkout and its dependencies installed, run
 `pnpm compare:presets ../ui` after building the preview. The pilot reads its
