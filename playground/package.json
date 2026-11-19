@@ -8,8 +8,10 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "@nuxt/ui": "^4.12.2",
+    "@comark/vue": "^0.9.2",
+    "@nuxt/ui": "^4.13.0",
     "better-sqlite3": "^13.2.0",
+    "comark-content": "^0.6.2",
     "nuxt": "^4.6.4",
     "tailwindcss": "^4.3.5"
   },

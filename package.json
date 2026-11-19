@@ -1,8 +1,9 @@
 {
   "name": "@happydesigns/nuxt-variants",
   "version": "0.3.0-next.1",
-  "description": "Composable page capabilities for Nuxt with typed config inheritance and Nuxt Content schema merging.",
+  "description": "Typed, composable variants for data, Comark Content, and Nuxt.",
   "keywords": [
+    "comark-content",
     "nuxt",
     "nuxt-content",
     "nuxt-module",
@@ -100,7 +101,7 @@
     "@nuxt/module-builder": "^1.0.4",
     "@nuxt/schema": "^4.6.4",
     "@nuxt/test-utils": "^4.4.0",
-    "@nuxt/ui": "^4.12.2",
+    "@nuxt/ui": "^4.13.0",
     "@types/node": "^22.20.5",
     "@vitejs/devtools-kit": "^0.8.3",
     "@vitest/coverage-v8": "^5.1.0",

@@ -116,9 +116,8 @@ async function copyFieldLink(field: string) {
         icon="i-lucide-search"
         class="min-w-0"
       />
-      <UButton
-        :active="overridesOnly"
-        :aria-pressed="overridesOnly"
+      <UToggle
+        v-model="overridesOnly"
         :disabled="rows.length === 0"
         type="button"
         color="neutral"
@@ -126,7 +125,6 @@ async function copyFieldLink(field: string) {
         active-color="primary"
         active-variant="soft"
         label="App overrides only"
-        @click="overridesOnly = !overridesOnly"
       />
     </template>
     <div v-if="visible.length">
