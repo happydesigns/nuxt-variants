@@ -1,6 +1,6 @@
 {
   "name": "@happydesigns/config-variants",
-  "version": "0.3.0-rc.1",
+  "version": "0.3.0",
   "description": "Typed configuration variants for data, Comark Content, and Nuxt.",
   "keywords": [
     "comark-content",

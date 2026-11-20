@@ -1,5 +1,123 @@
 # Changelog
 
+## v0.3.0
+
+Config Variants 0.3 is the first release under `@happydesigns/config-variants`. You can use the typed configuration resolver in plain TypeScript, select variants for Nuxt pages and Comark Content documents, and trace where settings come from in the inspector. The package also includes schema helpers for Nuxt Content v3.
+
+If you are upgrading from `@happydesigns/nuxt-variants`, update the package imports and check variants that inherit from multiple parents. A later parent’s resolved settings can take precedence even when it inherits them from a shared base. See the [migration guide](https://github.com/happydesigns/config-variants/blob/v0.3.0/docs/content/docs/9.migration-0-3.md).
+
+[compare changes](https://github.com/happydesigns/config-variants/compare/v0.2.0...v0.3.0)
+
+### 🚀 Enhancements
+
+- Add portable variants and Nuxt UI DevFrame inspector ([9cf1e82](https://github.com/happydesigns/config-variants/commit/9cf1e82))
+- Add local release comparison and preview guide ([6564700](https://github.com/happydesigns/config-variants/commit/6564700))
+- Show the winning config value source in the inspector ([b00426b](https://github.com/happydesigns/config-variants/commit/b00426b))
+- Introduce the Composable Variants product name ([8c6cb6d](https://github.com/happydesigns/config-variants/commit/8c6cb6d))
+- Trace resolved fields in a responsive Nuxt UI inspector ([69aa1c4](https://github.com/happydesigns/config-variants/commit/69aa1c4))
+- **devtools:** Add section anchors and clarify inspector layout ([c09308c](https://github.com/happydesigns/config-variants/commit/c09308c))
+- **devtools:** Clarify active sections and field provenance ([6bfcec1](https://github.com/happydesigns/config-variants/commit/6bfcec1))
+- **devtools:** Filter overrides and share field links ([4ff87e3](https://github.com/happydesigns/config-variants/commit/4ff87e3))
+- **variants:** Pilot typed groups for content and devtools ([df40370](https://github.com/happydesigns/config-variants/commit/df40370))
+- **nuxt:** Type page variants from a selected group ([c91fb38](https://github.com/happydesigns/config-variants/commit/c91fb38))
+- **playground:** Demonstrate Comark Content variants in Nuxt ([63e09b9](https://github.com/happydesigns/config-variants/commit/63e09b9))
+- **packaging:** Split the portable variants core from Nuxt ([607a3d6](https://github.com/happydesigns/config-variants/commit/607a3d6))
+- **packaging:** Ship Nuxt in Composable Variants ([e536e9e](https://github.com/happydesigns/config-variants/commit/e536e9e))
+- Introduce Composable Variants ([#6](https://github.com/happydesigns/config-variants/pull/6))
+
+### 🔥 Performance
+
+- Traverse shared variant ancestors once ([55df7cc](https://github.com/happydesigns/config-variants/commit/55df7cc))
+- Memoize acyclic variant validation paths ([5092a02](https://github.com/happydesigns/config-variants/commit/5092a02))
+- Cache immutable variant defaults and narrow portable resolution types ([c399eb7](https://github.com/happydesigns/config-variants/commit/c399eb7))
+
+### 🩹 Fixes
+
+- Preserve parent merge priority in compiled variants ([41e3268](https://github.com/happydesigns/config-variants/commit/41e3268))
+- Preserve parent precedence and bound feature traversal ([#5](https://github.com/happydesigns/config-variants/pull/5))
+- Preserve own config guarantees in generated types ([626806d](https://github.com/happydesigns/config-variants/commit/626806d))
+- Infer portable app defaults and constrain overrides ([e8b5c44](https://github.com/happydesigns/config-variants/commit/e8b5c44))
+- Keep active inspector labels legible on light surfaces ([1cde24d](https://github.com/happydesigns/config-variants/commit/1cde24d))
+- **devtools:** Use Nuxt UI code blocks for inspector JSON ([98c2b6d](https://github.com/happydesigns/config-variants/commit/98c2b6d))
+- **devtools:** Show variant details on one page ([135371e](https://github.com/happydesigns/config-variants/commit/135371e))
+- **devtools:** Stabilize the field search layout ([62dbb14](https://github.com/happydesigns/config-variants/commit/62dbb14))
+- **devtools:** Deduplicate field link notifications ([1285243](https://github.com/happydesigns/config-variants/commit/1285243))
+- **devtools:** Keep linked field focus outline inside the row ([e76929a](https://github.com/happydesigns/config-variants/commit/e76929a))
+- **devtools:** Distinguish sidebar hover from selection ([91a2039](https://github.com/happydesigns/config-variants/commit/91a2039))
+- **devtools:** Clarify registry refresh feedback ([11c98ae](https://github.com/happydesigns/config-variants/commit/11c98ae))
+- Prepare Nuxt types before building from a clean checkout ([c1a2c41](https://github.com/happydesigns/config-variants/commit/c1a2c41))
+- Type the inspector copy button options ([6fa4164](https://github.com/happydesigns/config-variants/commit/6fa4164))
+- **tooling:** Activate the Oxlint configuration ([309d614](https://github.com/happydesigns/config-variants/commit/309d614))
+
+### 💅 Refactors
+
+- **devtools:** Clarify inheritance and configuration ([6f59c72](https://github.com/happydesigns/config-variants/commit/6f59c72))
+- **devtools:** Lead with inheritance and group configuration ([919fbd4](https://github.com/happydesigns/config-variants/commit/919fbd4))
+- **devtools:** Unify inspector sections and filter controls ([a539980](https://github.com/happydesigns/config-variants/commit/a539980))
+- **devtools:** Keep inheritance visible across variants ([85c1aa2](https://github.com/happydesigns/config-variants/commit/85c1aa2))
+- **devtools:** Clarify variant composition ([cb23743](https://github.com/happydesigns/config-variants/commit/cb23743))
+- Clarify inspector helpers and diagnostic names ([34ad00b](https://github.com/happydesigns/config-variants/commit/34ad00b))
+
+### 📖 Documentation
+
+- Record platform preview acceptance and release limits ([7e66a9a](https://github.com/happydesigns/config-variants/commit/7e66a9a))
+- Qualify release parity and portable type guarantees ([7b242a2](https://github.com/happydesigns/config-variants/commit/7b242a2))
+- Record data schema limits and the Course pilot ([d08dbcb](https://github.com/happydesigns/config-variants/commit/d08dbcb))
+- Teach portable variants with a working Docus example ([5e3c160](https://github.com/happydesigns/config-variants/commit/5e3c160))
+- Record Course upgrade, inspector and package acceptance ([1e2c76d](https://github.com/happydesigns/config-variants/commit/1e2c76d))
+- Explain 0.3 migration and the combined Course pilot ([325f747](https://github.com/happydesigns/config-variants/commit/325f747))
+- Record release candidate acceptance and polish migration navigation ([a9314b9](https://github.com/happydesigns/config-variants/commit/a9314b9))
+- Record native Course dock registration proof ([418d486](https://github.com/happydesigns/config-variants/commit/418d486))
+- Complete native Course dock acceptance ([29971be](https://github.com/happydesigns/config-variants/commit/29971be))
+- Use the package name for Nuxt registration ([3b332b5](https://github.com/happydesigns/config-variants/commit/3b332b5))
+- Streamline the guides and unwrap Markdown prose ([ea1b297](https://github.com/happydesigns/config-variants/commit/ea1b297))
+- Add status and integration badges ([5966d31](https://github.com/happydesigns/config-variants/commit/5966d31))
+- Style README badges with happydesigns colors ([c2ed9e8](https://github.com/happydesigns/config-variants/commit/c2ed9e8))
+- Unify README badges as label-value pairs ([83e3747](https://github.com/happydesigns/config-variants/commit/83e3747))
+- Match README badges to the Nuxt UI style ([bd5a123](https://github.com/happydesigns/config-variants/commit/bd5a123))
+- Use the happydesigns accent for the preview badge ([ab767ca](https://github.com/happydesigns/config-variants/commit/ab767ca))
+- Simplify README guide badges and apply the brand accent ([b3b2748](https://github.com/happydesigns/config-variants/commit/b3b2748))
+- Add the Comark mark and simplify the badge row ([ed3e448](https://github.com/happydesigns/config-variants/commit/ed3e448))
+- Prepare npm badge for Config Variants ([81ef178](https://github.com/happydesigns/config-variants/commit/81ef178))
+- Keep the changelog to released versions ([9e73f88](https://github.com/happydesigns/config-variants/commit/9e73f88))
+- Lead the README with the TypeScript core ([dbb480c](https://github.com/happydesigns/config-variants/commit/dbb480c))
+- Clarify the README example and local package use ([9a57dff](https://github.com/happydesigns/config-variants/commit/9a57dff))
+
+### 📦 Build
+
+- Update the workspace toolchain for preview 0.3.0-next.1 ([51e2f1c](https://github.com/happydesigns/config-variants/commit/51e2f1c))
+- Clean up temporary validation artifacts ([64fa3ab](https://github.com/happydesigns/config-variants/commit/64fa3ab))
+
+### 🏡 Chore
+
+- Use one stable docs entry command ([ce30626](https://github.com/happydesigns/config-variants/commit/ce30626))
+- Format changelog entries ([a75c94c](https://github.com/happydesigns/config-variants/commit/a75c94c))
+- Add aggregate local check command ([f8a168b](https://github.com/happydesigns/config-variants/commit/f8a168b))
+- **release:** Prepare 0.3.0-rc.1 ([5aba1f0](https://github.com/happydesigns/config-variants/commit/5aba1f0))
+- Update links after repository rename ([2ac4414](https://github.com/happydesigns/config-variants/commit/2ac4414))
+- Rename project to Config Variants ([9786846](https://github.com/happydesigns/config-variants/commit/9786846))
+- Centralize dependency ranges and automate tag releases ([a1e7852](https://github.com/happydesigns/config-variants/commit/a1e7852))
+- Adopt Config Variants and streamline releases ([#7](https://github.com/happydesigns/config-variants/pull/7))
+
+### ✅ Tests
+
+- Compare article and event collections with typed presets ([726f86f](https://github.com/happydesigns/config-variants/commit/726f86f))
+- **content:** Verify the upgraded Course reader against the packed adapter ([f3000fc](https://github.com/happydesigns/config-variants/commit/f3000fc))
+
+### 🎨 Styles
+
+- **devtools:** Soften the active sidebar item ([eead367](https://github.com/happydesigns/config-variants/commit/eead367))
+- **devtools:** Clarify inspector content hierarchy ([dedfa83](https://github.com/happydesigns/config-variants/commit/dedfa83))
+
+### 🤖 CI
+
+- Align the Corepack bootstrap with pnpm 12 ([d5592c0](https://github.com/happydesigns/config-variants/commit/d5592c0))
+- Consolidate release checks and retain the verified package ([d2e20d5](https://github.com/happydesigns/config-variants/commit/d2e20d5))
+
+### ❤️ Contributors
+
+- Jan Fröhlich <jan.froehlich.janf@gmail.com>
+
 ## v0.2.0
 
 [compare changes](https://github.com/happydesigns/nuxt-variants/compare/v0.1.1...v0.2.0)
