@@ -24,7 +24,7 @@ export function createVariantsDevframe(options: VariantsDevframeOptions) {
     version: packageMetadata.version,
     packageName: packageMetadata.name,
     description: "Inspect variant inheritance, current config and diagnostics.",
-    homepage: "https://github.com/happydesigns/nuxt-variants",
+    homepage: "https://github.com/happydesigns/composable-variants",
     importMetaUrl: import.meta.url,
     basePath: options.basePath ?? "/__nuxt-variants/devtools/",
     clientAssets: options.clientAssets ?? inspectorAssets,

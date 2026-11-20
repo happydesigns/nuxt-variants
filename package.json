@@ -10,14 +10,14 @@
     "typescript",
     "variants"
   ],
-  "homepage": "https://github.com/happydesigns/nuxt-variants#readme",
+  "homepage": "https://github.com/happydesigns/composable-variants#readme",
   "bugs": {
-    "url": "https://github.com/happydesigns/nuxt-variants/issues"
+    "url": "https://github.com/happydesigns/composable-variants/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/happydesigns/nuxt-variants.git"
+    "url": "git+https://github.com/happydesigns/composable-variants.git"
   },
   "files": [
     "dist"
