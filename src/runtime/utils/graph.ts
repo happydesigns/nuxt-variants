@@ -3,4 +3,4 @@ export {
   type VariantGraph,
   type VariantGraphEntryInput,
   type VariantGraphRegistry,
-} from "@happydesigns/composable-variants/internal";
+} from "@happydesigns/config-variants/internal";

@@ -3,6 +3,6 @@ export default defineNuxtConfig({
   compatibilityDate: "latest",
   css: ["~/assets/css/tokens.css"],
   site: {
-    name: "Composable Variants",
+    name: "Config Variants",
   },
 });

@@ -8,12 +8,9 @@ import sqlQuery from "comark-content/plugins/sql-query";
 import { createSSRApp, h } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { z } from "zod";
-import {
-  createVariantResolver,
-  type VariantRegistryInput,
-} from "@happydesigns/composable-variants";
-import { variantContent } from "@happydesigns/composable-variants/comark-content";
-import { createVariantSchemaResolver } from "@happydesigns/composable-variants/schemas";
+import { createVariantResolver, type VariantRegistryInput } from "@happydesigns/config-variants";
+import { variantContent } from "@happydesigns/config-variants/comark-content";
+import { createVariantSchemaResolver } from "@happydesigns/config-variants/schemas";
 
 type Collection = "article" | "event";
 const common = [

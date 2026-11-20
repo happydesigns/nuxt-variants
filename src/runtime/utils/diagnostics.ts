@@ -6,4 +6,4 @@ export {
   VariantRegistryError,
   type VariantDiagnostic,
   type VariantDiagnosticCode,
-} from "@happydesigns/composable-variants/internal";
+} from "@happydesigns/config-variants/internal";

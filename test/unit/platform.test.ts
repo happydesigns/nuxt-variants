@@ -5,13 +5,13 @@ import {
   createVariantResolver,
   defineVariantGroups,
   type ResolvedVariantConfig,
-} from "@happydesigns/composable-variants";
-import { variantContent, variantField } from "@happydesigns/composable-variants/comark-content";
+} from "@happydesigns/config-variants";
+import { variantContent, variantField } from "@happydesigns/config-variants/comark-content";
 import {
   createVariantsDevframe,
   createVariantDevtoolsData,
   type VariantDevtoolsData,
-} from "@happydesigns/composable-variants/devtools";
+} from "@happydesigns/config-variants/devtools";
 import { createHostContext } from "devframe/node";
 import { resolveVariantConfig, resolveVariantFeatures } from "../../src/runtime/utils/variants";
 

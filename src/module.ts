@@ -10,7 +10,7 @@ import {
   createResolver,
 } from "@nuxt/kit";
 import { addCustomTab, onDevtoolsReady, NUXT_DEVTOOLS_GROUP_ID } from "@nuxt/devtools-kit";
-import { inspectorAssets } from "@happydesigns/composable-variants/internal/inspector";
+import { inspectorAssets } from "@happydesigns/config-variants/internal/inspector";
 import {
   assertValidVariantInputs,
   assertValidVariantRegistry,
@@ -116,7 +116,7 @@ export default defineNuxtModule<ModuleOptions>({
       "",
     ].join("\n");
     const runtimeDtsContent = [
-      `import type { VariantRegistry, VariantResolutionPlan } from "@happydesigns/composable-variants/nuxt";`,
+      `import type { VariantRegistry, VariantResolutionPlan } from "@happydesigns/config-variants/nuxt";`,
       `export declare const variantRegistry: Readonly<VariantRegistry>;`,
       `export declare const variantResolutionPlan: VariantResolutionPlan;`,
       `export declare const variantsConfigKey: string;`,
@@ -265,7 +265,7 @@ declare module 'vue-router' {
       "",
     ].join("\n");
     const graphDtsContent = [
-      `import type { VariantDiagnostic, VariantGraph } from "@happydesigns/composable-variants/nuxt";`,
+      `import type { VariantDiagnostic, VariantGraph } from "@happydesigns/config-variants/nuxt";`,
       `export declare const variantGraph: VariantGraph;`,
       `export declare const variantDiagnostics: readonly VariantDiagnostic[];`,
       "",
@@ -324,8 +324,7 @@ declare module 'vue-router' {
           handler: resolver.resolve("./runtime/server/devtools-data.get"),
         });
         onDevtoolsReady(async (ctx) => {
-          const { createVariantsDevframe } =
-            await import("@happydesigns/composable-variants/devtools");
+          const { createVariantsDevframe } = await import("@happydesigns/config-variants/devtools");
           const definition = createVariantsDevframe({
             clientAssets: devtoolsClientPath,
             basePath: `${devtoolsRoute}/`,
@@ -344,7 +343,7 @@ declare module 'vue-router' {
           ctx.docks.register({
             id: "nuxt-variants",
             type: "iframe",
-            title: "Composable Variants",
+            title: "Config Variants",
             icon: `${devtoolsRoute}/variants.svg`,
             groupId: NUXT_DEVTOOLS_GROUP_ID,
             url: `${devtoolsRoute}/?transport=devframe&host=nuxt`,
@@ -354,7 +353,7 @@ declare module 'vue-router' {
         addCustomTab(
           {
             name: "nuxt-variants",
-            title: "Composable Variants",
+            title: "Config Variants",
             icon: "i-lucide-git-branch",
             category: "app",
             view: {

@@ -12,10 +12,16 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const work = path.join(root, ".tmp", "packed-platform-" + Date.now());
 // Keep the consumer outside this checkout so ancestor node_modules cannot
 // accidentally satisfy undeclared dependencies or optional peers.
-const consumer = await fs.mkdtemp(path.join(tmpdir(), "composable-variants-consumer-"));
+const consumer = await fs.mkdtemp(path.join(tmpdir(), "config-variants-consumer-"));
 await fs.mkdir(work, { recursive: true });
-const portableName = "@happydesigns/composable-variants";
+const { name: portableName } = JSON.parse(
+  await fs.readFile(path.join(root, "package.json"), "utf8"),
+);
 const nuxtEntry = `${portableName}/nuxt`;
+async function installedVersion(name) {
+  const manifest = path.join(root, "node_modules", name, "package.json");
+  return JSON.parse(await fs.readFile(manifest, "utf8")).version;
+}
 const npm = [
   process.env.npm_execpath?.endsWith("npm-cli.js") ? process.env.npm_execpath : undefined,
   path.join(path.dirname(process.execPath), "node_modules/npm/bin/npm-cli.js"),
@@ -60,7 +66,7 @@ const guard = registerHooks({ resolve(specifier, context, nextResolve) {
   assert.ok(!['nuxt', 'vue', '@nuxt/', 'comark-content', 'devframe'].some(prefix => specifier.startsWith(prefix)), specifier);
   return nextResolve(specifier, context);
 }});
-const { createVariantResolver } = await import('@happydesigns/composable-variants');
+const { createVariantResolver } = await import('${portableName}');
 guard.deregister();
 const resolver=createVariantResolver({header:{config:{label:'Header'}},article:{extends:['header'],config:{title:'Own'}}});
 assert.deepEqual(resolver.resolve('article').config,{title:'Own',label:'Header'});
@@ -68,7 +74,7 @@ assert.equal(resolver.resolve('article',{header:{active:false}}).config.label,un
 for(const peer of ['comark-content','devframe','nuxt','vue','@happydesigns/nuxt-variants']){
   assert.throws(()=>import.meta.resolve(peer),{code:'ERR_MODULE_NOT_FOUND'});
 }
-await assert.rejects(import('@happydesigns/composable-variants/comark-content'), {code:'ERR_MODULE_NOT_FOUND', message: /comark-content/});
+await assert.rejects(import('${portableName}/comark-content'), {code:'ERR_MODULE_NOT_FOUND', message: /comark-content/});
 console.log('the main entry loads without framework or adapter imports');
 `;
 await fs.writeFile(path.join(consumer, "core.mjs"), coreProbe);
@@ -80,8 +86,8 @@ const coreOutput = execFileSync(process.execPath, ["core.mjs"], {
 run(
   [
     "install",
-    "comark-content@0.6.2",
-    "devframe@1.3.5",
+    `comark-content@${await installedVersion("comark-content")}`,
+    `devframe@${await installedVersion("devframe")}`,
     "--ignore-scripts",
     "--legacy-peer-deps",
     "--no-audit",
@@ -93,9 +99,9 @@ await fs.writeFile(
   path.join(consumer, "platform.mjs"),
   `
 import assert from 'node:assert/strict';
-import {createVariantResolver} from '@happydesigns/composable-variants';
-import {variantContent,variantField} from '@happydesigns/composable-variants/comark-content';
-import {createVariantsDevframe,createVariantDevtoolsData} from '@happydesigns/composable-variants/devtools';
+import {createVariantResolver} from '${portableName}';
+import {variantContent,variantField} from '${portableName}/comark-content';
+import {createVariantsDevframe,createVariantDevtoolsData} from '${portableName}/devtools';
 import {comarkContent,generateSourceTypes} from 'comark-content';
 import {createBuild} from 'devframe/adapters/build';
 import {existsSync,readFileSync} from 'node:fs';
@@ -149,6 +155,11 @@ execFileSync(
   { cwd: consumer, encoding: "utf8", windowsHide: true },
 );
 const nuxtConsumer = await fs.mkdtemp(path.join(tmpdir(), "nuxt-variants-consumer-"));
+const { compatibility } = JSON.parse(
+  await fs.readFile(path.join(root, "dist/module.json"), "utf8"),
+);
+const minimumNuxt = /^>=(\d+\.\d+\.\d+)$/.exec(compatibility?.nuxt)?.[1];
+assert.ok(minimumNuxt, "The packed consumer requires a concrete Nuxt compatibility floor.");
 const file = (tarball) => `file:${tarball.replaceAll("\\", "/")}`;
 await fs.mkdir(path.join(nuxtConsumer, "app"));
 await fs.writeFile(
@@ -157,7 +168,11 @@ await fs.writeFile(
     name: "variants-nuxt-consumer",
     private: true,
     type: "module",
-    dependencies: { [portableName]: file(tarball), nuxt: "4.5.1", zod: "4.6.7" },
+    dependencies: {
+      [portableName]: file(tarball),
+      nuxt: minimumNuxt,
+      zod: await installedVersion("zod"),
+    },
   }),
 );
 runPnpm(["install", "--ignore-scripts"], nuxtConsumer);

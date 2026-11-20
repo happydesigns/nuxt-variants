@@ -1,5 +1,7 @@
-<script setup></script>
+<script setup lang="ts">
+const variants = useVariants();
+</script>
 
 <template>
-  <div>basic</div>
+  <p>{{ variants.length }} variants</p>
 </template>

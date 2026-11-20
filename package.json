@@ -1,7 +1,7 @@
 {
-  "name": "@happydesigns/composable-variants",
+  "name": "@happydesigns/config-variants",
   "version": "0.3.0-rc.1",
-  "description": "Typed, composable variants for data, Comark Content, and Nuxt.",
+  "description": "Typed configuration variants for data, Comark Content, and Nuxt.",
   "keywords": [
     "comark-content",
     "nuxt",
@@ -10,14 +10,14 @@
     "typescript",
     "variants"
   ],
-  "homepage": "https://github.com/happydesigns/nuxt-variants#readme",
+  "homepage": "https://github.com/happydesigns/config-variants#readme",
   "bugs": {
-    "url": "https://github.com/happydesigns/nuxt-variants/issues"
+    "url": "https://github.com/happydesigns/config-variants/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/happydesigns/nuxt-variants.git"
+    "url": "git+https://github.com/happydesigns/config-variants.git"
   },
   "files": [
     "dist"
@@ -80,7 +80,10 @@
     "dev:build": "nuxt build playground",
     "docs": "pnpm --dir docs dev",
     "docs:build": "pnpm --dir docs build",
+    "release:preview": "changelogen --no-output",
     "release:prepare": "pnpm check && pnpm test:package",
+    "release": "changelogen --release --no-github --clean",
+    "release:check": "node scripts/github-release.mjs --check",
     "check": "pnpm dev:prepare && pnpm lint && pnpm typecheck && pnpm test",
     "lint": "oxfmt --check && oxlint .",
     "lint:fix": "oxfmt && oxlint .",
@@ -99,23 +102,23 @@
     "defu": "^6.1.7"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "^1.2.156",
+    "@iconify-json/lucide": "catalog:",
     "@nuxt/devtools": "^4.2.0",
     "@nuxt/module-builder": "^1.0.4",
     "@nuxt/schema": "^4.6.4",
     "@nuxt/test-utils": "^4.4.0",
-    "@nuxt/ui": "^4.13.0",
+    "@nuxt/ui": "catalog:",
     "@types/node": "^22.20.5",
     "@vitejs/devtools-kit": "^0.8.3",
     "@vitest/coverage-v8": "^5.1.1",
     "changelogen": "^0.6.2",
-    "comark-content": "^0.6.2",
-    "devframe": "^1.3.5",
-    "nuxt": "^4.6.4",
+    "comark-content": "catalog:",
+    "devframe": "catalog:",
+    "nuxt": "catalog:",
     "oxfmt": "^0.79.0",
     "oxlint": "^1.94.0",
     "shiki": "^4.6.0",
-    "tailwindcss": "^4.3.5",
+    "tailwindcss": "catalog:",
     "typescript": "^6.0.3",
     "unbuild": "^3.6.1",
     "valibot": "^1.5.0",
@@ -123,11 +126,11 @@
     "vue": "^3.5.45",
     "vue-router": "^5.5.1",
     "vue-tsc": "^3.3.14",
-    "zod": "^4.6.7"
+    "zod": "catalog:"
   },
   "peerDependencies": {
-    "comark-content": "^0.6.2",
-    "devframe": "^1.3.5",
+    "comark-content": "catalog:",
+    "devframe": "catalog:",
     "valibot": "^1.0.0",
     "zod": "^4.0.0"
   },

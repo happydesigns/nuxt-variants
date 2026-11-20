@@ -6,4 +6,4 @@ export {
   type VariantRegistryEntryInput,
   type VariantRegistryEntryShorthand,
   type VariantRegistryInput,
-} from "@happydesigns/composable-variants/internal";
+} from "@happydesigns/config-variants/internal";

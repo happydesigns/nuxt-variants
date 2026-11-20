@@ -1,7 +1,7 @@
 <template>
   <UContainer as="main" class="max-w-6xl pb-12">
     <UPageHeader
-      title="Composable Variants"
+      title="Config Variants"
       description="See how Markdown documents and Nuxt routes select variants from a shared registry."
       :ui="{ root: 'py-8 sm:py-12' }"
     >

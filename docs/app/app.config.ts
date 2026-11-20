@@ -3,15 +3,15 @@ export default defineAppConfig({
     locale: "en",
   },
   header: {
-    title: "Composable Variants",
+    title: "Config Variants",
   },
   seo: {
-    title: "Composable Variants",
+    title: "Config Variants",
     description:
       "Compose reusable features into named variants and inspect their resolved configuration.",
   },
   github: {
-    url: "https://github.com/happydesigns/nuxt-variants",
+    url: "https://github.com/happydesigns/config-variants",
     branch: "main",
     rootDir: "docs",
   },

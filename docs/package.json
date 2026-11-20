@@ -1,5 +1,5 @@
 {
-  "name": "@happydesigns/nuxt-variants-docs",
+  "name": "@happydesigns/config-variants-docs",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,12 +9,12 @@
     "preview": "nuxt preview"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.156",
-    "@nuxt/content": "^3.17.0",
+    "@iconify-json/lucide": "catalog:",
+    "@nuxt/content": "catalog:",
     "better-sqlite3": "^12.11.1",
     "docus": "^5.15.0",
-    "nuxt": "^4.6.4",
-    "zod": "^4.6.7",
+    "nuxt": "catalog:",
+    "zod": "catalog:",
     "zod-to-json-schema": "^3.25.2"
   }
 }

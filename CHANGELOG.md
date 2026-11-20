@@ -9,7 +9,7 @@
 - Add portable variants and Nuxt UI DevFrame inspector ([9cf1e82](https://github.com/happydesigns/nuxt-variants/commit/9cf1e82))
 - Add local release comparison and preview guide ([6564700](https://github.com/happydesigns/nuxt-variants/commit/6564700))
 - Show the winning config value source in the inspector ([b00426b](https://github.com/happydesigns/nuxt-variants/commit/b00426b))
-- Introduce the Composable Variants product name ([8c6cb6d](https://github.com/happydesigns/nuxt-variants/commit/8c6cb6d))
+- Introduce a product name for the framework-independent library ([8c6cb6d](https://github.com/happydesigns/config-variants/commit/8c6cb6d))
 - Trace resolved fields in a responsive Nuxt UI inspector ([69aa1c4](https://github.com/happydesigns/nuxt-variants/commit/69aa1c4))
 - **devtools:** Add section anchors and clarify inspector layout ([c09308c](https://github.com/happydesigns/nuxt-variants/commit/c09308c))
 - **devtools:** Clarify active sections and field provenance ([6bfcec1](https://github.com/happydesigns/nuxt-variants/commit/6bfcec1))

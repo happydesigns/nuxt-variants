@@ -1,1 +1,1 @@
-export { defuReplaceArray } from "@happydesigns/composable-variants/internal";
+export { defuReplaceArray } from "@happydesigns/config-variants/internal";
