@@ -20,7 +20,7 @@ import { inspectorAssets as clientAssets } from "@happydesigns/config-variants/i
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const req = createRequire(import.meta.resolve("@happydesigns/config-variants"));
-const baselineAssets = path.join(root, ".tmp/comparison-release-0.2.0");
+const baselineAssets = path.join(root, ".tmp/comparison-baseline");
 try {
   await fs.access(path.join(baselineAssets, "index.html"));
 } catch {

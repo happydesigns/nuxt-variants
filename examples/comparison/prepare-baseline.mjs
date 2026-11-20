@@ -5,12 +5,15 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
-const target = path.join(root, ".tmp", "comparison-release-0.2.0");
+const baselineVersion = "0.2.0";
+const target = path.join(root, ".tmp", "comparison-baseline");
 await fs.mkdir(target, { recursive: true });
-const metadata = await fetch("https://registry.npmjs.org/@happydesigns%2fnuxt-variants/0.2.0");
+const metadata = await fetch(
+  `https://registry.npmjs.org/@happydesigns%2fnuxt-variants/${baselineVersion}`,
+);
 if (!metadata.ok) throw new Error(`Baseline registry lookup failed: ${metadata.status}`);
 const published = await metadata.json();
-if (published.version !== "0.2.0") throw new Error("Unexpected baseline version");
+if (published.version !== baselineVersion) throw new Error("Unexpected baseline version");
 const response = await fetch(published.dist.tarball);
 if (!response.ok) throw new Error(`Baseline download failed: ${response.status}`);
 const data = Buffer.from(await response.arrayBuffer());
@@ -43,4 +46,4 @@ await fs.writeFile(
     2,
   ),
 );
-console.log(`Verified released 0.2.0 inspector: ${target}`);
+console.log(`Verified released ${baselineVersion} inspector: ${target}`);
