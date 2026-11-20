@@ -36,9 +36,16 @@ jobs:
       - name: Validate release
         if: github.ref_type == 'tag'
         run: |
-          pnpm release:check
-          pnpm release:prepare
-          pnpm docs:build
+          node scripts/github-release.mjs --check
+          pnpm check:release
+      - name: Upload verified npm tarball
+        if: github.ref_type == 'tag'
+        uses: actions/upload-artifact@v7
+        with:
+          name: npm-package-${{ github.ref_name }}-${{ github.run_attempt }}
+          path: .tmp/packed-platform-*/*.tgz
+          include-hidden-files: true
+          if-no-files-found: error
 
   release:
     if: github.ref_type == 'tag'

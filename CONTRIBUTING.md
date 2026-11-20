@@ -52,11 +52,13 @@ If tests are not practical for a change, note the reason in the pull request or 
 
 ## Release workflow
 
-Run `pnpm release:preview` to preview the changelog and `pnpm release:prepare` to validate the checkout. The package check prints the archive path after installing it in separate core, Comark Content, and Nuxt consumers. To use that build in another project, run `pnpm add /path/to/printed-archive.tgz`.
+Run `pnpm release:preview` to review the changes since the last tag. Check the npm account with `npm whoami` before preparing a public release. Sign in with `npm login` if needed and use an account with publish access to the `@happydesigns` scope.
 
-Run `pnpm run release -r <version>` from a clean checkout to create the local Changelogen release commit and tag. Review the changelog and run `pnpm release:check` before pushing the commit and tag.
+Run `pnpm run release -r <version>` from a clean checkout to create the local Changelogen release commit and tag. When the changelog has curated notes under **Unreleased**, pass `--no-commit --no-tag` to review the generated entry first. Move the curated notes into the generated version section and remove the **Unreleased** section. Commit the manifest and changelog as `chore(release): v<version>` and create an annotated tag for that commit with `git tag -a "v<version>" -m "v<version>"`.
 
-Pushing the version tag runs package and documentation checks in [GitHub Actions](.github/workflows/ci.yml). The release job takes its notes from the matching changelog entry and marks prerelease tags accordingly. Publishing the package to npm is a separate step.
+Run `node scripts/github-release.mjs --check` to verify the commit, tag, manifest, and changelog agree. Use `pnpm check:release` to run lint, types, tests, isolated package consumers, and the documentation build. The package check prints the tested archive path for local installs.
+
+Pushing the release commit and tag runs the same checks in [GitHub Actions](.github/workflows/ci.yml). After the workflow succeeds, download the `npm-package-*` artifact from that tag run and use `pnpm publish /path/to/verified-package.tgz --access public` to publish the tested archive to npm. For a prerelease, pass `--tag next`. The GitHub release uses the matching changelog entry.
 
 ## Commits
 
