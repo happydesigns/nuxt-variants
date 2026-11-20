@@ -1,18 +1,8 @@
 import { basename } from "node:path";
-import {
-  normalizeVariantRegistry,
-  type NormalizedVariantRegistryEntry,
-  type VariantRegistryInput,
-} from "../runtime/utils/registry";
+import { normalizeVariantRegistry, type VariantRegistryInput } from "../runtime/utils/registry";
+import type { VariantSourceEntry } from "@happydesigns/composable-variants/internal";
 
-export interface VariantSource {
-  /** Stable, human-readable Nuxt layer name. */
-  name: string;
-  /** Whether this contribution comes from the consuming application or an extended layer. */
-  kind: "application" | "layer";
-  /** The entry declared by this source before Nuxt merges layer configuration. */
-  entry: NormalizedVariantRegistryEntry;
-}
+export type VariantSource = VariantSourceEntry;
 
 interface NuxtLayerLike {
   cwd?: string;

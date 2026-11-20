@@ -5,6 +5,10 @@
   --ui-container: 90rem;
 }
 
+:root:not(.dark) {
+  --ui-primary: var(--ui-color-primary-800);
+}
+
 .dark {
   --ui-bg: #0a0a10;
   --ui-bg-muted: #12121c;

@@ -1,13 +1,14 @@
 # Architecture
 
-Nuxt Variants is a capability model for Nuxt page types. A registry describes
-which small capabilities a page variant owns, and the module projects that one
-model into runtime layout behavior, generated TypeScript types, Nuxt Content
-schemas, diagnostics, and development tooling.
+Composable Variants models named variants as a graph of reusable capabilities.
+The portable resolver computes the active features and configuration for a
+name supplied by the application. The Nuxt module integrates that model with
+Nuxt layouts, generated types and DevTools. The optional Comark Content plugin
+binds a content record to a variant name.
 
 ## Product Boundary
 
-Nuxt Variants owns:
+The core and its integrations provide the following capabilities.
 
 - a named, directed inheritance graph;
 - deterministic config resolution for graph entries;
@@ -39,8 +40,8 @@ The final registry produced by Nuxt is validated as one graph before generated
 artifacts are written.
 
 Runtime value overrides remain in each layer's `app.config`. Nuxt's app config
-merge determines their value priority; Nuxt Variants does not maintain a
-second, competing layer merge algorithm.
+merge determines their value priority. The module uses that result for
+variant resolution.
 
 ## Resolution
 
@@ -89,3 +90,23 @@ The 1.0 public contract includes:
 
 Internal template filenames, DevTools endpoints, and inspector payload shapes
 remain internal unless explicitly documented otherwise.
+
+## Optional Platform Adapters
+
+The `0.3` preview ships one package, `@happydesigns/composable-variants`.
+The main import exposes the portable resolver. Nuxt resolves the package
+name in `modules` to `/nuxt`. `/schemas` exposes Nuxt Content v3 schema helpers.
+`/comark-content` and `/devtools` use optional host peers. Nuxt Kit packages are installed with the
+package and loaded by the Nuxt entry. See the
+[preview guide](docs/content/docs/10.platform-preview.md).
+
+The Content adapter persists identity, not resolved presentation state. The
+DevFrame adapter exposes a read-only, uncached snapshot query; the host owns
+authentication and transport. The Nuxt adapter remains responsible for
+generated aliases/types, auto-imports, layer composition, routes and dock
+registration. No adapter duplicates graph or merge semantics.
+
+The existing Nuxt Content schema resolver stays separate from the Comark
+Content identity field. JSON Schema subset limitations do not justify moving
+application refinements into the variant engine. Public virtual modules and
+existing schema merge priorities are unchanged.

@@ -1,11 +1,24 @@
 <script setup lang="ts">
 definePageMeta({ layout: "content", variant: "article" });
 
-const { config } = useVariant("article");
+const { config, has } = useVariant("article");
+const tocEnabled = has("toc");
+function toggleToc() {
+  updateAppConfig({ variants: { toc: { active: !tocEnabled.value } } });
+}
 </script>
 
 <template>
   <div class="space-y-6 max-w-2xl">
+    <div class="flex flex-wrap items-center gap-3">
+      <UButton color="neutral" variant="outline" @click="toggleToc">
+        {{ tocEnabled ? "Disable table of contents" : "Enable table of contents" }}
+      </UButton>
+      <NuxtLink to="/event">Open event with the same inspector</NuxtLink>
+      <p class="text-sm text-muted">
+        Runtime changes are reflected in the open Variants inspector.
+      </p>
+    </div>
     <div>
       <h2 class="text-xl font-bold text-highlighted tracking-tight mb-2">Article</h2>
       <p class="text-sm text-muted leading-relaxed">

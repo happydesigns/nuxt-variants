@@ -1,7 +1,8 @@
 export default defineNuxtConfig({
   extends: ["docus"],
   compatibilityDate: "latest",
+  css: ["~/assets/css/tokens.css"],
   site: {
-    name: "Nuxt Variants",
+    name: "Composable Variants",
   },
 });

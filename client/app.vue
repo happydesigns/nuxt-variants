@@ -1,115 +1,238 @@
 <script setup lang="ts">
 import { useVariantDevtoolsData } from "~/composables/useVariantDevtoolsData";
-
-const { currentVariant, data, error, pending, reload, routeVariant, selected } =
-  useVariantDevtoolsData();
-
-function plural(count: number, singular: string, pluralForm = `${singular}s`) {
-  return count === 1 ? singular : pluralForm;
-}
-
-function formatList(values: string[]) {
-  if (values.length === 0) {
-    return "";
-  }
-
-  if (values.length === 1) {
-    return values[0];
-  }
-
-  if (values.length === 2) {
-    return `${values[0]} and ${values[1]}`;
-  }
-
-  return `${values.slice(0, -1).join(", ")}, and ${values.at(-1)}`;
-}
-
-const currentVariantSummary = computed(() => {
-  const variant = currentVariant.value;
-
-  if (!variant) {
-    return "Select a variant to inspect how Nuxt Variants resolves it.";
-  }
-
-  const configCount = Object.keys(variant.resolvedConfig).length;
-  const configText = `${configCount} config ${plural(configCount, "key")}`;
-
-  if (variant.extends.length > 0) {
-    return `Merges ${formatList(variant.extends)} before ${variant.name}. Final config has ${configText}.`;
-  }
-
-  return `Does not extend another variant. Final config has ${configText}.`;
+const {
+  currentVariant,
+  data,
+  error,
+  pending,
+  hasSnapshot,
+  reload,
+  routeVariant,
+  selected,
+  offline,
+  linkedField,
+  linkNotice,
+} = useVariantDevtoolsData();
+const heading = useTemplateRef("heading");
+const details = useTemplateRef("details");
+const sectionLinks = [
+  { id: "variant-composition", label: "Composition" },
+  { id: "variant-fields", label: "Fields" },
+  { id: "variant-json", label: "Configuration" },
+];
+const activeSection = ref("variant-composition");
+const overridesOnly = ref(false);
+const currentGroups = computed(() => {
+  const name = currentVariant.value?.name;
+  return name
+    ? Object.entries(data.value.groups ?? {})
+        .filter(([, names]) => names.includes(name))
+        .map(([group]) => group)
+    : [];
 });
+const refreshed = ref(false);
+const refreshStatus = computed(() => {
+  if (pending.value && hasSnapshot.value) return "Refreshing registry…";
+  return refreshed.value ? "Registry refreshed" : "";
+});
+let refreshFeedback: ReturnType<typeof setTimeout> | undefined;
 
-const currentConfigKeyCount = computed(() =>
-  currentVariant.value ? Object.keys(currentVariant.value.resolvedConfig).length : 0,
+async function refreshRegistry() {
+  if (pending.value) return;
+  clearTimeout(refreshFeedback);
+  refreshed.value = false;
+  if (await reload()) {
+    refreshed.value = true;
+    refreshFeedback = setTimeout(() => (refreshed.value = false), 1600);
+  }
+}
+
+onScopeDispose(() => clearTimeout(refreshFeedback));
+
+watch(
+  selected,
+  () => {
+    const target = linkedField.value
+      ? details.value?.querySelector("#variant-fields")
+      : details.value;
+    target?.scrollIntoView({ block: "start" });
+  },
+  { flush: "post" },
 );
+
+watch(
+  [details, selected],
+  ([content], _, onCleanup) => {
+    const scrollPanel = content?.parentElement;
+    if (!content || !scrollPanel) return;
+    const sections = sectionLinks.flatMap(({ id }) => {
+      const section = content.querySelector<HTMLElement>(`#${id}`);
+      return section ? [section] : [];
+    });
+    const updateActiveSection = () => {
+      const top = scrollPanel.getBoundingClientRect().top;
+      const activeElement = document.activeElement;
+      const linkedRow = activeElement?.matches("tr[data-linked-field]")
+        ? activeElement.getBoundingClientRect()
+        : undefined;
+      if (linkedRow && linkedRow.bottom > top && linkedRow.top < top + scrollPanel.clientHeight) {
+        activeSection.value = "variant-fields";
+        return;
+      }
+      const lastVisible = sections.findLast(
+        (section) => section.getBoundingClientRect().top <= top + 32,
+      );
+      const atEnd =
+        scrollPanel.scrollHeight - scrollPanel.clientHeight - scrollPanel.scrollTop <= 1;
+      // A short section near the end may be visible without reaching the top.
+      const focused = sections.find(
+        (section) =>
+          section.closest("section")?.contains(activeElement) &&
+          section.getBoundingClientRect().top >= top,
+      );
+      activeSection.value =
+        (
+          (atEnd ? focused : undefined) ??
+          (atEnd && scrollPanel.scrollTop > 0 ? sections.at(-1) : (lastVisible ?? sections[0]))
+        )?.id ?? "variant-composition";
+    };
+    const observer = new ResizeObserver(updateActiveSection);
+    observer.observe(content);
+    observer.observe(scrollPanel);
+    scrollPanel.addEventListener("scroll", updateActiveSection, { passive: true });
+    scrollPanel.addEventListener("focusin", updateActiveSection);
+    updateActiveSection();
+    onCleanup(() => {
+      observer.disconnect();
+      scrollPanel.removeEventListener("scroll", updateActiveSection);
+      scrollPanel.removeEventListener("focusin", updateActiveSection);
+    });
+  },
+  { flush: "post" },
+);
+
+async function inspectRelative(name: string) {
+  selected.value = name;
+  await nextTick();
+  heading.value?.focus({ preventScroll: true });
+}
 </script>
-
 <template>
-  <div class="shell">
-    <DevtoolsSidebar v-model:selected="selected" :data="data" :route-variant="routeVariant" />
-
-    <main>
-      <div class="content">
-        <LoadStatePanel :error="error" :pending="pending" @retry="reload" />
-
-        <template v-if="!pending && !error">
-          <header class="main-header">
-            <div class="title-block">
-              <h1>{{ currentVariant?.name ?? "Variant" }}</h1>
-              <p>{{ currentVariantSummary }}</p>
-            </div>
-
-            <div class="header-meta">
-              <div class="header-badges">
-                <NBadge n="gray">
-                  {{ currentVariant?.extends.length ?? 0 }}
-                  extends
-                </NBadge>
-                <NBadge n="gray">
-                  {{ currentConfigKeyCount }}
-                  {{ plural(currentConfigKeyCount, "config key") }}
-                </NBadge>
-                <NBadge :n="currentVariant?.active ? 'green' : 'orange'">
-                  {{ currentVariant?.active ? "Enabled" : "Disabled" }}
-                </NBadge>
-                <NBadge v-if="data.diagnostics.length" n="orange">
-                  {{ `${data.diagnostics.length} ${plural(data.diagnostics.length, "issue")}` }}
-                </NBadge>
-              </div>
-
-              <NButton
-                border
-                icon="i-carbon-renew"
-                :disabled="pending"
-                title="Refresh app-config overrides"
-                @click="reload"
+  <UApp>
+    <UDashboardGroup unit="rem" :persistent="false" storage-key="composable-variants-inspector">
+      <DevtoolsSidebar
+        v-model:selected="selected"
+        :entries="data.variants"
+        :groups="data.groups"
+        :route-variant="routeVariant"
+      />
+      <UDashboardPanel
+        id="inspector"
+        role="main"
+        :ui="{ body: 'gap-4 [scrollbar-gutter:stable] sm:gap-5' }"
+      >
+        <template #header>
+          <UDashboardNavbar
+            class="overflow-y-hidden [scrollbar-gutter:stable]"
+            :ui="{ left: 'min-w-0', title: 'min-w-0 font-mono text-lg', right: 'shrink-0' }"
+          >
+            <template #title>
+              <span
+                ref="heading"
+                tabindex="-1"
+                class="block truncate"
+                :title="currentVariant?.name"
+                >{{ currentVariant?.name ?? "Variants" }}</span
               >
-                Refresh
-              </NButton>
-            </div>
-          </header>
-
-          <DiagnosticsPanel v-if="data.diagnostics.length" :diagnostics="data.diagnostics" />
-
-          <VariantOverview :variant="currentVariant" />
-
-          <section class="grid">
-            <ConfigPanel
-              title="Final Config"
-              description="The object returned by useVariant for the selected variant."
-              :value="currentVariant?.resolvedConfig ?? {}"
-            />
-            <ConfigPanel
-              title="Raw inputs"
-              description="The merged Nuxt registry entry and app.config override before resolution."
-              :value="{ base: currentVariant?.base, app: currentVariant?.app }"
-            />
-            <VariantSources class="grid-wide" :sources="currentVariant?.sources ?? []" />
-          </section>
+            </template>
+            <template #trailing>
+              <UBadge
+                v-if="currentVariant && !currentVariant.active"
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                >Disabled</UBadge
+              >
+            </template>
+            <template #right>
+              <span v-if="offline" class="text-xs text-muted">Offline snapshot</span>
+              <UButton
+                v-else-if="hasSnapshot"
+                color="neutral"
+                variant="ghost"
+                :icon="refreshed ? 'i-lucide-check' : 'i-lucide-refresh-cw'"
+                aria-label="Refresh registry"
+                :aria-disabled="pending || undefined"
+                :title="refreshStatus || 'Refresh registry'"
+                class="cursor-pointer aria-disabled:cursor-pointer"
+                :ui="{
+                  leadingIcon: pending
+                    ? 'motion-safe:animate-spin motion-safe:[animation-delay:150ms]'
+                    : refreshed
+                      ? 'text-primary'
+                      : undefined,
+                }"
+                @click="refreshRegistry"
+              />
+              <span class="sr-only" role="status">{{ refreshStatus }}</span>
+            </template>
+          </UDashboardNavbar>
+          <UDashboardToolbar
+            v-if="currentVariant"
+            as="nav"
+            aria-label="Variant sections"
+            class="min-h-10 items-stretch justify-start gap-1"
+          >
+            <UButton
+              v-for="section in sectionLinks"
+              :key="section.id"
+              :href="`#${section.id}`"
+              :aria-current="activeSection === section.id ? 'location' : undefined"
+              external
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              class="rounded-none border-b-2 border-transparent aria-[current=location]:border-primary aria-[current=location]:text-primary"
+              @click="activeSection = section.id"
+              >{{ section.label }}</UButton
+            >
+          </UDashboardToolbar>
         </template>
-      </div>
-    </main>
-  </div>
+        <template #body>
+          <LoadStatePanel
+            v-if="error || (pending && !hasSnapshot)"
+            :error="error"
+            :pending="pending"
+            @retry="refreshRegistry"
+          />
+          <div
+            v-if="hasSnapshot"
+            ref="details"
+            class="flex min-w-0 scroll-mt-4 flex-col gap-5 sm:scroll-mt-6 sm:gap-6"
+          >
+            <DiagnosticsPanel v-if="data.diagnostics.length" :diagnostics="data.diagnostics" />
+            <p v-if="linkNotice" role="status" class="text-sm text-muted">{{ linkNotice }}</p>
+            <template v-if="currentVariant">
+              <VariantComposition
+                :variant="currentVariant"
+                :entries="data.variants"
+                :groups="currentGroups"
+                @select="inspectRelative"
+              />
+              <VariantFields
+                :key="currentVariant.name"
+                v-model:overrides-only="overridesOnly"
+                :variant="currentVariant"
+                :entries="data.variants"
+                :linked-field="linkedField"
+                @select-source="inspectRelative"
+              />
+              <VariantConfiguration :key="currentVariant.name" :variant="currentVariant" />
+            </template>
+            <p v-else class="text-sm text-muted" role="status">No variants registered.</p>
+          </div>
+        </template>
+      </UDashboardPanel>
+    </UDashboardGroup>
+  </UApp>
 </template>

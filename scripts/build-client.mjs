@@ -15,7 +15,7 @@ const build = spawnSync(process.execPath, [nuxtBin, "generate", clientRoot], {
 });
 
 if (build.status !== 0) {
-  throw new Error("Nuxt Variants DevTools client build failed.");
+  throw new Error("Composable Variants DevTools client build failed.");
 }
 
 if (!existsSync(source)) {

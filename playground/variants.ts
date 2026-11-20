@@ -1,4 +1,4 @@
-import { defineVariantRegistry } from "../src/module";
+import { defineVariantRegistry } from "../src/portable/core";
 
 export const variantRegistry = defineVariantRegistry({
   breadcrumbs: {

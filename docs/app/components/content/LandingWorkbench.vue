@@ -1,217 +1,41 @@
 <script setup lang="ts">
-const props = withDefaults(
-  defineProps<{
-    graphLabel?: string;
-    resolvedLabel?: string;
-    extendsLabel?: string;
-    featureChecksLabel?: string;
-    configLabel?: string;
-    emptyConfigLabel?: string;
-    articleLabel?: string;
-    articleSummary?: string;
-    contentLabel?: string;
-    contentSummary?: string;
-    eventLabel?: string;
-    eventSummary?: string;
-  }>(),
-  {
-    graphLabel: "variant graph compiled at build time",
-    resolvedLabel: "Resolved page",
-    extendsLabel: "Extends",
-    featureChecksLabel: "Feature checks",
-    configLabel: "Resolved config",
-    emptyConfigLabel: "No additional config",
-    articleLabel: "Article",
-    articleSummary: "Long-form content with navigation, metadata, and reading aids.",
-    contentLabel: "Content",
-    contentSummary: "Regular content with an optional header and table of contents.",
-    eventLabel: "Event",
-    eventSummary: "Time-bound content with dates, location, and shared reading tools.",
-  },
-);
+import { createVariantResolver } from "../../../../src/portable/core";
 
-const variants = computed(() => [
-  {
-    name: "article",
-    label: props.articleLabel,
-    extends: ["dates", "authors", "header", "toc", "copyButton", "surround"],
-    summary: props.articleSummary,
-    config: {
-      list: { itemsPerPage: 12 },
-      copyButton: { label: "Copy URL" },
-      surround: { show: true },
-    },
-  },
-  {
-    name: "content",
-    label: props.contentLabel,
-    extends: ["header", "toc"],
-    summary: props.contentSummary,
-    config: {},
-  },
-  {
-    name: "event",
-    label: props.eventLabel,
-    extends: ["dates", "location", "header", "toc", "copyButton", "surround"],
-    summary: props.eventSummary,
-    config: {
-      list: { itemsPerPage: 12 },
-      copyButton: { label: "Copy URL" },
-      surround: { show: true },
-    },
-  },
-]);
-
-const selectedVariantName = ref("article");
-
-const selectedVariant = computed(() => {
-  const matchedVariant = variants.value.find(
-    (variant) => variant.name === selectedVariantName.value,
-  );
-  const fallbackVariant = variants.value[0];
-
-  if (matchedVariant) {
-    return matchedVariant;
-  }
-
-  if (fallbackVariant) {
-    return fallbackVariant;
-  }
-
-  throw new Error("Landing workbench needs at least one variant.");
+const resolver = createVariantResolver({
+  csv: { config: { delimiter: "," } },
+  summary: { extends: "csv", config: { columns: ["id", "total"] } },
+  audit: { extends: "summary", config: { columns: ["id", "total", "author"] } },
 });
 
-const activeFeatures = computed(() => [
-  ...selectedVariant.value.extends,
-  selectedVariant.value.name,
-]);
-
-const configRows = computed(() =>
-  Object.entries(selectedVariant.value.config).map(([key, value]) => ({
-    key,
-    value: typeof value === "string" ? value : JSON.stringify(value),
-  })),
+type ExportVariant = "summary" | "audit";
+const choices: { label: string; value: ExportVariant }[] = [
+  { label: "Summary", value: "summary" },
+  { label: "Audit", value: "audit" },
+];
+const selected = ref<ExportVariant>("audit");
+const useSemicolon = ref(false);
+const result = computed(() =>
+  useSemicolon.value
+    ? resolver.resolve(selected.value, { csv: { config: { delimiter: ";" } } })
+    : resolver.resolve(selected.value),
 );
 </script>
 
 <template>
-  <div
-    class="mx-auto w-full max-w-6xl overflow-hidden rounded-2xl border border-default bg-default/80 text-left shadow-2xl shadow-black/10 backdrop-blur"
-  >
-    <div class="flex items-center justify-between border-b border-default px-4 py-3">
-      <div class="flex items-center gap-2">
-        <span class="size-2.5 rounded-full bg-error" />
-        <span class="size-2.5 rounded-full bg-warning" />
-        <span class="size-2.5 rounded-full bg-success" />
-      </div>
-      <div class="hidden items-center gap-2 text-xs text-muted sm:flex">
-        <UIcon name="i-lucide-git-branch" class="size-4" />
-        {{ graphLabel }}
+  <UCard class="min-w-0 text-start">
+    <template #header>
+      <h2 class="text-base font-semibold text-highlighted">Data export</h2>
+    </template>
+
+    <div class="space-y-4">
+      <URadioGroup v-model="selected" legend="Variant" orientation="horizontal" :items="choices" />
+      <USwitch v-model="useSemicolon" label="Use semicolons" />
+      <div aria-live="polite" aria-atomic="true" class="min-w-0 space-y-2">
+        <p class="font-mono text-sm text-muted">{{ result.features.join(" → ") }}</p>
+        <pre
+          class="overflow-x-auto rounded-md bg-muted p-3 text-sm text-default"
+        ><code>{{ JSON.stringify(result.config, null, 2) }}</code></pre>
       </div>
     </div>
-
-    <div class="grid items-stretch lg:grid-cols-[minmax(0,1fr)_360px]">
-      <div class="landing-workbench-code min-w-0">
-        <slot name="code" />
-      </div>
-
-      <section class="h-full bg-default p-4">
-        <div class="mb-4">
-          <p class="text-xs font-medium uppercase tracking-wide text-primary">
-            {{ resolvedLabel }}
-          </p>
-          <h3 class="mt-1 text-xl font-semibold text-highlighted">{{ selectedVariant.label }}</h3>
-          <p class="mt-1 text-sm text-muted">{{ selectedVariant.summary }}</p>
-        </div>
-
-        <div class="mb-5 grid grid-cols-3 gap-1 rounded-xl border border-default bg-muted p-1">
-          <button
-            v-for="variant in variants"
-            :key="variant.name"
-            type="button"
-            class="rounded-lg px-2 py-2 text-sm font-medium transition"
-            :class="
-              selectedVariantName === variant.name
-                ? 'bg-default text-highlighted shadow-sm'
-                : 'text-muted hover:text-highlighted'
-            "
-            :aria-pressed="selectedVariantName === variant.name"
-            @click="selectedVariantName = variant.name"
-          >
-            {{ variant.label }}
-          </button>
-        </div>
-
-        <div class="space-y-4">
-          <div>
-            <p class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
-              {{ extendsLabel }}
-            </p>
-            <div class="flex flex-wrap items-center gap-2">
-              <span
-                v-for="feature in selectedVariant.extends"
-                :key="feature"
-                class="rounded-md border border-default bg-muted px-2.5 py-1 text-xs text-muted"
-              >
-                {{ feature }}
-              </span>
-              <span class="text-muted">-></span>
-              <span class="rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                {{ selectedVariant.name }}
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <p class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
-              {{ featureChecksLabel }}
-            </p>
-            <div class="grid grid-cols-2 gap-2">
-              <span
-                v-for="feature in activeFeatures"
-                :key="feature"
-                class="rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-2 font-mono text-xs text-primary"
-              >
-                has("{{ feature }}")
-              </span>
-            </div>
-          </div>
-
-          <div class="rounded-xl border border-default bg-muted/30 p-3">
-            <p class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
-              {{ configLabel }}
-            </p>
-            <dl class="space-y-2 text-sm">
-              <div
-                v-for="row in configRows"
-                :key="row.key"
-                class="flex items-center justify-between gap-4"
-              >
-                <dt class="text-muted">{{ row.key }}</dt>
-                <dd class="font-mono text-highlighted">{{ row.value }}</dd>
-              </div>
-              <div v-if="configRows.length === 0" class="text-muted">
-                {{ emptyConfigLabel }}
-              </div>
-            </dl>
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
+  </UCard>
 </template>
-
-<style scoped>
-.landing-workbench-code :deep(> div) {
-  margin: 0;
-  height: 100%;
-  min-height: 480px;
-  border-width: 0;
-  border-radius: 0;
-}
-
-.landing-workbench-code :deep(pre) {
-  font-size: 13px;
-  line-height: 1.5rem;
-}
-</style>

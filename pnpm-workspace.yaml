@@ -7,3 +7,5 @@ allowBuilds:
   esbuild: true
   sharp: true
   vue-demi: true
+minimumReleaseAgeExclude:
+  - "@nuxt/ui@4.13.0"

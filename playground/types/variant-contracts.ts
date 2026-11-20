@@ -1,4 +1,5 @@
-import type { CustomVariantRegistry, VariantConfigOf } from "#nuxt-variants";
+import type { CustomVariantRegistry, VariantConfigOf, VariantName } from "#nuxt-variants";
+import type { RouteMeta } from "vue-router";
 
 type Expect<T extends true> = T;
 type HasKey<T, K extends PropertyKey> = K extends keyof T ? true : false;
@@ -48,3 +49,18 @@ export type RegistryContainsKnownVariants = Expect<
 >;
 
 export type PreviewIncludesAppOnlyConfig = Expect<HasKey<PreviewConfig, "previewMode">>;
+
+type PageVariant = NonNullable<Parameters<typeof definePageMeta>[0]["variant"]>;
+
+export type PageMetaAcceptsSelectedGroup = Expect<
+  IsEqual<PageVariant, "article" | "event" | "landing">
+>;
+export type RouteMetaFollowsSelectedGroup = Expect<
+  IsEqual<NonNullable<RouteMeta["variant"]>, PageVariant>
+>;
+export type HeroRemainsRegistered = Expect<IsAssignable<"hero", VariantName>>;
+
+definePageMeta({ variant: "article" });
+definePageMeta({ variant: "event" });
+// @ts-expect-error hero is registered as a feature outside the selected page group.
+definePageMeta({ variant: "hero" });

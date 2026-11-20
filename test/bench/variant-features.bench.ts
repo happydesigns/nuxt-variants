@@ -1,13 +1,18 @@
-import { bench, describe } from "vitest";
-import {
+import { createRequire } from "node:module";
+import { test } from "vitest";
+import type { VariantRegistry } from "../../src/runtime/utils/variants";
+
+// A native load keeps Vite instrumentation out of the measured merge and graph loops.
+const require = createRequire(import.meta.url);
+const {
   createVariantResolutionPlan,
   resolveVariantConfig,
   resolveVariantConfigFromLineage,
   resolveVariantConfigFromPlan,
   resolveVariantFeatures,
   variantHasFeature,
-  type VariantRegistry,
-} from "../../src/runtime/utils/variants";
+} =
+  require("../../dist/runtime/utils/variants.js") as typeof import("../../src/runtime/utils/variants");
 
 const registry: VariantRegistry = Object.fromEntries(
   Array.from({ length: 24 }, (_, index) => [
@@ -32,53 +37,54 @@ for (let depth = 1; depth <= 16; depth++) {
 }
 sharedRegistry.target = { extends: sharedParents };
 
-describe("shared ancestor feature traversal (34 entries)", () => {
-  bench("resolve selected lineage", () => {
+test("shared ancestor feature traversal (34 entries)", async ({ bench }) => {
+  await bench("resolve selected lineage", () => {
     resolveVariantFeatures("target", sharedRegistry, {});
-  });
+  }).run();
 });
 
-describe("feature lookups", () => {
-  bench("resolve the graph for every has() call", () => {
-    for (const feature of checks) {
-      variantHasFeature("feature-23", feature, registry, {});
-    }
-  });
-
-  bench("resolve once and reuse Set.has()", () => {
-    const features = resolveVariantFeatures("feature-23", registry, {});
-    for (const feature of checks) {
-      features.has(feature);
-    }
-  });
+test("feature lookups", async ({ bench }) => {
+  await bench.compare(
+    bench("resolve the graph for every has() call", () => {
+      for (const feature of checks) {
+        variantHasFeature("feature-23", feature, registry, {});
+      }
+    }),
+    bench("resolve once and reuse Set.has()", () => {
+      const features = resolveVariantFeatures("feature-23", registry, {});
+      for (const feature of checks) {
+        features.has(feature);
+      }
+    }),
+  );
 });
 
-describe("config resolution", () => {
-  bench("resolve config recursively", () => {
-    resolveVariantConfig("feature-23", registry, {});
-  });
-
-  bench("resolve config from a compiled plan", () => {
-    resolveVariantConfigFromPlan("feature-23", registry, {}, plan);
-  });
-
-  bench("resolve activity overrides recursively", () => {
-    resolveVariantConfig("feature-23", registry, activeOverrides);
-  });
-
-  bench("resolve activity overrides from a compiled plan", () => {
-    resolveVariantConfigFromPlan("feature-23", registry, activeOverrides, overriddenPlan);
-  });
+test("config resolution", async ({ bench }) => {
+  await bench.compare(
+    bench("resolve config recursively", () => {
+      resolveVariantConfig("feature-23", registry, {});
+    }),
+    bench("resolve config from a compiled plan", () => {
+      resolveVariantConfigFromPlan("feature-23", registry, {}, plan);
+    }),
+    bench("resolve activity overrides recursively", () => {
+      resolveVariantConfig("feature-23", registry, activeOverrides);
+    }),
+    bench("resolve activity overrides from a compiled plan", () => {
+      resolveVariantConfigFromPlan("feature-23", registry, activeOverrides, overriddenPlan);
+    }),
+  );
 });
 
-describe("activity override planning", () => {
-  bench("compile every variant lineage", () => {
-    const runtimePlan = createVariantResolutionPlan(registry, activeOverrides);
-    resolveVariantConfigFromPlan("feature-23", registry, activeOverrides, runtimePlan);
-  });
-
-  bench("resolve only the selected variant lineage", () => {
-    const lineage = [...resolveVariantFeatures("feature-23", registry, activeOverrides)];
-    resolveVariantConfigFromLineage(lineage, registry, activeOverrides);
-  });
+test("activity override planning", async ({ bench }) => {
+  await bench.compare(
+    bench("compile every variant lineage", () => {
+      const runtimePlan = createVariantResolutionPlan(registry, activeOverrides);
+      resolveVariantConfigFromPlan("feature-23", registry, activeOverrides, runtimePlan);
+    }),
+    bench("resolve only the selected variant lineage", () => {
+      const lineage = [...resolveVariantFeatures("feature-23", registry, activeOverrides)];
+      resolveVariantConfigFromLineage(lineage, registry, activeOverrides);
+    }),
+  );
 });

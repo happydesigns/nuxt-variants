@@ -1,59 +1,44 @@
 <script setup lang="ts">
+import { highlightJson } from "~/utils/json-highlighter";
+
 const props = defineProps<{
-  title: string;
-  description: string;
+  filename: string;
   value: unknown;
+  hideHeader?: boolean;
 }>();
 
 const code = computed(() => JSON.stringify(props.value, null, 2));
-const copyStatus = ref<"idle" | "copied" | "error">("idle");
-let resetTimer: ReturnType<typeof setTimeout> | undefined;
-
-const copyLabel = computed(() => {
-  if (copyStatus.value === "copied") return "Copied";
-  if (copyStatus.value === "error") return "Copy failed";
-  return "Copy JSON";
-});
-
-async function copyCode() {
-  if (resetTimer) clearTimeout(resetTimer);
-
-  try {
-    await navigator.clipboard.writeText(code.value);
-    copyStatus.value = "copied";
-  } catch {
-    copyStatus.value = "error";
-  }
-
-  resetTimer = setTimeout(() => {
-    copyStatus.value = "idle";
-  }, 2000);
-}
-
-watch(code, () => {
-  copyStatus.value = "idle";
-});
-
-onBeforeUnmount(() => {
-  if (resetTimer) clearTimeout(resetTimer);
+const lines = computed(() => highlightJson(code.value));
+const copyButton = computed(() => {
+  const label = `Copy ${props.filename} as JSON`;
+  return { type: "button" as const, "aria-label": label, title: label };
 });
 </script>
 
 <template>
-  <NCard>
-    <div class="panel-head">
-      <div class="panel-head-copy">
-        <div>
-          <h2>{{ title }}</h2>
-          <p>{{ description }}</p>
-        </div>
-        <NButton border :title="`Copy ${title} as JSON`" @click="copyCode">
-          {{ copyLabel }}
-        </NButton>
-      </div>
-    </div>
-    <div class="panel-body">
-      <JsonCodeBlock :code="code" />
-    </div>
-  </NCard>
+  <div class="min-w-0">
+    <ProsePre
+      :code="code"
+      :filename="filename"
+      :hide-header="hideHeader"
+      language="json"
+      :copy="copyButton"
+      :ui="{
+        root: 'm-0 min-w-0',
+        base: 'max-h-[32rem] rounded-none border-0 bg-elevated/40 -outline-offset-3 scheme-light dark:scheme-dark',
+        copy: 'top-2 lg:opacity-100',
+      }"
+      tabindex="0"
+      :aria-label="filename"
+    >
+      <code
+        ><template v-for="(line, index) in lines" :key="index"
+          ><span v-for="token in line" :key="token.offset" :style="token.htmlStyle">{{
+            token.content
+          }}</span
+          >{{ index < lines.length - 1 ? "\n" : "" }}</template
+        ></code
+      >
+    </ProsePre>
+  </div>
 </template>

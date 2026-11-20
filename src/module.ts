@@ -6,9 +6,11 @@ import {
   addTypeTemplate,
   addTemplate,
   addServerHandler,
+  addPlugin,
   createResolver,
 } from "@nuxt/kit";
-import { addCustomTab } from "@nuxt/devtools-kit";
+import { addCustomTab, onDevtoolsReady, NUXT_DEVTOOLS_GROUP_ID } from "@nuxt/devtools-kit";
+import { inspectorAssets } from "@happydesigns/composable-variants/internal/inspector";
 import {
   assertValidVariantInputs,
   assertValidVariantRegistry,
@@ -62,12 +64,15 @@ export interface ModuleOptions {
   registry?: VariantRegistryInput;
   /** App-config key used for runtime value overrides. @default "variants" */
   configKey?: string;
+  /** Opt into the DevFrame inspector on Nuxt DevTools v4. @default "legacy" */
+  devtools?: "legacy" | "devframe";
 }
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: "nuxt-variants",
     configKey: "variants",
+    devtools: "legacy",
     compatibility: {
       nuxt: ">=4.5.0",
     },
@@ -111,7 +116,7 @@ export default defineNuxtModule<ModuleOptions>({
       "",
     ].join("\n");
     const runtimeDtsContent = [
-      `import type { VariantRegistry, VariantResolutionPlan } from "@happydesigns/nuxt-variants";`,
+      `import type { VariantRegistry, VariantResolutionPlan } from "@happydesigns/composable-variants/nuxt";`,
       `export declare const variantRegistry: Readonly<VariantRegistry>;`,
       `export declare const variantResolutionPlan: VariantResolutionPlan;`,
       `export declare const variantsConfigKey: string;`,
@@ -119,10 +124,9 @@ export default defineNuxtModule<ModuleOptions>({
     ].join("\n");
     const devtoolsEnabled = nuxt.options.dev || process.env.NODE_ENV === "test";
     const sourceClientPath = resolver.resolve("../client/.output/public");
-    const builtClientPath = resolver.resolve("./client");
     const devtoolsClientPath = existsSync(join(sourceClientPath, "index.html"))
       ? sourceClientPath
-      : builtClientPath;
+      : inspectorAssets;
 
     if (devtoolsEnabled) {
       const variantSources = collectVariantSources(nuxt.options._layers, configKey);
@@ -135,14 +139,6 @@ export default defineNuxtModule<ModuleOptions>({
         variantDevtoolsMetadata: devtoolsMetadata,
         variantDevtoolsClientPath: devtoolsClientPath,
       });
-    }
-
-    /** Returns the key itself plus all transitive ancestors, deduped, in resolution order. */
-    function getAncestors(key: string, visited = new Set<string>()): string[] {
-      if (visited.has(key)) return [];
-      visited.add(key);
-      const parents = variantGraph[key] ?? [];
-      return [key, ...parents.flatMap((p) => getAncestors(p, new Set(visited)))];
     }
 
     addTypeTemplate({
@@ -160,30 +156,27 @@ export default defineNuxtModule<ModuleOptions>({
           .join("\n");
 
         const registryKeys = [...allRegistryKeys];
-        const entries = registryKeys
-          .map((key) => {
-            // Include configs from self + all transitive ancestors so that
-            // useVariant('article') returns a type that includes inherited properties.
-            const chain = getAncestors(key);
-            const configType = chain
-              .map((k, index) => {
-                // Use `infer` pattern rather than `extends keyof` — TypeScript reliably
-                // evaluates infer-based conditionals even when the base type is itself
-                // a conditional type, whereas `K extends keyof ConditionalType` can
-                // fail to resolve and fall to the else branch (producing never).
-                const prop = JSON.stringify(k);
-                return `_VariantConfigWithOverride<${prop},
-      _VariantConfig<_RegistryVariants extends Record<${prop}, infer _R${index}> ? _R${index} : never>
-      & _VariantConfig<_AppVariants extends Record<${prop}, infer _A${index}> ? _A${index} : never>
-    >`;
-              })
-              .join("\n    & ");
-            return `  ${JSON.stringify(key)}: ${configType}`;
+        const indexes = new Map(registryKeys.map((key, index) => [key, index]));
+        const resolvedTypes = registryKeys
+          .map((key, index) => {
+            const parents = variantGraph[key] ?? [];
+            const inherited =
+              parents.map((parent) => `_Sources_${indexes.get(parent)}`).join(" | ") || "never";
+            const refinements = [
+              ...parents.map((parent) => `_Refinement_${indexes.get(parent)}`),
+              `_OwnRefinement<${JSON.stringify(key)}>`,
+            ].join(" | ");
+            return `type _Sources_${index} = _Entry<${JSON.stringify(key)}> | ${inherited};
+type _Refinement_${index} = ${refinements};
+type _Resolved_${index} = _RefineConfig<_MergeObject<_JoinObject<${inherited}>, _Entry<${JSON.stringify(key)}>>, _Refinement_${index}>;`;
           })
           .join("\n");
-
+        const entries = registryKeys
+          .map((key, index) => `  ${JSON.stringify(key)}: _Resolved_${index}`)
+          .join("\n");
         return `// Generated by nuxt-variants — do not edit.
 import type { AppConfig } from 'nuxt/schema'
+import type { PageMeta } from '#app'
 
 type _AppVariants = AppConfig extends { ${JSON.stringify(configKey)}?: infer V }
   ? NonNullable<V>
@@ -198,6 +191,39 @@ type _VariantConfig<T> = [T] extends [never] ? {} : T extends { config?: infer C
 export interface CustomVariantOverrides {}
 type _VariantConfigWithOverride<K extends PropertyKey, T> =
   K extends keyof CustomVariantOverrides ? CustomVariantOverrides[K] : T
+type _UnionKeys<U> = U extends unknown ? keyof U : never;
+type _UnionValue<U, K extends PropertyKey> = U extends unknown ? K extends keyof U ? U[K] : never : never;
+type _Objects<U> = U extends readonly unknown[] ? never : U extends object ? U : never;
+type _NonObjects<U> = U extends readonly unknown[] ? U : U extends object ? never : U;
+type _JoinValue<U> = _NonObjects<U> | ([_Objects<U>] extends [never] ? never : _JoinObject<_Objects<U>>);
+/** Inherited entries can disappear independently when their active state changes. */
+type _JoinObject<U> = { [K in _UnionKeys<U>]?: _JoinValue<_UnionValue<U, K>> };
+
+type _Field<T, K extends PropertyKey> = K extends keyof T ? T[K] : undefined;
+type _GuaranteedKeys<T> = { [K in keyof T]-?: {} extends Pick<T, K> ? never :
+  [Extract<T[K], null | undefined>] extends [never] ? K : never }[keyof T];
+type _MergeValue<L, H> = H extends null | undefined ? L :
+  H extends readonly unknown[] ? H : H extends object ?
+  [_Objects<L>] extends [never] ? H :
+  _MergeObject<[L] extends [_Objects<L>] ? L : _JoinObject<_Objects<L>>, H> : H;
+/** Own values win; inherited-only keys retain their optional modifiers. */
+type _MergeObject<L, H> = {
+  [K in Exclude<keyof L | keyof H, _GuaranteedKeys<L> | _GuaranteedKeys<H>>]?: _MergeValue<_Field<L, K>, _Field<H, K>>
+} & {
+  [K in _GuaranteedKeys<L> | _GuaranteedKeys<H>]-?: _MergeValue<_Field<L, K>, _Field<H, K>>
+};
+type _Entry<K extends PropertyKey> = _VariantConfigWithOverride<K, _MergeObject<
+  _VariantConfig<_RegistryVariants extends Record<K, infer R> ? R : never>,
+  _VariantConfig<_AppVariants extends Record<K, infer A> ? A : never>
+>>;
+type _OwnRefinement<K extends PropertyKey> = CustomVariantOverrides extends Record<K, infer R> ? R : {};
+type _RefineValue<V, R> = V extends undefined ? undefined : V extends readonly unknown[] ? V & R :
+  V extends object ? R extends object ? _RefineConfig<V, R> : V & R : V & R;
+type _RefinementValue<R, K extends PropertyKey> =
+  (R extends unknown ? K extends keyof R ? (value: R[K]) => void : never : never) extends (value: infer V) => void ? V : never;
+type _RefineConfig<C, R> = { [K in keyof C]: K extends _UnionKeys<R> ? _RefineValue<C[K], _RefinementValue<R, K>> : C[K] };
+
+${resolvedTypes}
 
 type _GeneratedVariantRegistry = {
 ${entries}
@@ -222,7 +248,7 @@ export type VariantConfigOf<K extends keyof CustomVariantRegistry> = _MergeVaria
 
 declare module 'vue-router' {
   interface RouteMeta {
-    variant?: VariantName;
+    variant?: VariantName & PageMeta['variant'];
   }
 }
 `;
@@ -239,7 +265,7 @@ declare module 'vue-router' {
       "",
     ].join("\n");
     const graphDtsContent = [
-      `import type { VariantDiagnostic, VariantGraph } from "@happydesigns/nuxt-variants";`,
+      `import type { VariantDiagnostic, VariantGraph } from "@happydesigns/composable-variants/nuxt";`,
       `export declare const variantGraph: VariantGraph;`,
       `export declare const variantDiagnostics: readonly VariantDiagnostic[];`,
       "",
@@ -288,19 +314,56 @@ declare module 'vue-router' {
         handler: resolver.resolve("./runtime/server/devtools.get"),
       });
 
-      addCustomTab(
-        {
-          name: "nuxt-variants",
-          title: "Nuxt Variants",
-          icon: "i-lucide-git-branch",
-          category: "app",
-          view: {
+      if (options.devtools === "devframe") {
+        addPlugin({
+          src: resolver.resolve("./runtime/plugins/devtools-host.client"),
+          mode: "client",
+        });
+        addServerHandler({
+          route: "/__nuxt-variants/snapshot.json",
+          handler: resolver.resolve("./runtime/server/devtools-data.get"),
+        });
+        onDevtoolsReady(async (ctx) => {
+          const { createVariantsDevframe } =
+            await import("@happydesigns/composable-variants/devtools");
+          const definition = createVariantsDevframe({
+            clientAssets: devtoolsClientPath,
+            basePath: `${devtoolsRoute}/`,
+            snapshot: async () => {
+              const response = await fetch(
+                new URL(`${appBaseURL}/__nuxt-variants/snapshot.json`, nuxt.options.devServer.url),
+              );
+              if (!response.ok)
+                throw new Error(`Variants snapshot failed with HTTP ${response.status}.`);
+              return response.json();
+            },
+          });
+          await definition.setup(ctx, { flags: {} });
+          await ctx.views.hostStatic(`${devtoolsRoute}/`, devtoolsClientPath);
+          await ctx.host.mountConnectionMeta?.(`${devtoolsRoute}/`);
+          ctx.docks.register({
+            id: "nuxt-variants",
             type: "iframe",
-            src: devtoolsRoute,
+            title: "Composable Variants",
+            icon: `${devtoolsRoute}/variants.svg`,
+            groupId: NUXT_DEVTOOLS_GROUP_ID,
+            url: `${devtoolsRoute}/?transport=devframe&host=nuxt`,
+          });
+        }, nuxt);
+      } else
+        addCustomTab(
+          {
+            name: "nuxt-variants",
+            title: "Composable Variants",
+            icon: "i-lucide-git-branch",
+            category: "app",
+            view: {
+              type: "iframe",
+              src: devtoolsRoute,
+            },
           },
-        },
-        nuxt,
-      );
+          nuxt,
+        );
     }
 
     addImportsDir(resolver.resolve("./runtime/composables"));

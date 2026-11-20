@@ -2,11 +2,11 @@ import NuxtVariants, {
   VariantRegistryError,
   defineVariantRegistry,
   type ModuleOptions,
-} from "@happydesigns/nuxt-variants";
+} from "@happydesigns/composable-variants/nuxt";
 import {
   createVariantSchemaResolver,
   defineVariantRegistry as defineSchemaVariantRegistry,
-} from "@happydesigns/nuxt-variants/schemas";
+} from "@happydesigns/composable-variants/schemas";
 
 const registry = defineVariantRegistry({
   content: {},

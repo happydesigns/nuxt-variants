@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 24
 
-      - run: npm i -g --force corepack@0.35.0 && corepack enable
+      - run: npm i -g --force corepack@0.36.0 && corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -37,7 +37,7 @@ jobs:
         with:
           node-version: 24
 
-      - run: npm i -g --force corepack@0.35.0 && corepack enable
+      - run: npm i -g --force corepack@0.36.0 && corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
