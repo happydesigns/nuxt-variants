@@ -10,44 +10,44 @@
   <a href="docs/content/docs/10.platform-preview.md#comark-content"><img src=".github/badges/comark-content.svg" alt="Comark Content guide"></a>
 </p>
 
-Define and resolve named, typed configurations from reusable features and defaults. A data record, a route, or application code selects the variant. For example, articles and events can share a hero and breadcrumbs while defining different fields and layout behavior.
+Config Variants is a TypeScript library for composing named configurations from shared settings. A data record, a route, or application code selects a variant. Each variant can inherit settings and override the values that differ.
 
-## Nuxt quickstart
+## Quick start
 
-Install the published package with `pnpm add @happydesigns/config-variants`. To try an unpublished build, install the archive produced by [the repository's package check](CONTRIBUTING.md#release-workflow).
+```bash
+pnpm add @happydesigns/config-variants
+```
+
+To try an unpublished build, [build and install a local archive](docs/content/docs/10.platform-preview.md#build-the-local-package).
+
+An audit export can reuse the standard CSV settings and choose a different delimiter.
 
 ```ts
-// nuxt.config.ts
-export default defineNuxtConfig({
-  modules: ["@happydesigns/config-variants"],
-  variants: {
-    registry: {
-      hero: { config: { heroAlign: "left" } },
-      article: { extends: "hero" },
-      event: { extends: "hero", config: { heroAlign: "center" } },
-    },
-  },
+import { createVariantResolver } from "@happydesigns/config-variants";
+
+const reports = createVariantResolver({
+  csv: { config: { delimiter: ",", includeHeader: true } },
+  audit: { extends: "csv", config: { delimiter: ";" } },
 });
+
+const { config } = reports.resolve("audit");
+console.log(config); // { delimiter: ";", includeHeader: true }
 ```
 
-```ts
-// app/pages/events.vue
-definePageMeta({ variant: "event" });
-const { config } = useVariant("event");
-// config.value.heroAlign is "center".
-```
-
-Nuxt resolves the package name in `modules` to the `/nuxt` entry point. The [Nuxt guide](docs/content/docs/1.getting-started.md) shows how to select a variant in a shared layout and override values with `app.config.ts`. The Config Variants tab in Nuxt DevTools traces resolved values to their source.
+The [core guide](docs/content/docs/10.platform-preview.md#portable-core) covers resolving variants from data records and applying overrides per call.
 
 ## Integrations
 
-| Entry point | Use |
-| --- | --- |
-| `@happydesigns/config-variants` | [Resolve variants in TypeScript](docs/content/docs/10.platform-preview.md#portable-core). |
-| `/nuxt` | [Use reactive config and generated types in Nuxt](docs/content/docs/3.api.md). |
-| `/schemas` | [Compose Nuxt Content collection schemas](docs/content/docs/5.content-schemas.md). |
-| `/comark-content` | [Validate and store variant selections in Comark Content](docs/content/docs/10.platform-preview.md#comark-content). |
-| `/devtools` | [Host the DevFrame inspector](docs/content/docs/10.platform-preview.md#standalone-inspector). |
+| Integration | Entry point | Use |
+| --- | --- | --- |
+| Comark Content | `/comark-content` | [Validate variant selections and keep them in content snapshots](docs/content/docs/10.platform-preview.md#comark-content). |
+| Nuxt | Package name in `modules` | [Select variants on routes, read reactive config, and trace values in Nuxt DevTools](docs/content/docs/1.getting-started.md). |
+| Nuxt Content v3 | `/schemas` | [Compose collection schemas from shared fields](docs/content/docs/5.content-schemas.md). |
+| DevFrame | `/devtools` | [Run the inspector in a standalone host](docs/content/docs/10.platform-preview.md#standalone-inspector). |
+
+Nuxt resolves the module entry automatically. Import [Nuxt-specific types](docs/content/docs/3.api.md) from `@happydesigns/config-variants/nuxt`.
+
+## Upgrading
 
 See the [migration guide](docs/content/docs/9.migration-0-3.md) when upgrading from `@happydesigns/nuxt-variants`.
 
