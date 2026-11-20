@@ -1,14 +1,14 @@
 # Config Variants
 
 <p>
-  <a href="CONTRIBUTING.md#release-workflow"><img src="https://img.shields.io/github/package-json/v/happydesigns/config-variants/main?style=flat&amp;label=preview&amp;colorA=242423&amp;colorB=B84B31" alt="Package version on main"></a>
+  <a href="CONTRIBUTING.md#release-workflow"><img src="https://img.shields.io/github/package-json/v/happydesigns/config-variants/main?style=flat&amp;label=preview&amp;colorA=18181B&amp;colorB=B84B31" alt="Package version on main"></a>
   <a href="https://github.com/happydesigns/config-variants/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush">
-    <img src="https://img.shields.io/github/actions/workflow/status/happydesigns/config-variants/ci.yml?branch=main&amp;event=push&amp;label=CI&amp;style=flat&amp;colorA=242423" alt="CI on main">
+    <img src="https://img.shields.io/github/actions/workflow/status/happydesigns/config-variants/ci.yml?branch=main&amp;event=push&amp;label=CI&amp;style=flat&amp;colorA=18181B" alt="CI on main">
   </a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/happydesigns/config-variants?style=flat&amp;colorA=242423&amp;colorB=504A45" alt="MIT license"></a>
-  <a href="docs/content/docs/10.platform-preview.md#portable-core"><img src="https://img.shields.io/badge/TypeScript-core-504A45?style=flat&amp;colorA=242423" alt="TypeScript core guide"></a>
-  <a href="docs/content/docs/1.getting-started.md"><img src="https://img.shields.io/badge/Nuxt-module-504A45?style=flat&amp;colorA=242423" alt="Nuxt module quickstart"></a>
-  <a href="docs/content/docs/10.platform-preview.md#comark-content"><img src="https://img.shields.io/badge/Comark%20Content-adapter-504A45?style=flat&amp;colorA=242423" alt="Comark Content adapter guide"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/happydesigns/config-variants?style=flat&amp;colorA=18181B&amp;colorB=B84B31" alt="MIT license"></a>
+  <a href="docs/content/docs/10.platform-preview.md#portable-core"><img src="https://img.shields.io/badge/TypeScript-18181B?logo=typescript" alt="TypeScript guide"></a>
+  <a href="docs/content/docs/1.getting-started.md"><img src="https://img.shields.io/badge/Nuxt-18181B?logo=nuxt" alt="Nuxt quickstart"></a>
+  <a href="docs/content/docs/10.platform-preview.md#comark-content"><img src="https://img.shields.io/badge/Comark%20Content-18181B" alt="Comark Content guide"></a>
 </p>
 
 Define and resolve named, typed configurations from reusable features and defaults. A data record, a route, or application code selects the variant. For example, articles and events can share a hero and breadcrumbs while defining different fields and layout behavior.
