@@ -68,8 +68,9 @@ saved checkpoint survives both upgrade and rollback. See the
 [Course pilot](./course-pilot.md) for the real consumer and reproduction steps.
 
 The earlier acceptance above used the original package name. The final
-packaging direction is a single `@happydesigns/composable-variants` archive
-with the Nuxt module at `/nuxt`. See the [migration guide](./content/docs/9.migration-0-3.md).
+package ships as a single `@happydesigns/composable-variants` archive. Use the
+package name in Nuxt's `modules` array. Nuxt resolves the `/nuxt` entry.
+See the [migration guide](./content/docs/9.migration-0-3.md).
 The Comark Content entry is `/comark-content`. Nuxt Content v4 still needs a
 real identity round trip against its public plugin interface.
 

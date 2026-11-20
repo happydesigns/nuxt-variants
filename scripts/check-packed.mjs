@@ -163,7 +163,7 @@ await fs.writeFile(
 runPnpm(["install", "--ignore-scripts"], nuxtConsumer);
 await fs.writeFile(
   path.join(nuxtConsumer, "nuxt.config.ts"),
-  `export default defineNuxtConfig({ compatibilityDate: '2026-05-04', devtools: { enabled: false }, modules: ['${nuxtEntry}'], variants: { configKey: 'pageVariants', registry: { base: { config: { heading: 'Packed inheritance' } }, article: { extends: 'base' } } } })`,
+  `export default defineNuxtConfig({ compatibilityDate: '2026-05-04', devtools: { enabled: false }, modules: ['${portableName}'], variants: { configKey: 'pageVariants', registry: { base: { config: { heading: 'Packed inheritance' } }, article: { extends: 'base' } } } })`,
 );
 await fs.writeFile(
   path.join(nuxtConsumer, "app/app.config.ts"),

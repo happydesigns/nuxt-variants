@@ -6,40 +6,41 @@ Composable Variants lets applications define reusable features, combine them
 into named variants and resolve their effective configuration. An application
 can choose a variant from a data record, a route or its own code.
 
-The local `0.3.0-rc.1` candidate ships one package,
-`@happydesigns/composable-variants`. Import the core from the package root.
-Register `/nuxt` for the Nuxt module and use `/schemas` for Nuxt Content v3.
-The `/comark-content` and `/devtools` entry points support their respective hosts.
-See the [preview guide](docs/content/docs/10.platform-preview.md)
-and [migration guide](docs/content/docs/9.migration-0-3.md).
-The [acceptance report](docs/preview-acceptance.md) records completed checks,
-performance costs, known limits, and the next adoption steps.
+The local `0.3.0-rc.1` candidate ships as `@happydesigns/composable-variants`.
+Start with the [Nuxt quickstart](docs/content/docs/1.getting-started.md),
+the [TypeScript and Comark guide](docs/content/docs/10.platform-preview.md),
+or the [migration guide for 0.2](docs/content/docs/9.migration-0-3.md).
 
-To compare against the actual `v0.2.0` release implementation locally:
+## Quick Setup
+
+Use Node.js 22.19 or newer on the 22.x release line, Node.js 24.11 or newer on
+the 24.x release line, or Node.js 26+.
+
+From this checkout, build and verify the local package archive.
 
 ```bash
-pnpm compare:prepare
-pnpm compare
+pnpm install --frozen-lockfile
+pnpm release:prepare
 ```
 
-Open `http://127.0.0.1:4192/`. The comparison includes article, event, snippet, and
-course fixtures, interactive overrides, and legacy/live/offline inspectors.
-It does not change another application or publish a package.
-The preparation command builds the preview and downloads the integrity-checked
-released inspector once, so the comparison also shows the real old UI.
-Select `event` in the live inspector. In **Fields**, the `label` row shows
-the app-config override that supplies `Veranstaltung`.
-Filter by **Editorial** to see the two presets allowed by the example Comark
-source. The selected preset's **Composition** shows its group memberships.
+In your Nuxt app, install the archive using the path reported by the package
+check. This command assumes you copied it into the app directory.
 
-Run `pnpm dev` and open **Editorial documents** to see the Comark adapter
-in Nuxt. The article and event documents choose their variants in Markdown
-frontmatter. The page resolves the features using the app's live config.
+```bash
+pnpm add ./happydesigns-composable-variants-0.3.0-rc.1.tgz
+```
 
-With a local happydesigns UI checkout and its dependencies installed, run
-`pnpm compare:presets ../ui` after building the preview. The pilot reads its
-article and event documents and compares schema validation, SQLite queries
-and Vue server rendering against typed presets.
+Register the package in `nuxt.config.ts`.
+
+```ts
+export default defineNuxtConfig({
+  modules: ["@happydesigns/composable-variants"],
+});
+```
+
+Nuxt resolves the package name in `modules` to its `/nuxt` entry point.
+Use `/nuxt` for an explicit module or Nuxt type import. A regular import from
+`@happydesigns/composable-variants` gives you the portable resolver.
 
 ## Why Use It?
 
@@ -84,33 +85,13 @@ Composable Variants separates structural decisions from configurable values:
 - Nuxt DevTools inspector with filtering, resolution order, layer provenance, and resolved output.
 - Graph-aware Nuxt Content schema helper through `@happydesigns/composable-variants/schemas`.
 
-## Quick Setup
-
-Use Node.js 22.19 or newer on the 22.x release line, Node.js 24.11 or newer on
-the 24.x release line, or Node.js 26+.
-
-Run `pnpm release:prepare` in this checkout. In your Nuxt app, install the
-single archive from the path reported by the package check.
-
-```bash
-pnpm add ./happydesigns-composable-variants-0.3.0-rc.1.tgz
-```
-
-Then register the module:
-
-```ts
-export default defineNuxtConfig({
-  modules: ["@happydesigns/composable-variants/nuxt"],
-});
-```
-
 ## Basic Usage
 
 ### 1. Define Variants
 
 ```ts
 export default defineNuxtConfig({
-  modules: ["@happydesigns/composable-variants/nuxt"],
+  modules: ["@happydesigns/composable-variants"],
   variants: {
     registry: {
       dates: {},
@@ -153,7 +134,10 @@ export default defineAppConfig({
 
 `app.config.ts` wins over `nuxt.config.ts` for the same registered variant. Generated config types include both the registry and Nuxt's merged `AppConfig`, so an entry may be structural in the registry while its complete value contract lives in a layer or application app config. Names and `extends` remain in the registry; changing structure at runtime would make generated types, Content schemas, and rendering disagree, so Composable Variants rejects it during startup.
 
-Current Nuxt Studio versions edit Nuxt Content files rather than `app.config.ts` directly. For owner-editable settings, define a small app-owned data collection with an explicit schema and map its values to `updateAppConfig`. This preserves the reactive variant API without exposing the technical variant graph to editors. See the documentation example for the complete pattern.
+For settings that editors manage in Nuxt Studio, define an app-owned data
+collection with an explicit schema and map its values to `updateAppConfig`.
+The variant graph stays in code. See the
+[editable settings example](docs/content/docs/6.examples.md#owner-editable-settings-with-nuxt-studio).
 
 ### 3. Select A Variant Per Page
 
@@ -211,7 +195,7 @@ has("authors").value; // true
 has("location").value; // false
 ```
 
-## Nuxt Content
+## Nuxt Content v3
 
 Composable Variants ships `mergeVariantSchemas` for Nuxt Content v3. It walks the variant graph and produces one Zod or Valibot object schema with inherited fields included.
 
@@ -223,7 +207,7 @@ need it. This avoids module-order and virtual-alias coupling.
 
 ```ts
 // variants.ts
-import { defineVariantRegistry } from "@happydesigns/composable-variants/schemas";
+import { defineVariantRegistry } from "@happydesigns/composable-variants";
 
 export const variantRegistry = defineVariantRegistry({
   dates: {},
@@ -239,14 +223,14 @@ export const variantRegistry = defineVariantRegistry({
 import { variantRegistry } from "./variants";
 
 export default defineNuxtConfig({
-  modules: ["@happydesigns/composable-variants/nuxt", "@nuxt/content"],
+  modules: ["@happydesigns/composable-variants", "@nuxt/content"],
   variants: { registry: variantRegistry },
 });
 ```
 
 ```ts
 // content.config.ts
-import { defineCollection, property } from "@nuxt/content";
+import { defineCollection, defineContentConfig } from "@nuxt/content";
 import { z } from "zod";
 import { createVariantSchemaResolver } from "@happydesigns/composable-variants/schemas";
 import { variantRegistry } from "./variants";
@@ -255,19 +239,21 @@ const variantSchemas = {
   dates: z.object({ date: z.date().optional() }),
   authors: z.object({ authors: z.array(z.string()).optional() }),
   header: z.object({
-    header: property(z.object({})).inherit("@nuxt/ui/components/PageHeader.vue").optional(),
+    header: z.object({ title: z.string() }).optional(),
   }),
   toc: z.object({ toc: z.boolean().default(true) }),
 };
 const resolveVariantSchema = createVariantSchemaResolver(variantRegistry, variantSchemas);
 
-export const collections = {
-  blog: defineCollection({
-    type: "page",
-    source: "blog/**",
-    schema: resolveVariantSchema(["article"]),
-  }),
-};
+export default defineContentConfig({
+  collections: {
+    blog: defineCollection({
+      type: "page",
+      source: "blog/**",
+      schema: resolveVariantSchema(["article"]),
+    }),
+  },
+});
 ```
 
 The resolver builds the explicit graph once from the shared registry and reuses
@@ -391,17 +377,34 @@ The repository pins pnpm through `packageManager`, so Corepack and CI use the
 same package manager version.
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The playground demonstrates shared layouts, feature composition, runtime overrides, generated type contracts, and Nuxt Content schema merging.
+Open **Editorial documents** to see Comark Content select `article` or
+`event` from Markdown frontmatter. The page resolves the variant with the
+current Nuxt app config.
 
 ```bash
-pnpm run docs
+pnpm docs
 ```
 
-The Docus documentation source lives in [`docs/`](/docs). See [`CONTRIBUTING.md`](/CONTRIBUTING.md) for branch, commit, and PR rules.
+The Docus guide lives in [`docs/content/`](docs/content). See
+[Contributing](CONTRIBUTING.md) for the development workflow.
+
+## Compare with 0.2.0
+
+```bash
+pnpm compare:prepare
+pnpm compare
+```
+
+Open [the local comparison](http://127.0.0.1:4192/) and select `event` in the
+live inspector. **Fields** shows that `event`'s app config supplies the label
+`Veranstaltung`. The comparison includes the released inspector and an offline
+snapshot. The [verification guide](docs/content/docs/10.platform-preview.md#compare-and-verify)
+describes the fixtures and the optional typed-preset comparison. See the
+[acceptance report](docs/preview-acceptance.md) for results and known limits.
 
 ## Local Checks
 

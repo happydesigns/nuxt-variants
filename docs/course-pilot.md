@@ -45,6 +45,10 @@ after CSS transitions finished.
 
 ## Reproduce the check
 
+The captured builds used archives from the earlier layout. To repeat the
+preview with the current archive, apply the package and module changes in the
+[0.3 migration guide](./content/docs/9.migration-0-3.md) to the preview copy.
+
 1. Export that Course commit into two directories outside any parent
    JavaScript workspace. For the release, run `pnpm install --frozen-lockfile`.
    For the preview, set a pnpm override for `@happydesigns/nuxt-variants` to

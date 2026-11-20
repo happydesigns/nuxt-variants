@@ -94,9 +94,9 @@ remain internal unless explicitly documented otherwise.
 ## Optional Platform Adapters
 
 The `0.3` preview ships one package, `@happydesigns/composable-variants`.
-The main import exposes the portable resolver, `/nuxt` exposes the module,
-and `/schemas` exposes Nuxt Content v3 schema helpers. `/comark-content` and
-`/devtools` use optional host peers. Nuxt Kit packages are installed with the
+The main import exposes the portable resolver. Nuxt resolves the package
+name in `modules` to `/nuxt`. `/schemas` exposes Nuxt Content v3 schema helpers.
+`/comark-content` and `/devtools` use optional host peers. Nuxt Kit packages are installed with the
 package and loaded by the Nuxt entry. See the
 [preview guide](docs/content/docs/10.platform-preview.md).
 
