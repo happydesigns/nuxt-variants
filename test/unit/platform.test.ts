@@ -8,8 +8,8 @@ import {
 } from "@happydesigns/config-variants";
 import { variantContent, variantField } from "@happydesigns/config-variants/comark-content";
 import {
-  createVariantsDevframe,
-  createVariantDevtoolsData,
+  defineVariantInspector,
+  createVariantSnapshot,
   type VariantDevtoolsData,
 } from "@happydesigns/config-variants/devtools";
 import { createHostContext } from "devframe/node";
@@ -127,7 +127,9 @@ describe("portable resolver", () => {
   it("rejects invalid graphs, unknown names, and structural overrides", () => {
     expect(() => createVariantResolver({ a: ["missing"] })).toThrow(/unknown/i);
     const resolver = createVariantResolver(registry);
-    expect(() => resolver.resolve("missing" as "article")).toThrow(/Unknown variant/);
+    expect(() => resolver.resolve("missing" as "article")).toThrow(
+      '[config-variants] Unknown variant "missing".',
+    );
     expect(() => resolver.resolve("article", { missing: {} } as never)).toThrow(/unknown/i);
     expect(() => resolver.resolve("article", { article: { extends: ["base"] } } as never)).toThrow(
       /extends/i,
@@ -282,7 +284,7 @@ describe("Comark Content adapter", () => {
   });
   it("rejects invalid frontmatter and revalidates trusted parsed snapshots at resolution", async () => {
     const invalid = content("---\nvariant: missing\n---\nBody", "invalidplatform");
-    await expect(invalid.get("/page")).rejects.toThrow(/Unknown or missing/);
+    await expect(invalid.get("/page")).rejects.toThrow(/\[config-variants\] Unknown or missing/);
     await invalid.dispose();
     const original = content("Body", "snapshotplatform");
     try {
@@ -346,8 +348,8 @@ describe("DevFrame inspector", () => {
       sources: {},
       groups,
     };
-    const definition = createVariantsDevframe({
-      snapshot: () => createVariantDevtoolsData(metadata, overrides),
+    const definition = defineVariantInspector({
+      snapshot: () => createVariantSnapshot(metadata, overrides),
     });
     const ctx = await createHostContext({
       cwd: process.cwd(),

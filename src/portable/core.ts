@@ -166,14 +166,14 @@ export function defineVariantGroups<
   for (const [group, names] of Object.entries(groups)) {
     if (!group.trim() || !Array.isArray(names) || names.length === 0)
       throw new Error(
-        `[nuxt-variants] Group "${group}" must have a name and at least one variant.`,
+        `[config-variants] Group "${group}" must have a name and at least one variant.`,
       );
     for (const name of names) {
       if (!resolver.isName(name))
-        throw new Error(`[nuxt-variants] Group "${group}" contains unknown variant "${name}".`);
+        throw new Error(`[config-variants] Group "${group}" contains unknown variant "${name}".`);
     }
     if (new Set(names).size !== names.length)
-      throw new Error(`[nuxt-variants] Group "${group}" contains duplicate variants.`);
+      throw new Error(`[config-variants] Group "${group}" contains duplicate variants.`);
   }
   return freeze(structuredClone(groups));
 }
@@ -182,9 +182,10 @@ function assertPlainData(value: unknown, checked = new WeakMap<object, boolean>(
   if (value && typeof value === "object") {
     const prototype = Object.getPrototypeOf(value);
     if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null)
-      throw new Error("[nuxt-variants] Registry config must use plain data objects and arrays.");
+      throw new Error("[config-variants] Registry config must use plain data objects and arrays.");
     const complete = checked.get(value);
-    if (complete === false) throw new Error("[nuxt-variants] Cyclic config data is not supported.");
+    if (complete === false)
+      throw new Error("[config-variants] Cyclic config data is not supported.");
     if (complete) return;
     checked.set(value, false);
     // Cloning drops symbols and non-enumerable fields and invokes getters.
@@ -194,19 +195,19 @@ function assertPlainData(value: unknown, checked = new WeakMap<object, boolean>(
       const descriptor = Object.getOwnPropertyDescriptor(value, key)!;
       if (typeof key !== "string" || !descriptor.enumerable || !("value" in descriptor))
         throw new Error(
-          "[nuxt-variants] Config fields must be enumerable, string-keyed data properties.",
+          "[config-variants] Config fields must be enumerable, string-keyed data properties.",
         );
       assertPlainData(descriptor.value, checked);
     }
     checked.set(value, true);
   }
   if (typeof value === "function" || typeof value === "symbol")
-    throw new Error("[nuxt-variants] Config must contain cloneable plain data.");
+    throw new Error("[config-variants] Config must contain cloneable plain data.");
 }
 
 function assertPlainMap(value: unknown): void {
   if (!value || typeof value !== "object" || Array.isArray(value))
-    throw new Error("[nuxt-variants] Registry and override maps must be plain objects.");
+    throw new Error("[config-variants] Registry and override maps must be plain objects.");
   assertPlainData(value);
 }
 
@@ -264,7 +265,7 @@ export function createVariantResolver<const R extends VariantRegistryInput>(
       name: K,
       overrides?: VariantOverrides<R>,
     ): VariantResolution<R, K> {
-      if (!isName(name)) throw new Error(`[nuxt-variants] Unknown variant "${String(name)}".`);
+      if (!isName(name)) throw new Error(`[config-variants] Unknown variant "${String(name)}".`);
       if (overrides !== undefined) assertPlainMap(overrides);
       const entries = overrides ?? {};
       const keys = Object.keys(entries);

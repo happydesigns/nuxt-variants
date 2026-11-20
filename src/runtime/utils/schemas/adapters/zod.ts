@@ -11,7 +11,7 @@ function getZod(): typeof z {
     return (_require("zod") as { z: typeof z }).z;
   } catch {
     throw new Error(
-      "[nuxt-variants] Zod schema detected but zod is not installed. " + "Run: npm install zod",
+      "[config-variants] Zod schema detected but zod is not installed. " + "Run: npm install zod",
     );
   }
 }

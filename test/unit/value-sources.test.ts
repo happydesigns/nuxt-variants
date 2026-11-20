@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getValueSources } from "../../client/utils/value-sources";
-import { createVariantDevtoolsData } from "../../src/runtime/utils/devtools";
+import { createVariantSnapshot } from "../../src/runtime/utils/devtools";
 import type { VariantOverrideRegistry } from "../../src/runtime/utils/variants";
 
 const registry = {
@@ -10,7 +10,7 @@ const registry = {
   page: { extends: ["left", "right"], config: { nested: { local: false } } },
 };
 function trace(overrides: VariantOverrideRegistry = {}) {
-  const { variants } = createVariantDevtoolsData(
+  const { variants } = createVariantSnapshot(
     { configKey: "variants", registry, sources: {} },
     overrides,
   );
@@ -21,7 +21,7 @@ function trace(overrides: VariantOverrideRegistry = {}) {
 }
 describe("inspector value sources", () => {
   it("shows empty objects and null fields without a fabricated scalar source", () => {
-    const { variants } = createVariantDevtoolsData(
+    const { variants } = createVariantSnapshot(
       {
         configKey: "variants",
         registry: {

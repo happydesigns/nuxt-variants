@@ -49,7 +49,7 @@ export interface VariantDevtoolsData {
 }
 
 /** Creates an inspector snapshot from the immutable registry and current app-config overrides. */
-export function createVariantDevtoolsData(
+export function createVariantSnapshot(
   metadata: VariantDevtoolsMetadata,
   appRegistry: VariantOverrideRegistry,
 ): VariantDevtoolsData {

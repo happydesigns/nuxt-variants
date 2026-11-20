@@ -120,7 +120,7 @@ export function mergeVariantSchemas(
   for (const variant of activeVariants) {
     if (!(variant in graph)) {
       throw new Error(
-        `[nuxt-variants] mergeVariantSchemas: unknown active variant "${variant}". ` +
+        `[config-variants] mergeVariantSchemas: unknown active variant "${variant}". ` +
           "Register the variant before using it in a collection schema.",
       );
     }
@@ -129,7 +129,7 @@ export function mergeVariantSchemas(
   for (const name of Object.keys(registry)) {
     if (!(name in graph)) {
       throw new Error(
-        `[nuxt-variants] mergeVariantSchemas: schema registered for unknown variant "${name}". ` +
+        `[config-variants] mergeVariantSchemas: schema registered for unknown variant "${name}". ` +
           "Schema registry keys must match registered variants.",
       );
     }
@@ -150,7 +150,7 @@ export function mergeVariantSchemas(
 
   if (!adapter) {
     throw new Error(
-      "[nuxt-variants] mergeVariantSchemas: cannot create an empty object schema because " +
+      "[config-variants] mergeVariantSchemas: cannot create an empty object schema because " +
         "the schema registry is empty. Pass a validator adapter in the fourth argument.",
     );
   }
@@ -158,7 +158,7 @@ export function mergeVariantSchemas(
   for (const [name, schema] of Object.entries(registry)) {
     if (schema !== undefined && detectAdapter(schema) !== adapter) {
       throw new Error(
-        `[nuxt-variants] Schema adapter mismatch for variant "${name}". ` +
+        `[config-variants] Schema adapter mismatch for variant "${name}". ` +
           "All schemas in a registry must use the same validator library.",
       );
     }

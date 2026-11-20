@@ -102,7 +102,7 @@ await fs.writeFile(
 import assert from 'node:assert/strict';
 import {createVariantResolver} from '${portableName}';
 import {variantContent,variantField} from '${portableName}/comark-content';
-import {createVariantsDevframe,createVariantDevtoolsData} from '${portableName}/devtools';
+import {defineVariantInspector,createVariantSnapshot} from '${portableName}/devtools';
 import {comarkContent,generateSourceTypes} from 'comark-content';
 import {createBuild} from 'devframe/adapters/build';
 import {existsSync,readFileSync} from 'node:fs';
@@ -114,7 +114,7 @@ try{
  assert.equal(instance.variantName(page),'article');
  assert.equal(instance.resolveVariant('article').config.title,'Own');
  assert.match(await generateSourceTypes(instance),/variant\\??: "article"/);
- const definition=createVariantsDevframe({snapshot:()=>createVariantDevtoolsData({configKey:'variants',registry:resolver.registry,sources:{}},{})});
+ const definition=defineVariantInspector({snapshot:()=>createVariantSnapshot({configKey:'variants',registry:resolver.registry,sources:{}},{})});
  await createBuild(definition,{outDir:'offline'});
  assert.ok(existsSync('offline/__connection.json'));
  const html = readFileSync('offline/index.html', 'utf8');

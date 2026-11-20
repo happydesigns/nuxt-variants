@@ -15,8 +15,8 @@ import { createBuild } from "devframe/adapters/build";
 import { createVariantResolver, defineVariantGroups } from "@happydesigns/config-variants";
 import { variantContent, variantField } from "@happydesigns/config-variants/comark-content";
 import {
-  createVariantsDevframe,
-  createVariantDevtoolsData,
+  defineVariantInspector,
+  createVariantSnapshot,
 } from "@happydesigns/config-variants/devtools";
 import { inspectorAssets as clientAssets } from "@happydesigns/config-variants/internal/inspector";
 
@@ -172,9 +172,9 @@ async function comparison() {
   };
 }
 const metadata = { configKey: "variants", registry, sources: {}, groups };
-const frame = createVariantsDevframe({
+const frame = defineVariantInspector({
   clientAssets,
-  snapshot: () => createVariantDevtoolsData(metadata, overrides()),
+  snapshot: () => createVariantSnapshot(metadata, overrides()),
 });
 const offlineDir = await fs.mkdtemp(path.join(tmpdir(), "config-variants-comparison-"));
 process.once("exit", () => rmSync(offlineDir, { recursive: true, force: true, maxRetries: 5 }));
@@ -254,7 +254,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
     if (url.pathname === "/legacy/data.json") {
-      const data = createVariantDevtoolsData(metadata, overrides());
+      const data = createVariantSnapshot(metadata, overrides());
       for (const entry of data.variants) {
         entry.resolvedConfig = baseline.resolveVariantConfig(entry.name, registry, overrides());
         entry.activeFeatures = [

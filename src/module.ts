@@ -324,8 +324,8 @@ declare module 'vue-router' {
           handler: resolver.resolve("./runtime/server/devtools-data.get"),
         });
         onDevtoolsReady(async (ctx) => {
-          const { createVariantsDevframe } = await import("@happydesigns/config-variants/devtools");
-          const definition = createVariantsDevframe({
+          const { defineVariantInspector } = await import("@happydesigns/config-variants/devtools");
+          const definition = defineVariantInspector({
             clientAssets: devtoolsClientPath,
             basePath: `${devtoolsRoute}/`,
             snapshot: async () => {

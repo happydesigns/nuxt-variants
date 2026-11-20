@@ -58,9 +58,9 @@ function createVariantContent<R extends VariantRegistryInput, Name extends Varia
     !field ||
     ["__proto__", "constructor", "prototype"].includes(field)
   )
-    throw new Error("[nuxt-variants] Invalid Content variant field.");
+    throw new Error("[config-variants] Invalid Content variant field.");
   if (defaultVariant !== undefined && !resolver.isName(defaultVariant))
-    throw new Error(`[nuxt-variants] Unknown default variant "${defaultVariant}".`);
+    throw new Error(`[config-variants] Unknown default variant "${defaultVariant}".`);
   if (
     allowedVariants !== undefined &&
     (!Array.isArray(allowedVariants) ||
@@ -68,7 +68,9 @@ function createVariantContent<R extends VariantRegistryInput, Name extends Varia
       [...allowedVariants].some((name) => !resolver.isName(name)) ||
       new Set(allowedVariants).size !== allowedVariants.length)
   )
-    throw new Error("[nuxt-variants] allowedVariants must contain distinct, registered variants.");
+    throw new Error(
+      "[config-variants] allowedVariants must contain distinct, registered variants.",
+    );
   const names = allowedVariants ? [...allowedVariants] : resolver.names;
   const allowed = new Set<VariantKey<R>>(names);
   const expected = names.map((name) => JSON.stringify(name)).join(" | ");
@@ -76,11 +78,13 @@ function createVariantContent<R extends VariantRegistryInput, Name extends Varia
     return allowed.has(name);
   }
   if (defaultVariant !== undefined && !isAllowed(defaultVariant))
-    throw new Error(`[nuxt-variants] Default variant "${defaultVariant}" is outside ${expected}.`);
+    throw new Error(
+      `[config-variants] Default variant "${defaultVariant}" is outside ${expected}.`,
+    );
 
   function identity(file: Pick<ContentFile, "data" | "meta">): Name {
     if (file.meta.kind !== "document")
-      throw new Error("[nuxt-variants] Variants apply to documents, not media files.");
+      throw new Error("[config-variants] Variants apply to documents, not media files.");
     const stored = file.meta.variant;
     const name =
       file.data?.[field] ??
@@ -88,11 +92,11 @@ function createVariantContent<R extends VariantRegistryInput, Name extends Varia
       defaultVariant;
     if (!resolver.isName(name))
       throw new Error(
-        `[nuxt-variants] Unknown or missing variant "${String(name)}" in "${file.meta.key}".`,
+        `[config-variants] Unknown or missing variant "${String(name)}" in "${file.meta.key}".`,
       );
     if (!isAllowed(name))
       throw new Error(
-        `[nuxt-variants] Variant "${name}" is not allowed in "${file.meta.key}". Choose ${expected}.`,
+        `[config-variants] Variant "${name}" is not allowed in "${file.meta.key}". Choose ${expected}.`,
       );
     return name;
   }
@@ -109,7 +113,7 @@ function createVariantContent<R extends VariantRegistryInput, Name extends Varia
         if (schema["x-content"]?.type === "variant") {
           if (path.length !== 1 || path[0] !== field)
             throw new Error(
-              `[nuxt-variants] variantField must annotate the configured top-level field "${field}".`,
+              `[config-variants] variantField must annotate the configured top-level field "${field}".`,
             );
           const choices = "enum" in schema ? schema.enum : undefined;
           if (
@@ -119,7 +123,7 @@ function createVariantContent<R extends VariantRegistryInput, Name extends Varia
               choices.length !== names.length ||
               !names.every((name) => choices.includes(name)))
           )
-            throw new Error("[nuxt-variants] variantField choices must match allowedVariants.");
+            throw new Error("[config-variants] variantField choices must match allowedVariants.");
         }
         for (const [key, child] of Object.entries(schema.properties ?? {}))
           validateField(child, [...path, key]);
@@ -144,7 +148,7 @@ function createVariantContent<R extends VariantRegistryInput, Name extends Varia
             ctx.path[0] !== (ctx.layer === "row" ? `data.${field}` : field)
           )
             throw new Error(
-              `[nuxt-variants] variantField supports only the configured top-level field "${field}".`,
+              `[config-variants] variantField supports only the configured top-level field "${field}".`,
             );
           ctx.type = expected || "never";
         }

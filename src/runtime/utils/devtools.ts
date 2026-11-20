@@ -1,5 +1,5 @@
 export {
-  createVariantDevtoolsData,
+  createVariantSnapshot,
   type VariantDevtoolsData,
   type VariantDevtoolsEntry,
   type VariantDevtoolsMetadata,

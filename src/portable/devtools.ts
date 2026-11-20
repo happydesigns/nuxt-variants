@@ -4,7 +4,7 @@ import { inspectorAssets } from "./inspector";
 import type { VariantDevtoolsData } from "./runtime/utils/devtools";
 import { VARIANTS_DEVFRAME_ID } from "./runtime/utils/devtools-protocol";
 
-export { createVariantDevtoolsData } from "./runtime/utils/devtools";
+export { createVariantSnapshot } from "./runtime/utils/devtools";
 export type { VariantDevtoolsData, VariantDevtoolsMetadata } from "./runtime/utils/devtools";
 export { VARIANTS_DEVFRAME_ID, VARIANTS_SNAPSHOT_RPC } from "./runtime/utils/devtools-protocol";
 
@@ -17,7 +17,7 @@ export interface VariantsDevframeOptions {
 }
 
 /** One read-only inspector definition for Vite/Nuxt hosts and offline builds. */
-export function createVariantsDevframe(options: VariantsDevframeOptions) {
+export function defineVariantInspector(options: VariantsDevframeOptions) {
   return defineDevframe({
     id: VARIANTS_DEVFRAME_ID,
     name: "Config Variants",

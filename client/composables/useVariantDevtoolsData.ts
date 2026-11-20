@@ -1,6 +1,6 @@
 import type { DevtoolsData } from "~/types/devtools";
 import { createInspectorTransport, type InspectorTransport } from "~/utils/inspector-transport";
-import { createVariantDevtoolsData } from "../../src/runtime/utils/devtools";
+import { createVariantSnapshot } from "../../src/runtime/utils/devtools";
 import { useVariantHostContext } from "./useVariantHostContext";
 import { useNuxtRouteVariant } from "./useNuxtRouteVariant";
 
@@ -28,7 +28,7 @@ export function useVariantDevtoolsData() {
   });
   const data = computed(() =>
     host.overrides.value
-      ? createVariantDevtoolsData(metadata.value, host.overrides.value)
+      ? createVariantSnapshot(metadata.value, host.overrides.value)
       : (baseData.value ?? emptyData),
   );
   const pending = ref(true);

@@ -145,7 +145,7 @@ export class VariantRegistryError extends Error {
   constructor(readonly diagnostics: VariantDiagnostic[]) {
     super(
       [
-        `[nuxt-variants] Invalid variant registry (${diagnostics.length} ${diagnostics.length === 1 ? "error" : "errors"}).`,
+        `[config-variants] Invalid variant registry (${diagnostics.length} ${diagnostics.length === 1 ? "error" : "errors"}).`,
         ...diagnostics.map((diagnostic) => `- [${diagnostic.code}] ${diagnostic.message}`),
       ].join("\n"),
     );

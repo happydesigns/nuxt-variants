@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createVariantDevtoolsData } from "../../src/runtime/utils/devtools";
+import { createVariantSnapshot } from "../../src/runtime/utils/devtools";
 
 const metadata = {
   configKey: "variants",
@@ -18,12 +18,12 @@ const metadata = {
   },
 };
 
-describe("createVariantDevtoolsData", () => {
+describe("createVariantSnapshot", () => {
   it("resolves the current app-config overrides for every snapshot", () => {
-    const initial = createVariantDevtoolsData(metadata, {
+    const initial = createVariantSnapshot(metadata, {
       content: { config: { toc: false } },
     });
-    const updated = createVariantDevtoolsData(metadata, {
+    const updated = createVariantSnapshot(metadata, {
       content: { config: { toc: true, width: "wide" } },
     });
 
@@ -40,7 +40,7 @@ describe("createVariantDevtoolsData", () => {
   });
 
   it("reports invalid overrides without hiding the registry", () => {
-    const data = createVariantDevtoolsData(metadata, {
+    const data = createVariantSnapshot(metadata, {
       missing: { config: { enabled: true } },
     });
 
