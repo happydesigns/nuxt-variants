@@ -1,5 +1,7 @@
 import http from "node:http";
 import fs from "node:fs/promises";
+import { rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import vm from "node:vm";
 import { createRequire } from "node:module";
@@ -174,9 +176,8 @@ const frame = createVariantsDevframe({
   clientAssets,
   snapshot: () => createVariantDevtoolsData(metadata, overrides()),
 });
-const offlineDir = path.resolve(root, ".tmp/comparison-offline-" + Date.now());
-if (!offlineDir.startsWith(path.resolve(root, ".tmp") + path.sep))
-  throw new Error("Invalid local output directory");
+const offlineDir = await fs.mkdtemp(path.join(tmpdir(), "config-variants-comparison-"));
+process.once("exit", () => rmSync(offlineDir, { recursive: true, force: true, maxRetries: 5 }));
 await createBuild(frame, { outDir: offlineDir });
 const frameServer = await createDevServer(frame, {
   host: "127.0.0.1",

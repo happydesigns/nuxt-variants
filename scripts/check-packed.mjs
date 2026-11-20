@@ -4,16 +4,17 @@ import path from "node:path";
 import { execFileSync, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
-import { existsSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
 import { createServer } from "node:net";
 import { setTimeout } from "node:timers/promises";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const work = path.join(root, ".tmp", "packed-platform-" + Date.now());
-// Keep the consumer outside this checkout so ancestor node_modules cannot
+// Keep both consumers outside this checkout so ancestor node_modules cannot
 // accidentally satisfy undeclared dependencies or optional peers.
-const consumer = await fs.mkdtemp(path.join(tmpdir(), "config-variants-consumer-"));
-await fs.mkdir(work, { recursive: true });
+const work = await fs.mkdtemp(path.join(tmpdir(), "config-variants-check-"));
+process.once("exit", () => rmSync(work, { recursive: true, force: true, maxRetries: 5 }));
+const consumer = path.join(work, "core-consumer");
+await fs.mkdir(consumer);
 const { name: portableName } = JSON.parse(
   await fs.readFile(path.join(root, "package.json"), "utf8"),
 );
@@ -154,14 +155,14 @@ execFileSync(
   [path.join(root, "node_modules/typescript/bin/tsc"), "-p", path.join(consumer, "tsconfig.json")],
   { cwd: consumer, encoding: "utf8", windowsHide: true },
 );
-const nuxtConsumer = await fs.mkdtemp(path.join(tmpdir(), "nuxt-variants-consumer-"));
+const nuxtConsumer = path.join(work, "nuxt-consumer");
 const { compatibility } = JSON.parse(
   await fs.readFile(path.join(root, "dist/module.json"), "utf8"),
 );
 const minimumNuxt = /^>=(\d+\.\d+\.\d+)$/.exec(compatibility?.nuxt)?.[1];
 assert.ok(minimumNuxt, "The packed consumer requires a concrete Nuxt compatibility floor.");
 const file = (tarball) => `file:${tarball.replaceAll("\\", "/")}`;
-await fs.mkdir(path.join(nuxtConsumer, "app"));
+await fs.mkdir(path.join(nuxtConsumer, "app"), { recursive: true });
 await fs.writeFile(
   path.join(nuxtConsumer, "package.json"),
   JSON.stringify({
@@ -272,17 +273,22 @@ try {
   await devExit;
 }
 
+let verifiedArchive;
+if (process.env.VARIANTS_PACKAGE_OUTPUT) {
+  const destination = path.resolve(root, process.env.VARIANTS_PACKAGE_OUTPUT);
+  await fs.mkdir(destination, { recursive: true });
+  verifiedArchive = path.join(destination, path.basename(tarball));
+  await fs.copyFile(tarball, verifiedArchive);
+}
+
 const report = {
   name,
   version,
-  tarball,
+  ...(verifiedArchive && { tarball: verifiedArchive }),
   size,
-  consumer,
-  nuxtConsumer,
   coreOutput: coreOutput.trim(),
   platformOutput: platformOutput.trim(),
   typecheck: "passed",
   nuxt: "strict installation, shared error identity, schema helper, generated types, prerender and inspector assets passed",
 };
-await fs.writeFile(path.join(work, "results.json"), JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report, null, 2));

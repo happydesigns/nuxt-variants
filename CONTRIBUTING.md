@@ -56,7 +56,7 @@ Run `pnpm release:preview` to review the changes since the last tag. Check the n
 
 Run `pnpm run release -r <version>` from a clean checkout to create the local Changelogen release commit and tag. Review the generated changelog entry. Keep migration instructions in the documentation.
 
-Run `node scripts/github-release.mjs --check` to verify the commit, tag, manifest, and changelog agree. Use `pnpm check:release` to run lint, types, tests, isolated package consumers, and the documentation build. The package check prints the tested archive path for local installs.
+Run `node scripts/github-release.mjs --check` to verify the commit, tag, manifest, and changelog agree. Use `pnpm check:release` to run lint, types, tests, isolated package consumers, and the documentation build. Set `VARIANTS_PACKAGE_OUTPUT` to a directory to keep the verified archive for a local install. The package check prints its path when requested.
 
 Pushing the release commit and tag runs the same checks in [GitHub Actions](.github/workflows/ci.yml). After the workflow succeeds, download the `npm-package-*` artifact from that tag run and use `pnpm publish /path/to/verified-package.tgz --access public` to publish the tested archive to npm. For a prerelease, pass `--tag next`. The GitHub release uses the matching changelog entry.
 
