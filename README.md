@@ -2,12 +2,12 @@
 
 <p>
   <a href="https://github.com/happydesigns/config-variants/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush">
-    <img src="https://github.com/happydesigns/config-variants/actions/workflows/ci.yml/badge.svg?branch=main&amp;event=push" alt="CI on main">
+    <img src="https://img.shields.io/github/actions/workflow/status/happydesigns/config-variants/ci.yml?branch=main&amp;event=push&amp;label=CI&amp;style=flat-square&amp;labelColor=242423" alt="CI on main">
   </a>
-  <a href="LICENSE"><img src=".github/badges/license.svg" alt="MIT license"></a>
-  <a href="docs/content/docs/10.platform-preview.md#portable-core"><img src=".github/badges/typescript.svg" alt="TypeScript guide"></a>
-  <a href="docs/content/docs/1.getting-started.md"><img src=".github/badges/nuxt.svg" alt="Nuxt quickstart"></a>
-  <a href="docs/content/docs/10.platform-preview.md#comark-content"><img src=".github/badges/comark-content.svg" alt="Comark Content guide"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-6E6760?style=flat-square&amp;labelColor=242423" alt="MIT license"></a>
+  <a href="docs/content/docs/10.platform-preview.md#portable-core"><img src="https://img.shields.io/badge/TypeScript-core-6E6760?style=flat-square&amp;labelColor=242423" alt="TypeScript core guide"></a>
+  <a href="docs/content/docs/1.getting-started.md"><img src="https://img.shields.io/badge/Nuxt-module-6E6760?style=flat-square&amp;labelColor=242423" alt="Nuxt module quickstart"></a>
+  <a href="docs/content/docs/10.platform-preview.md#comark-content"><img src="https://img.shields.io/badge/Comark%20Content-adapter-6E6760?style=flat-square&amp;labelColor=242423" alt="Comark Content adapter guide"></a>
 </p>
 
 Define and resolve named, typed configurations from reusable features and defaults. A data record, a route, or application code selects the variant. For example, articles and events can share a hero and breadcrumbs while defining different fields and layout behavior.
