@@ -9,7 +9,10 @@ const props = defineProps<{
 
 const code = computed(() => JSON.stringify(props.value, null, 2));
 const lines = computed(() => highlightJson(code.value));
-const copyLabel = computed(() => `Copy ${props.filename} as JSON`);
+const copyButton = computed(() => {
+  const label = `Copy ${props.filename} as JSON`;
+  return { type: "button" as const, "aria-label": label, title: label };
+});
 </script>
 
 <template>
@@ -19,7 +22,7 @@ const copyLabel = computed(() => `Copy ${props.filename} as JSON`);
       :filename="filename"
       :hide-header="hideHeader"
       language="json"
-      :copy="{ 'aria-label': copyLabel, title: copyLabel }"
+      :copy="copyButton"
       :ui="{
         root: 'm-0 min-w-0',
         base: 'max-h-[32rem] rounded-none border-0 bg-elevated/40 -outline-offset-3 scheme-light dark:scheme-dark',
