@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createVariantResolver } from "../../../../packages/composable-variants/src/core";
+import { createVariantResolver } from "../../../../src/portable/core";
 
 const resolver = createVariantResolver({
   csv: { config: { delimiter: "," } },

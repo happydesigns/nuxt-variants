@@ -67,10 +67,9 @@ The new inspector identifies the winning input directly, and the learner's
 saved checkpoint survives both upgrade and rollback. See the
 [Course pilot](./course-pilot.md) for the real consumer and reproduction steps.
 
-The original acceptance above used one tarball. The follow-up packaging
-review with Fable 5.2 chose a separate `@happydesigns/composable-variants`
-distribution so a core-only installation can avoid Nuxt tooling. The Nuxt
-adapter depends on that package and retains its module and `/schemas` imports.
+The earlier acceptance above used the original package name. The final
+packaging direction is a single `@happydesigns/composable-variants` archive
+with the Nuxt module at `/nuxt`. See the [migration guide](./content/docs/9.migration-0-3.md).
 The Comark Content entry is `/comark-content`. Nuxt Content v4 still needs a
 real identity round trip against its public plugin interface.
 

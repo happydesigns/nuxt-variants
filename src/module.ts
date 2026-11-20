@@ -116,7 +116,7 @@ export default defineNuxtModule<ModuleOptions>({
       "",
     ].join("\n");
     const runtimeDtsContent = [
-      `import type { VariantRegistry, VariantResolutionPlan } from "@happydesigns/nuxt-variants";`,
+      `import type { VariantRegistry, VariantResolutionPlan } from "@happydesigns/composable-variants/nuxt";`,
       `export declare const variantRegistry: Readonly<VariantRegistry>;`,
       `export declare const variantResolutionPlan: VariantResolutionPlan;`,
       `export declare const variantsConfigKey: string;`,
@@ -265,7 +265,7 @@ declare module 'vue-router' {
       "",
     ].join("\n");
     const graphDtsContent = [
-      `import type { VariantDiagnostic, VariantGraph } from "@happydesigns/nuxt-variants";`,
+      `import type { VariantDiagnostic, VariantGraph } from "@happydesigns/composable-variants/nuxt";`,
       `export declare const variantGraph: VariantGraph;`,
       `export declare const variantDiagnostics: readonly VariantDiagnostic[];`,
       "",
@@ -354,7 +354,7 @@ declare module 'vue-router' {
         addCustomTab(
           {
             name: "nuxt-variants",
-            title: "Nuxt Variants",
+            title: "Composable Variants",
             icon: "i-lucide-git-branch",
             category: "app",
             view: {

@@ -37,8 +37,8 @@ to: /docs/platform-preview#portable-core
 ::::
 ::::u-page-card
 ---
-title: Nuxt Variants
-description: Select a variant from a route and read its reactive configuration in a layout. Available in the published module.
+title: Nuxt integration
+description: Select a variant from a route and read its reactive configuration in a layout.
 icon: i-lucide-panels-top-left
 to: /docs/getting-started
 ---

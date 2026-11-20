@@ -1,21 +1,15 @@
 # Composable Variants
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
 Composable Variants lets applications define reusable features, combine them
 into named variants and resolve their effective configuration. An application
 can choose a variant from a data record, a route or its own code.
 
-**Nuxt Variants** is the Nuxt integration. It provides `useVariant` for layouts
-and components and ships in `@happydesigns/nuxt-variants`.
-
-This branch contains the local `0.3.0-rc.1` release candidate. It builds
-`@happydesigns/composable-variants` for portable resolution with optional
-`/comark-content` and `/devtools` integrations. The Nuxt package depends on
-that core and provides the Nuxt module and existing `/schemas` helper.
+The local `0.3.0-rc.1` candidate ships one package,
+`@happydesigns/composable-variants`. Import the core from the package root.
+Register `/nuxt` for the Nuxt module and use `/schemas` for Nuxt Content v3.
+The `/comark-content` and `/devtools` entry points support their respective hosts.
 See the [preview guide](docs/content/docs/10.platform-preview.md)
 and [migration guide](docs/content/docs/9.migration-0-3.md).
 The [acceptance report](docs/preview-acceptance.md) records completed checks,
@@ -62,7 +56,7 @@ events, and regular pages:
 
 Without a shared model, this usually becomes duplicated layouts, checks such as
 `collection === "article"`, and separately maintained Nuxt Content schemas.
-Nuxt Variants lets the app name small capabilities such as `header`, `toc`,
+Composable Variants lets the app name small capabilities such as `header`, `toc`,
 `authors`, `location`, `copyButton`, and `surround`, then compose them into
 `article`, `event`, and `content` variants.
 
@@ -70,7 +64,7 @@ This is useful when several page or collection types share a layout but not
 all of its behavior. A small app with one layout and a few static props usually
 does not need a variant graph.
 
-Nuxt Variants separates structural decisions from configurable values:
+Composable Variants separates structural decisions from configurable values:
 
 - `nuxt.config.ts` defines every name and inheritance edge, plus optional code-owned defaults.
 - `app.config.ts` supplies layer or application defaults and runtime overrides for registered names.
@@ -88,48 +82,25 @@ Nuxt Variants separates structural decisions from configurable values:
 - Build-time virtual graph through `#variants-graph`.
 - Fail-fast diagnostics for unknown parents, inheritance cycles, and invalid runtime structure.
 - Nuxt DevTools inspector with filtering, resolution order, layer provenance, and resolved output.
-- Graph-aware Nuxt Content schema helper through `@happydesigns/nuxt-variants/schemas`.
+- Graph-aware Nuxt Content schema helper through `@happydesigns/composable-variants/schemas`.
 
 ## Quick Setup
 
 Use Node.js 22.19 or newer on the 22.x release line, Node.js 24.11 or newer on
 the 24.x release line, or Node.js 26+.
 
-```bash
-npx nuxt module add @happydesigns/nuxt-variants
-```
-
-Manual install:
-
-pnpm:
+Run `pnpm release:prepare` in this checkout. In your Nuxt app, install the
+single archive from the path reported by the package check.
 
 ```bash
-pnpm add @happydesigns/nuxt-variants
-```
-
-npm:
-
-```bash
-npm install @happydesigns/nuxt-variants
-```
-
-yarn:
-
-```bash
-yarn add @happydesigns/nuxt-variants
-```
-
-bun:
-
-```bash
-bun add @happydesigns/nuxt-variants
+pnpm add ./happydesigns-composable-variants-0.3.0-rc.1.tgz
 ```
 
 Then register the module:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ["@happydesigns/nuxt-variants"],
+  modules: ["@happydesigns/composable-variants/nuxt"],
 });
 ```
 
@@ -139,7 +110,7 @@ export default defineNuxtConfig({
 
 ```ts
 export default defineNuxtConfig({
-  modules: ["@happydesigns/nuxt-variants"],
+  modules: ["@happydesigns/composable-variants/nuxt"],
   variants: {
     registry: {
       dates: {},
@@ -180,7 +151,7 @@ export default defineAppConfig({
 });
 ```
 
-`app.config.ts` wins over `nuxt.config.ts` for the same registered variant. Generated config types include both the registry and Nuxt's merged `AppConfig`, so an entry may be structural in the registry while its complete value contract lives in a layer or application app config. Names and `extends` remain in the registry; changing structure at runtime would make generated types, Content schemas, and rendering disagree, so Nuxt Variants rejects it during startup.
+`app.config.ts` wins over `nuxt.config.ts` for the same registered variant. Generated config types include both the registry and Nuxt's merged `AppConfig`, so an entry may be structural in the registry while its complete value contract lives in a layer or application app config. Names and `extends` remain in the registry; changing structure at runtime would make generated types, Content schemas, and rendering disagree, so Composable Variants rejects it during startup.
 
 Current Nuxt Studio versions edit Nuxt Content files rather than `app.config.ts` directly. For owner-editable settings, define a small app-owned data collection with an explicit schema and map its values to `updateAppConfig`. This preserves the reactive variant API without exposing the technical variant graph to editors. See the documentation example for the complete pattern.
 
@@ -195,7 +166,7 @@ definePageMeta({
 
 ### 4. Resolve The Variant In A Layout
 
-This mirrors the shared content layout in `@happydesigns/ui`. Nuxt Variants
+This mirrors the shared content layout in `@happydesigns/ui`. Composable Variants
 provides `useVariant`; the rendered Nuxt UI and `H*` components remain owned by
 the application or UI layer.
 
@@ -242,7 +213,7 @@ has("location").value; // false
 
 ## Nuxt Content
 
-Nuxt Variants ships `mergeVariantSchemas` for Nuxt Content v3. It walks the variant graph and produces one Zod or Valibot object schema with inherited fields included.
+Composable Variants ships `mergeVariantSchemas` for Nuxt Content v3. It walks the variant graph and produces one Zod or Valibot object schema with inherited fields included.
 
 Zod and Valibot are optional peer dependencies. Install the validator used by
 your Content schema; the other validator is not loaded or required.
@@ -252,7 +223,7 @@ need it. This avoids module-order and virtual-alias coupling.
 
 ```ts
 // variants.ts
-import { defineVariantRegistry } from "@happydesigns/nuxt-variants/schemas";
+import { defineVariantRegistry } from "@happydesigns/composable-variants/schemas";
 
 export const variantRegistry = defineVariantRegistry({
   dates: {},
@@ -268,7 +239,7 @@ export const variantRegistry = defineVariantRegistry({
 import { variantRegistry } from "./variants";
 
 export default defineNuxtConfig({
-  modules: ["@happydesigns/nuxt-variants", "@nuxt/content"],
+  modules: ["@happydesigns/composable-variants/nuxt", "@nuxt/content"],
   variants: { registry: variantRegistry },
 });
 ```
@@ -277,7 +248,7 @@ export default defineNuxtConfig({
 // content.config.ts
 import { defineCollection, property } from "@nuxt/content";
 import { z } from "zod";
-import { createVariantSchemaResolver } from "@happydesigns/nuxt-variants/schemas";
+import { createVariantSchemaResolver } from "@happydesigns/composable-variants/schemas";
 import { variantRegistry } from "./variants";
 
 const variantSchemas = {
@@ -365,7 +336,7 @@ Virtual modules:
 
 Development tooling:
 
-- The Nuxt DevTools tab named `Nuxt Variants` follows the current route variant, filters by variant, parent, config key, or source layer, and shows resolution order, activity, layer provenance, raw inputs, and resolved config. Refreshing the inspector reads the current `app.config` overrides again.
+- The Nuxt DevTools tab named `Composable Variants` follows the current route variant, filters by variant, parent, config key, or source layer, and shows resolution order, activity, layer provenance, raw inputs, and resolved config. Refreshing the inspector reads the current `app.config` overrides again.
 - The backing inspector route is registered only in Nuxt dev and test environments.
 
 ## Merge Rules
@@ -399,7 +370,7 @@ Resolving `article` produces:
 
 ## Diagnostics
 
-During Nuxt prepare, Nuxt Variants stops with one structured `VariantRegistryError` when the registry contract is invalid:
+During Nuxt prepare, Composable Variants stops with one structured `VariantRegistryError` when the registry contract is invalid:
 
 - variants extending unknown parent keys
 - circular inheritance chains
@@ -449,11 +420,5 @@ pnpm docs:build
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@happydesigns/nuxt-variants/latest.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-version-href]: https://npmjs.com/package/@happydesigns/nuxt-variants
-[npm-downloads-src]: https://img.shields.io/npm/dm/@happydesigns/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npm.chart.dev/@happydesigns/nuxt-variants
-[license-src]: https://img.shields.io/npm/l/@happydesigns/nuxt-variants.svg?style=flat&colorA=020420&colorB=00DC82
-[license-href]: https://npmjs.com/package/@happydesigns/nuxt-variants
 [nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt
 [nuxt-href]: https://nuxt.com

@@ -1,7 +1,4 @@
-import {
-  createVariantResolver,
-  defineVariantGroups,
-} from "../packages/composable-variants/src/core";
+import { createVariantResolver, defineVariantGroups } from "../src/portable/core";
 import { variantRegistry } from "./variants";
 
 export const variantResolver = createVariantResolver(variantRegistry);

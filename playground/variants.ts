@@ -1,4 +1,4 @@
-import { defineVariantRegistry } from "../packages/composable-variants/src/core";
+import { defineVariantRegistry } from "../src/portable/core";
 
 export const variantRegistry = defineVariantRegistry({
   breadcrumbs: {

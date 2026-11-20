@@ -7,7 +7,6 @@
     "dist",
     "docs",
     "node_modules",
-    "packages/*/dist",
     "playground",
     "test/fixtures"
   ]

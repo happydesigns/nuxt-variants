@@ -15,7 +15,4 @@ export default defineAppConfig({
     branch: "main",
     rootDir: "docs",
   },
-  socials: {
-    npm: "https://npmjs.com/package/@happydesigns/nuxt-variants",
-  },
 });

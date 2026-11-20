@@ -1,7 +1,6 @@
 packages:
   - playground
   - docs
-  - packages/composable-variants
 allowBuilds:
   "@parcel/watcher": true
   better-sqlite3: true

@@ -3,7 +3,7 @@
 Read `README.md` before making changes.
 
 This document defines contribution standards for human contributors and
-automated coding agents working on `@happydesigns/nuxt-variants`.
+automated coding agents working on `@happydesigns/composable-variants`.
 
 ## Repository Hygiene
 
@@ -73,12 +73,9 @@ final summary.
 
 ## Package Release Preparation
 
-Keep the version in the root `package.json` in sync with
-`packages/composable-variants/package.json`. Run `pnpm release:prepare` to
-verify the repository and produce both tarballs. pnpm resolves the Nuxt
-adapter's workspace dependency to the exact core version when packing.
-Publish the verified core archive before the Nuxt archive so the adapter's
-dependency can resolve.
+Run `pnpm release:prepare` to verify the repository and produce one
+`@happydesigns/composable-variants` tarball. The package check installs that
+archive in separate core, Comark Content and Nuxt use cases.
 
 ## Commits
 

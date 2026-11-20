@@ -1,4 +1,4 @@
-import packageMetadata from "../package.json";
+import packageMetadata from "../../package.json";
 import { defineDevframe, defineRpcFunction } from "devframe";
 import { inspectorAssets } from "./inspector";
 import type { VariantDevtoolsData } from "./runtime/utils/devtools";

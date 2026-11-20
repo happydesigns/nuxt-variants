@@ -12,7 +12,7 @@ const extendsSeo = has("seo");
         to="/"
         class="flex items-center h-11 px-4 border-r border-default text-xs font-mono text-muted hover:text-highlighted hover:bg-muted transition-colors no-underline shrink-0"
       >
-        &lt;- Nuxt Variants
+        &lt;- Composable Variants
       </NuxtLink>
       <div class="flex items-center h-11 px-4 border-r border-default gap-2 shrink-0">
         <span class="font-mono text-xs text-dimmed">collection</span>

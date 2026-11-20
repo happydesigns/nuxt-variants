@@ -5,7 +5,7 @@ import type { VariantRegistry } from "../../src/runtime/utils/variants";
 // Measure the packaged implementations without Vite's per-export getters.
 const require = createRequire(import.meta.url);
 const { createVariantResolver } =
-  require("../../packages/composable-variants/dist/core.mjs") as typeof import("@happydesigns/composable-variants");
+  require("../../dist/core.mjs") as typeof import("@happydesigns/composable-variants");
 const { createVariantResolutionPlan, resolveVariantConfigFromPlan } =
   require("../../dist/runtime/utils/variants.js") as typeof import("../../src/runtime/utils/variants");
 const registry: VariantRegistry = Object.fromEntries(

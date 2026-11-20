@@ -13,7 +13,7 @@ import {
   type VariantRegistryInput,
 } from "@happydesigns/composable-variants";
 import { variantContent } from "@happydesigns/composable-variants/comark-content";
-import { createVariantSchemaResolver } from "@happydesigns/nuxt-variants/schemas";
+import { createVariantSchemaResolver } from "@happydesigns/composable-variants/schemas";
 
 type Collection = "article" | "event";
 const common = [

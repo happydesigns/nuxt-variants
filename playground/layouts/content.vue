@@ -31,7 +31,7 @@ const heroHeights: Record<string, string> = {
         to="/"
         class="flex items-center px-5 h-11 text-xs font-mono text-muted hover:text-highlighted hover:bg-muted transition-colors no-underline shrink-0"
       >
-        &lt;- Nuxt Variants
+        &lt;- Composable Variants
       </NuxtLink>
       <div class="flex items-center px-5 h-11 gap-1.5 shrink-0">
         <span class="font-mono text-xs text-muted">layout</span>

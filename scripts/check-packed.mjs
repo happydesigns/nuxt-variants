@@ -15,8 +15,7 @@ const work = path.join(root, ".tmp", "packed-platform-" + Date.now());
 const consumer = await fs.mkdtemp(path.join(tmpdir(), "composable-variants-consumer-"));
 await fs.mkdir(work, { recursive: true });
 const portableName = "@happydesigns/composable-variants";
-const nuxtName = "@happydesigns/nuxt-variants";
-const portableDir = path.join(root, "packages/composable-variants");
+const nuxtEntry = `${portableName}/nuxt`;
 const npm = [
   process.env.npm_execpath?.endsWith("npm-cli.js") ? process.env.npm_execpath : undefined,
   path.join(path.dirname(process.execPath), "node_modules/npm/bin/npm-cli.js"),
@@ -42,37 +41,35 @@ function runPnpm(args, cwd) {
     stdio: ["ignore", "pipe", "pipe"],
   });
 }
-function pack(dir) {
-  const { filename, name, version, size, files } = JSON.parse(
-    runPnpm(["--config.ignore-scripts=true", "pack", "--json", "--pack-destination", work], dir),
-  );
-  return { name, version, tarball: path.resolve(work, filename), size, files };
-}
-const portable = pack(portableDir);
-const nuxt = pack(root);
-assert.equal(portable.name, portableName);
-assert.equal(nuxt.name, nuxtName);
-assert.equal(portable.version, nuxt.version);
-assert.ok(portable.files.some((file) => file.path === "dist/client/index.html"));
-assert.ok(!nuxt.files.some((file) => file.path.startsWith("dist/client/")));
+const { filename, name, version, size, files } = JSON.parse(
+  runPnpm(["--config.ignore-scripts=true", "pack", "--json", "--pack-destination", work], root),
+);
+const tarball = path.resolve(work, filename);
+assert.equal(name, portableName);
+assert.ok(files.some((file) => file.path === "dist/client/index.html"));
 
 await fs.writeFile(
   path.join(consumer, "package.json"),
   JSON.stringify({ name: "variants-packed-consumer", private: true, type: "module" }),
 );
-run(["install", portable.tarball, "--ignore-scripts", "--no-audit", "--no-fund"], consumer);
+run(["install", tarball, "--ignore-scripts", "--no-audit", "--no-fund"], consumer);
 const coreProbe = `
 import assert from 'node:assert/strict';
-import { createVariantResolver } from '@happydesigns/composable-variants';
+import { registerHooks } from 'node:module';
+const guard = registerHooks({ resolve(specifier, context, nextResolve) {
+  assert.ok(!['nuxt', 'vue', '@nuxt/', 'comark-content', 'devframe'].some(prefix => specifier.startsWith(prefix)), specifier);
+  return nextResolve(specifier, context);
+}});
+const { createVariantResolver } = await import('@happydesigns/composable-variants');
+guard.deregister();
 const resolver=createVariantResolver({header:{config:{label:'Header'}},article:{extends:['header'],config:{title:'Own'}}});
 assert.deepEqual(resolver.resolve('article').config,{title:'Own',label:'Header'});
 assert.equal(resolver.resolve('article',{header:{active:false}}).config.label,undefined);
-for(const peer of ['comark-content','devframe','nuxt','vue','@nuxt/kit','@nuxt/devtools-kit']){
+for(const peer of ['comark-content','devframe','nuxt','vue','@happydesigns/nuxt-variants']){
   assert.throws(()=>import.meta.resolve(peer),{code:'ERR_MODULE_NOT_FOUND'});
 }
-assert.deepEqual(Object.keys(JSON.parse((await import('node:fs')).readFileSync('package-lock.json', 'utf8')).packages).sort(), ['', 'node_modules/@happydesigns/composable-variants', 'node_modules/defu']);
 await assert.rejects(import('@happydesigns/composable-variants/comark-content'), {code:'ERR_MODULE_NOT_FOUND', message: /comark-content/});
-console.log('plain npm install contains only Composable Variants and defu');
+console.log('the main entry loads without framework or adapter imports');
 `;
 await fs.writeFile(path.join(consumer, "core.mjs"), coreProbe);
 const coreOutput = execFileSync(process.execPath, ["core.mjs"], {
@@ -160,27 +157,21 @@ await fs.writeFile(
     name: "variants-nuxt-consumer",
     private: true,
     type: "module",
-    dependencies: { [nuxtName]: file(nuxt.tarball), nuxt: "4.5.1", zod: "4.6.7" },
+    dependencies: { [portableName]: file(tarball), nuxt: "4.5.1", zod: "4.6.7" },
   }),
 );
-// An unpublished dependency is resolved from its tarball while still remaining
-// transitive to the app, as it would be in a strict published installation.
-await fs.writeFile(
-  path.join(nuxtConsumer, "pnpm-workspace.yaml"),
-  `overrides:\n  '${portableName}@${portable.version}': ${JSON.stringify(file(portable.tarball))}\n`,
-);
 runPnpm(["install", "--ignore-scripts"], nuxtConsumer);
-const installedAdapter = JSON.parse(
-  await fs.readFile(path.join(nuxtConsumer, "node_modules", nuxtName, "package.json"), "utf8"),
-);
-assert.equal(installedAdapter.dependencies[portableName], portable.version);
 await fs.writeFile(
   path.join(nuxtConsumer, "nuxt.config.ts"),
-  `export default defineNuxtConfig({ compatibilityDate: '2026-05-04', devtools: { enabled: false }, modules: ['${nuxtName}'], variants: { registry: { base: { config: { heading: 'Packed inheritance' } }, article: { extends: 'base' } } } })`,
+  `export default defineNuxtConfig({ compatibilityDate: '2026-05-04', devtools: { enabled: false }, modules: ['${nuxtEntry}'], variants: { configKey: 'pageVariants', registry: { base: { config: { heading: 'Packed inheritance' } }, article: { extends: 'base' } } } })`,
+);
+await fs.writeFile(
+  path.join(nuxtConsumer, "app/app.config.ts"),
+  `export default defineAppConfig({ pageVariants: { base: { config: { heading: 'Packed override' } } } })`,
 );
 await fs.writeFile(
   path.join(nuxtConsumer, "app/app.vue"),
-  `<script setup lang="ts">const { config } = useVariant('article')</script><template><p>{{ config.heading }}</p></template>`,
+  `<script setup lang="ts">const { config } = useVariant('article'); const variants = useVariants()</script><template><p>{{ config.heading }} ({{ variants.length }})</p></template>`,
 );
 await fs.writeFile(
   path.join(nuxtConsumer, "contracts.ts"),
@@ -193,12 +184,12 @@ await fs.writeFile(
 await fs.writeFile(
   path.join(nuxtConsumer, "check.mjs"),
   `import assert from 'node:assert/strict';
-import { VariantRegistryError } from '${nuxtName}';
-import { createVariantSchemaResolver } from '${nuxtName}/schemas';
+import { VariantRegistryError } from '${nuxtEntry}';
+import { VariantRegistryError as CoreError } from '${portableName}';
+import { createVariantSchemaResolver } from '${portableName}/schemas';
 import { z } from 'zod';
-assert.throws(() => import.meta.resolve('${portableName}'), {code: 'ERR_MODULE_NOT_FOUND'});
-const portable = await import(import.meta.resolve('${portableName}', import.meta.resolve('${nuxtName}')));
-assert.equal(VariantRegistryError, portable.VariantRegistryError);
+assert.throws(() => import.meta.resolve('@happydesigns/nuxt-variants'), {code: 'ERR_MODULE_NOT_FOUND'});
+assert.equal(VariantRegistryError, CoreError);
 const schemas = createVariantSchemaResolver({base: {}, article: {extends: 'base'}}, {base: z.object({heading: z.string()})});
 assert.deepEqual(schemas(['article']).parse({heading:'Article'}), {heading:'Article'});
 `,
@@ -212,14 +203,14 @@ function runNode(args) {
     stdio: ["ignore", "pipe", "pipe"],
   });
 }
-runNode(["--experimental-import-meta-resolve", "check.mjs"]);
+runNode(["check.mjs"]);
 const nuxtBin = path.join(nuxtConsumer, "node_modules/nuxt/bin/nuxt.mjs");
 runNode([nuxtBin, "prepare"]);
 runNode([path.join(root, "node_modules/vue-tsc/bin/vue-tsc.js"), "--noEmit"]);
 runNode([nuxtBin, "generate"]);
 assert.match(
   await fs.readFile(path.join(nuxtConsumer, ".output/public/index.html"), "utf8"),
-  /<p>Packed inheritance<\/p>/,
+  /<p>Packed override \(2\)<\/p>/,
 );
 
 const reservation = createServer();
@@ -267,8 +258,10 @@ try {
 }
 
 const report = {
-  version: portable.version,
-  tarballs: [portable, nuxt].map(({ files: _files, ...metadata }) => metadata),
+  name,
+  version,
+  tarball,
+  size,
   consumer,
   nuxtConsumer,
   coreOutput: coreOutput.trim(),

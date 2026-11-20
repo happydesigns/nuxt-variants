@@ -2,7 +2,7 @@
 
 Composable Variants models named variants as a graph of reusable capabilities.
 The portable resolver computes the active features and configuration for a
-name supplied by the application. Nuxt Variants integrates that model with
+name supplied by the application. The Nuxt module integrates that model with
 Nuxt layouts, generated types and DevTools. The optional Comark Content plugin
 binds a content record to a variant name.
 
@@ -40,8 +40,8 @@ The final registry produced by Nuxt is validated as one graph before generated
 artifacts are written.
 
 Runtime value overrides remain in each layer's `app.config`. Nuxt's app config
-merge determines their value priority; Nuxt Variants does not maintain a
-second, competing layer merge algorithm.
+merge determines their value priority. The module uses that result for
+variant resolution.
 
 ## Resolution
 
@@ -93,11 +93,12 @@ remain internal unless explicitly documented otherwise.
 
 ## Optional Platform Adapters
 
-The `0.3` preview ships the portable resolver at the root of
-`@happydesigns/composable-variants`. Its `/comark-content` and `/devtools`
-entries use optional host peers. `@happydesigns/nuxt-variants` depends on the
-same version of that package for graph resolution, diagnostics and inspector
-assets. See the [preview guide](docs/content/docs/10.platform-preview.md).
+The `0.3` preview ships one package, `@happydesigns/composable-variants`.
+The main import exposes the portable resolver, `/nuxt` exposes the module,
+and `/schemas` exposes Nuxt Content v3 schema helpers. `/comark-content` and
+`/devtools` use optional host peers. Nuxt Kit packages are installed with the
+package and loaded by the Nuxt entry. See the
+[preview guide](docs/content/docs/10.platform-preview.md).
 
 The Content adapter persists identity, not resolved presentation state. The
 DevFrame adapter exposes a read-only, uncached snapshot query; the host owns
