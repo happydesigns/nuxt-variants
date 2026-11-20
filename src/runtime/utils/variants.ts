@@ -15,4 +15,4 @@ export {
   type VariantRegistryEntry,
   type VariantResolutionPlan,
   type VariantRuntimeOverride,
-} from "@happydesigns/composable-variants/internal";
+} from "@happydesigns/config-variants/internal";

@@ -25,7 +25,7 @@ export default defineNuxtConfig({
   app: {
     cdnURL: "./",
     head: {
-      title: "Composable Variants DevTools",
+      title: "Config Variants DevTools",
     },
   },
   vite: {

@@ -10,16 +10,16 @@ import { comarkContent } from "comark-content";
 import snapshot from "comark-content/sources/snapshot";
 import { createDevServer } from "devframe/adapters/dev";
 import { createBuild } from "devframe/adapters/build";
-import { createVariantResolver, defineVariantGroups } from "@happydesigns/composable-variants";
-import { variantContent, variantField } from "@happydesigns/composable-variants/comark-content";
+import { createVariantResolver, defineVariantGroups } from "@happydesigns/config-variants";
+import { variantContent, variantField } from "@happydesigns/config-variants/comark-content";
 import {
   createVariantsDevframe,
   createVariantDevtoolsData,
-} from "@happydesigns/composable-variants/devtools";
-import { inspectorAssets as clientAssets } from "@happydesigns/composable-variants/internal/inspector";
+} from "@happydesigns/config-variants/devtools";
+import { inspectorAssets as clientAssets } from "@happydesigns/config-variants/internal/inspector";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
-const req = createRequire(import.meta.resolve("@happydesigns/composable-variants"));
+const req = createRequire(import.meta.resolve("@happydesigns/config-variants"));
 const baselineAssets = path.join(root, ".tmp/comparison-release-0.2.0");
 try {
   await fs.access(path.join(baselineAssets, "index.html"));

@@ -12,9 +12,9 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const work = path.join(root, ".tmp", "packed-platform-" + Date.now());
 // Keep the consumer outside this checkout so ancestor node_modules cannot
 // accidentally satisfy undeclared dependencies or optional peers.
-const consumer = await fs.mkdtemp(path.join(tmpdir(), "composable-variants-consumer-"));
+const consumer = await fs.mkdtemp(path.join(tmpdir(), "config-variants-consumer-"));
 await fs.mkdir(work, { recursive: true });
-const portableName = "@happydesigns/composable-variants";
+const portableName = "@happydesigns/config-variants";
 const nuxtEntry = `${portableName}/nuxt`;
 const npm = [
   process.env.npm_execpath?.endsWith("npm-cli.js") ? process.env.npm_execpath : undefined,
@@ -60,7 +60,7 @@ const guard = registerHooks({ resolve(specifier, context, nextResolve) {
   assert.ok(!['nuxt', 'vue', '@nuxt/', 'comark-content', 'devframe'].some(prefix => specifier.startsWith(prefix)), specifier);
   return nextResolve(specifier, context);
 }});
-const { createVariantResolver } = await import('@happydesigns/composable-variants');
+const { createVariantResolver } = await import('@happydesigns/config-variants');
 guard.deregister();
 const resolver=createVariantResolver({header:{config:{label:'Header'}},article:{extends:['header'],config:{title:'Own'}}});
 assert.deepEqual(resolver.resolve('article').config,{title:'Own',label:'Header'});
@@ -68,7 +68,7 @@ assert.equal(resolver.resolve('article',{header:{active:false}}).config.label,un
 for(const peer of ['comark-content','devframe','nuxt','vue','@happydesigns/nuxt-variants']){
   assert.throws(()=>import.meta.resolve(peer),{code:'ERR_MODULE_NOT_FOUND'});
 }
-await assert.rejects(import('@happydesigns/composable-variants/comark-content'), {code:'ERR_MODULE_NOT_FOUND', message: /comark-content/});
+await assert.rejects(import('@happydesigns/config-variants/comark-content'), {code:'ERR_MODULE_NOT_FOUND', message: /comark-content/});
 console.log('the main entry loads without framework or adapter imports');
 `;
 await fs.writeFile(path.join(consumer, "core.mjs"), coreProbe);
@@ -93,9 +93,9 @@ await fs.writeFile(
   path.join(consumer, "platform.mjs"),
   `
 import assert from 'node:assert/strict';
-import {createVariantResolver} from '@happydesigns/composable-variants';
-import {variantContent,variantField} from '@happydesigns/composable-variants/comark-content';
-import {createVariantsDevframe,createVariantDevtoolsData} from '@happydesigns/composable-variants/devtools';
+import {createVariantResolver} from '@happydesigns/config-variants';
+import {variantContent,variantField} from '@happydesigns/config-variants/comark-content';
+import {createVariantsDevframe,createVariantDevtoolsData} from '@happydesigns/config-variants/devtools';
 import {comarkContent,generateSourceTypes} from 'comark-content';
 import {createBuild} from 'devframe/adapters/build';
 import {existsSync,readFileSync} from 'node:fs';

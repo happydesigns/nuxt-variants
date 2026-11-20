@@ -1,6 +1,6 @@
 # Architecture
 
-Composable Variants models named variants as a graph of reusable capabilities.
+Config Variants models named variants as a graph of reusable capabilities.
 The portable resolver computes the active features and configuration for a
 name supplied by the application. The Nuxt module integrates that model with
 Nuxt layouts, generated types and DevTools. The optional Comark Content plugin
@@ -93,7 +93,7 @@ remain internal unless explicitly documented otherwise.
 
 ## Optional Platform Adapters
 
-The `0.3` preview ships one package, `@happydesigns/composable-variants`.
+The `0.3` preview ships one package, `@happydesigns/config-variants`.
 The main import exposes the portable resolver. Nuxt resolves the package
 name in `modules` to `/nuxt`. `/schemas` exposes Nuxt Content v3 schema helpers.
 `/comark-content` and `/devtools` use optional host peers. Nuxt Kit packages are installed with the

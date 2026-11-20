@@ -1,7 +1,7 @@
 # Course reader upgrade pilot
 
 Course can keep its existing variant registry, reader and stored checkpoints
-when trying the Composable Variants preview. The setting took one app-config
+when trying the Config Variants preview. The setting took one app-config
 edit with either version. The preview's practical benefit here is tracing an
 inherited value to the app override that supplied it.
 
@@ -163,8 +163,8 @@ import the same `courseVariantRegistry` that Nuxt already uses, then
 register the plugin in `packages/nuxt/preview/content.ts`:
 
 ```ts
-import { createVariantResolver } from "@happydesigns/composable-variants";
-import { variantContent } from "@happydesigns/composable-variants/comark-content";
+import { createVariantResolver } from "@happydesigns/config-variants";
+import { variantContent } from "@happydesigns/config-variants/comark-content";
 import { courseVariantRegistry } from "../schemas/variants";
 
 const resolver = createVariantResolver(courseVariantRegistry);

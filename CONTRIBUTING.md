@@ -3,7 +3,7 @@
 Read `README.md` before making changes.
 
 This document defines contribution standards for human contributors and
-automated coding agents working on `@happydesigns/composable-variants`.
+automated coding agents working on `@happydesigns/config-variants`.
 
 ## Repository Hygiene
 
@@ -74,7 +74,7 @@ final summary.
 ## Package Release Preparation
 
 Run `pnpm release:prepare` to verify the repository and produce one
-`@happydesigns/composable-variants` tarball. The package check installs that
+`@happydesigns/config-variants` tarball. The package check installs that
 archive in separate core, Comark Content and Nuxt use cases.
 
 ## Commits

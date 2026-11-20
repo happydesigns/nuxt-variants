@@ -20,11 +20,11 @@ export interface VariantsDevframeOptions {
 export function createVariantsDevframe(options: VariantsDevframeOptions) {
   return defineDevframe({
     id: VARIANTS_DEVFRAME_ID,
-    name: "Composable Variants",
+    name: "Config Variants",
     version: packageMetadata.version,
     packageName: packageMetadata.name,
     description: "Inspect variant inheritance, current config and diagnostics.",
-    homepage: "https://github.com/happydesigns/composable-variants",
+    homepage: "https://github.com/happydesigns/config-variants",
     importMetaUrl: import.meta.url,
     basePath: options.basePath ?? "/__nuxt-variants/devtools/",
     clientAssets: options.clientAssets ?? inspectorAssets,

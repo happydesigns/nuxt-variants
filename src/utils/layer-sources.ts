@@ -1,6 +1,6 @@
 import { basename } from "node:path";
 import { normalizeVariantRegistry, type VariantRegistryInput } from "../runtime/utils/registry";
-import type { VariantSourceEntry } from "@happydesigns/composable-variants/internal";
+import type { VariantSourceEntry } from "@happydesigns/config-variants/internal";
 
 export type VariantSource = VariantSourceEntry;
 

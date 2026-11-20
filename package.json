@@ -1,7 +1,7 @@
 {
-  "name": "@happydesigns/composable-variants",
+  "name": "@happydesigns/config-variants",
   "version": "0.3.0-rc.1",
-  "description": "Typed, composable variants for data, Comark Content, and Nuxt.",
+  "description": "Typed configuration variants for data, Comark Content, and Nuxt.",
   "keywords": [
     "comark-content",
     "nuxt",
@@ -10,14 +10,14 @@
     "typescript",
     "variants"
   ],
-  "homepage": "https://github.com/happydesigns/composable-variants#readme",
+  "homepage": "https://github.com/happydesigns/config-variants#readme",
   "bugs": {
-    "url": "https://github.com/happydesigns/composable-variants/issues"
+    "url": "https://github.com/happydesigns/config-variants/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/happydesigns/composable-variants.git"
+    "url": "git+https://github.com/happydesigns/config-variants.git"
   },
   "files": [
     "dist"

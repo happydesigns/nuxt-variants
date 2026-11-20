@@ -5,4 +5,4 @@ export {
   type VariantDevtoolsMetadata,
   type VariantSourceEntry,
   type VariantSources,
-} from "@happydesigns/composable-variants/internal";
+} from "@happydesigns/config-variants/internal";

@@ -1,13 +1,13 @@
-# Composable Variants acceptance
+# Config Variants acceptance
 
-This report compares Composable Variants on `codex/comark-devframe-preview`
+This report compares the development candidate on `codex/comark-devframe-preview`
 with the released `0.2.0`. The comparison uses the release's resolver and
 integrity-checked inspector.
 
 ## 0.3.0-rc.1 acceptance
 
-The local tarball built from `5aba1f0` keeps the package name
-`@happydesigns/nuxt-variants`. Composable Variants is the product name.
+The local tarball built from `5aba1f0` used the package name
+`@happydesigns/nuxt-variants`.
 The same tarball went into an isolated package consumer and the Course app.
 
 | Check                  | Result                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -17,11 +17,11 @@ The same tarball went into an isolated package consumer and the Course app.
 | Inspector              | The comparison opened the 0.2.0 JSON inspector, live DevFrame and a recorded snapshot. Keyboard filtering, override provenance, refresh after a TOC change and the mobile field link passed.                                                                                                                                                                                                    |
 | Course                 | Both production builds prerendered 49 routes. The candidate snapshot preserved the paths, frontmatter and render nodes of all 11 documents and stored the `course` identity. Both checkpoint states survived upgrade and rollback on desktop and mobile. The read-only inspector traced `storagePrefix` to the `courseProgress` app override in both the live JSON and recorded DevFrame views. |
 
-The Course host registered the **Composable Variants** iframe under the
+The Course host registered the inspector iframe under the
 Nuxt group. The registered snapshot query returned 28 variants, including
 the `cp18-progress` override. The iframe URL and its client entry both
 returned HTTP 200. After authorizing a temporary Edge profile on the local
-Course host, the browser opened **Composable Variants** from the native
+Course host, the browser opened the inspector from the native
 Nuxt sidebar. The visible DevFrame panel showed `cp18-progress` for
 `courseProgress.storagePrefix` and traced it to
 `courseProgress · App config override`. The browser profile was closed,
@@ -68,7 +68,7 @@ saved checkpoint survives both upgrade and rollback. See the
 [Course pilot](./course-pilot.md) for the real consumer and reproduction steps.
 
 The earlier acceptance above used the original package name. The final
-package ships as a single `@happydesigns/composable-variants` archive. Use the
+package ships as a single `@happydesigns/config-variants` archive. Use the
 package name in Nuxt's `modules` array. Nuxt resolves the `/nuxt` entry.
 See the [migration guide](./content/docs/9.migration-0-3.md).
 The Comark Content entry is `/comark-content`. Nuxt Content v4 still needs a

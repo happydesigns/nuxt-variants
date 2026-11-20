@@ -119,7 +119,7 @@ async function inspectRelative(name: string) {
 </script>
 <template>
   <UApp>
-    <UDashboardGroup unit="rem" :persistent="false" storage-key="composable-variants-inspector">
+    <UDashboardGroup unit="rem" :persistent="false" storage-key="config-variants-inspector">
       <DevtoolsSidebar
         v-model:selected="selected"
         :entries="data.variants"

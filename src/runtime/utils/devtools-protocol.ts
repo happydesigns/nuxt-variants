@@ -4,4 +4,4 @@ export {
   VARIANTS_SNAPSHOT_RPC,
   type VariantHostContext,
   type VariantHostProtocol,
-} from "@happydesigns/composable-variants/internal";
+} from "@happydesigns/config-variants/internal";

@@ -9,7 +9,7 @@ export default defineBuildConfig({
     { input: "./src/portable/internal", name: "internal" },
     { input: "./src/portable/inspector", name: "inspector" },
   ],
-  externals: [/^@happydesigns\/composable-variants\//],
+  externals: [/^@happydesigns\/config-variants\//],
   declaration: true,
   rollup: {
     emitCJS: false,
