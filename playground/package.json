@@ -1,5 +1,5 @@
 {
-  "name": "my-module-playground",
+  "name": "@happydesigns/config-variants-playground",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,13 +9,13 @@
   },
   "dependencies": {
     "@comark/vue": "^0.9.2",
-    "@nuxt/ui": "^4.13.0",
+    "@nuxt/ui": "catalog:",
     "better-sqlite3": "^13.2.0",
-    "comark-content": "^0.6.2",
-    "nuxt": "^4.6.4",
-    "tailwindcss": "^4.3.5"
+    "comark-content": "catalog:",
+    "nuxt": "catalog:",
+    "tailwindcss": "catalog:"
   },
   "devDependencies": {
-    "@nuxt/content": "^3.17.0"
+    "@nuxt/content": "catalog:"
   }
 }

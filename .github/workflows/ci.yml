@@ -1,52 +1,58 @@
-name: ci
+name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+    tags: ["v*"]
   pull_request:
-    branches:
-      - main
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 jobs:
-  lint:
+  validate:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
+      - &checkout
+        uses: actions/checkout@v7
         with:
-          node-version: 24
+          persist-credentials: false
+      - &pnpm
+        uses: pnpm/action-setup@v6
+      - &node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+        if: github.ref_type != 'tag'
+      - name: Validate release
+        if: github.ref_type == 'tag'
+        run: |
+          pnpm release:check
+          pnpm release:prepare
+          pnpm docs:build
 
-      - run: npm i -g --force corepack@0.36.0 && corepack enable
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: npm run lint
-
-  test:
+  release:
+    if: github.ref_type == 'tag'
+    needs: validate
     runs-on: ubuntu-latest
-
+    timeout-minutes: 5
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-
-      - run: npm i -g --force corepack@0.36.0 && corepack enable
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Playground prepare
-        run: npm run dev:prepare
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Test
-        run: npm run test
+      - *checkout
+      - *pnpm
+      - *node
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Publish GitHub release from the changelog
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/github-release.mjs --publish
