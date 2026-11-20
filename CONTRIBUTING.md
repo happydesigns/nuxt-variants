@@ -54,7 +54,7 @@ If tests are not practical for a change, note the reason in the pull request or 
 
 Run `pnpm release:preview` to review the changes since the last tag. Check the npm account with `npm whoami` before preparing a public release. Sign in with `npm login` if needed and use an account with publish access to the `@happydesigns` scope.
 
-Run `pnpm run release -r <version>` from a clean checkout to create the local Changelogen release commit and tag. When the changelog has curated notes under **Unreleased**, pass `--no-commit --no-tag` to review the generated entry first. Move the curated notes into the generated version section and remove the **Unreleased** section. Commit the manifest and changelog as `chore(release): v<version>` and create an annotated tag for that commit with `git tag -a "v<version>" -m "v<version>"`.
+Run `pnpm run release -r <version>` from a clean checkout to create the local Changelogen release commit and tag. Review the generated changelog entry. Keep migration instructions in the documentation.
 
 Run `node scripts/github-release.mjs --check` to verify the commit, tag, manifest, and changelog agree. Use `pnpm check:release` to run lint, types, tests, isolated package consumers, and the documentation build. The package check prints the tested archive path for local installs.
 
