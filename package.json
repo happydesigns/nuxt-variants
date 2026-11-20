@@ -73,8 +73,9 @@
   },
   "scripts": {
     "build:client": "node scripts/build-client.mjs",
-    "prepack": "nuxt-module-build build && pnpm build:client",
-    "dev:prepare": "nuxt-module-build build && nuxt-module-build prepare && nuxt prepare playground && pnpm build:client",
+    "build:module": "unbuild --stub && nuxt-module-build prepare && nuxt-module-build build",
+    "prepack": "pnpm build:module && pnpm build:client",
+    "dev:prepare": "pnpm build:module && nuxt prepare playground && pnpm build:client",
     "dev": "pnpm dev:prepare && nuxt dev playground",
     "dev:build": "nuxt build playground",
     "docs": "pnpm --dir docs dev",
