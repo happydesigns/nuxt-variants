@@ -1,5 +1,7 @@
 # Config Variants
 
+[![CI on main][ci-badge]][ci-runs] [![MIT license][license-badge]](LICENSE) [![TypeScript guide][typescript-badge]](docs/content/docs/10.platform-preview.md#portable-core) [![Nuxt quickstart][nuxt-badge]](docs/content/docs/1.getting-started.md) [![Comark Content guide][comark-badge]](docs/content/docs/10.platform-preview.md#comark-content)
+
 Define and resolve named, typed configurations from reusable features and defaults. A data record, a route, or application code selects the variant. For example, articles and events can share a hero and breadcrumbs while defining different fields and layout behavior.
 
 ## Nuxt quickstart
@@ -53,3 +55,10 @@ pnpm dev
 Open **Editorial documents** in the playground to see Comark Content select `article` or `event` from Markdown frontmatter. Run `pnpm docs` for the documentation site and `pnpm check` for lint, type checks, and tests.
 
 See [Contributing](CONTRIBUTING.md) for the package and release checks, [Architecture](ARCHITECTURE.md) for the system boundaries, and the [comparison guide](docs/content/docs/10.platform-preview.md#compare-and-verify) for the side-by-side inspector. The [Course pilot](docs/course-pilot.md) covers a real upgrade and rollback.
+
+[ci-badge]: https://github.com/happydesigns/config-variants/actions/workflows/ci.yml/badge.svg?branch=main&event=push
+[ci-runs]: https://github.com/happydesigns/config-variants/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush
+[license-badge]: https://img.shields.io/github/license/happydesigns/config-variants?color=4B5563
+[typescript-badge]: https://img.shields.io/badge/TypeScript-235A9F?logo=typescript&logoColor=white
+[nuxt-badge]: https://img.shields.io/badge/Nuxt-007A59?logo=nuxt&logoColor=white
+[comark-badge]: https://img.shields.io/badge/Comark%20Content-4B5563
