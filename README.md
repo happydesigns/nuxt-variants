@@ -1,8 +1,10 @@
 # Config Variants
 
 <p>
-  <a href="CONTRIBUTING.md#release-workflow"><img src="https://img.shields.io/github/package-json/v/happydesigns/config-variants/main?style=flat&amp;label=preview&amp;colorA=18181B&amp;colorB=B84B31" alt="Package version on main"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/happydesigns/config-variants?style=flat&amp;colorA=18181B&amp;colorB=B84B31" alt="MIT license"></a>
+  <!-- Uncomment the npm badge after the first npm publication.
+  <a href="https://npmx.dev/package/@happydesigns/config-variants"><img src="https://img.shields.io/npm/v/@happydesigns/config-variants.svg?style=flat&amp;colorA=18181B&amp;colorB=F28564" alt="npm version"></a>
+  -->
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/happydesigns/config-variants?style=flat&amp;colorA=18181B&amp;colorB=F28564" alt="MIT license"></a>
   <a href="docs/content/docs/10.platform-preview.md#portable-core"><img src="https://img.shields.io/badge/TypeScript-18181B?logo=typescript" alt="TypeScript guide"></a>
   <a href="docs/content/docs/1.getting-started.md"><img src="https://img.shields.io/badge/Nuxt-18181B?logo=nuxt" alt="Nuxt quickstart"></a>
   <a href="docs/content/docs/10.platform-preview.md#comark-content"><img src=".github/badges/comark-content.svg" alt="Comark Content guide"></a>
