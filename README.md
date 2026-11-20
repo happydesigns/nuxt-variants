@@ -18,9 +18,7 @@ Config Variants is a TypeScript library for composing named configurations from 
 pnpm add @happydesigns/config-variants
 ```
 
-To try an unpublished build, [build and install a local archive](docs/content/docs/10.platform-preview.md#build-the-local-package).
-
-An audit export can reuse the standard CSV settings and choose a different delimiter.
+For example, an app might define settings for a standard CSV export. An audit export can inherit those settings and change the delimiter.
 
 ```ts
 import { createVariantResolver } from "@happydesigns/config-variants";
@@ -61,5 +59,7 @@ pnpm dev
 ```
 
 Open **Editorial documents** in the playground to see Comark Content select `article` or `event` from Markdown frontmatter. Run `pnpm docs` for the documentation site and `pnpm check` for lint, type checks, and tests.
+
+Contributors can [build a local package](docs/content/docs/10.platform-preview.md#build-the-local-package) to test their changes in another app before the next npm release.
 
 See [Contributing](CONTRIBUTING.md) for the package and release checks, [Architecture](ARCHITECTURE.md) for the system boundaries, and the [comparison guide](docs/content/docs/10.platform-preview.md#compare-and-verify) for the side-by-side inspector. The [Course pilot](docs/course-pilot.md) covers a real upgrade and rollback.
