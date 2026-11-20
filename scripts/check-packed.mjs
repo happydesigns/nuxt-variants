@@ -161,7 +161,7 @@ const { compatibility } = JSON.parse(
 );
 const minimumNuxt = /^>=(\d+\.\d+\.\d+)$/.exec(compatibility?.nuxt)?.[1];
 assert.ok(minimumNuxt, "The packed consumer requires a concrete Nuxt compatibility floor.");
-const file = (tarball) => `file:${tarball.replaceAll("\\", "/")}`;
+const file = (archivePath) => `file:${archivePath.replaceAll("\\", "/")}`;
 await fs.mkdir(path.join(nuxtConsumer, "app"), { recursive: true });
 await fs.writeFile(
   path.join(nuxtConsumer, "package.json"),

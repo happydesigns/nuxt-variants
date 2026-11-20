@@ -149,7 +149,7 @@ function resolveBaseline(name, runtime) {
 function canonical(value) {
   return JSON.stringify(value, (_key, item) =>
     item && typeof item === "object" && !Array.isArray(item)
-      ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b)))
+      ? Object.fromEntries(Object.entries(item).toSorted(([a], [b]) => a.localeCompare(b)))
       : item,
   );
 }

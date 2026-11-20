@@ -4,11 +4,11 @@ import type { SchemaAdapter } from "./types";
 
 type ValibotObj = v.ObjectSchema<v.ObjectEntries, undefined>;
 
-const _require = createRequire(import.meta.url);
+const requireFromHere = createRequire(import.meta.url);
 
 function getV(): typeof v {
   try {
-    return _require("valibot") as typeof v;
+    return requireFromHere("valibot") as typeof v;
   } catch {
     throw new Error(
       "[config-variants] Valibot schema detected but valibot is not installed. " +

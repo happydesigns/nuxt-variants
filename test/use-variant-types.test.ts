@@ -45,11 +45,11 @@ describe("AnyVariantConfig (string / unknown key fallback type)", () => {
       compact: { size: number; label: string };
       named: { size: string; visible: boolean };
     };
-    type Config = AnyVariantConfigFor<ConflictingRegistry>;
+    type ConflictingConfig = AnyVariantConfigFor<ConflictingRegistry>;
 
-    expectTypeOf<Config["size"]>().toEqualTypeOf<string | number | undefined>();
-    expectTypeOf<Config["label"]>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<Config["visible"]>().toEqualTypeOf<boolean | undefined>();
+    expectTypeOf<ConflictingConfig["size"]>().toEqualTypeOf<string | number | undefined>();
+    expectTypeOf<ConflictingConfig["label"]>().toEqualTypeOf<string | undefined>();
+    expectTypeOf<ConflictingConfig["visible"]>().toEqualTypeOf<boolean | undefined>();
   });
 });
 

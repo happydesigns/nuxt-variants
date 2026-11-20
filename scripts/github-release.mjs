@@ -10,7 +10,7 @@ export function releaseFromSource(tag, version, subject, changelog) {
     throw new Error("Release tag must identify the Changelogen release commit.");
 
   const entry = parseChangelogMarkdown(changelog).releases.find(
-    (entry) => entry.version === version,
+    (release) => release.version === version,
   );
   if (!entry?.body?.trim())
     throw new Error("Release requires a matching, non-empty changelog entry.");
@@ -58,6 +58,10 @@ export async function publishRelease(release, repository, token, request = fetch
   return `Published ${release.tag} on GitHub.`;
 }
 
+function git(...args) {
+  return execFileSync("git", args, { encoding: "utf8" }).trim();
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const mode = process.argv[2];
   if (mode !== "--check" && mode !== "--publish")
@@ -67,7 +71,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 
   const version = JSON.parse(readFileSync("package.json", "utf8")).version;
   const tag = process.env.GITHUB_REF_NAME || `v${version}`;
-  const git = (...args) => execFileSync("git", args, { encoding: "utf8" }).trim();
   const release = releaseFromSource(
     tag,
     version,

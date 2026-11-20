@@ -1,6 +1,5 @@
 {
   "oxc.enable": true,
-  "oxc.configPath": "./oxlint.json",
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "[vue]": {

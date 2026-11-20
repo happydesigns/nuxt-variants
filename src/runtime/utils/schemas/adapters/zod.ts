@@ -4,14 +4,14 @@ import type { SchemaAdapter } from "./types";
 
 type ZodObj = z.ZodObject<z.ZodRawShape>;
 
-const _require = createRequire(import.meta.url);
+const requireFromHere = createRequire(import.meta.url);
 
 function getZod(): typeof z {
   try {
-    return (_require("zod") as { z: typeof z }).z;
+    return (requireFromHere("zod") as { z: typeof z }).z;
   } catch {
     throw new Error(
-      "[config-variants] Zod schema detected but zod is not installed. " + "Run: npm install zod",
+      "[config-variants] Zod schema detected but zod is not installed. Run: npm install zod",
     );
   }
 }

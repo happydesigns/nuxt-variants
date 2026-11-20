@@ -6,6 +6,10 @@ import { pathToFileURL } from "node:url";
 import { createVariantResolver } from "@happydesigns/config-variants";
 import { variantContent, variantField } from "@happydesigns/config-variants/comark-content";
 
+async function listPaths(content) {
+  return (await content.list()).map((entry) => entry.path).toSorted();
+}
+
 if (!process.argv[2]) throw new Error("Pass the path to an installed Course checkout.");
 const course = resolve(process.argv[2]);
 const baselineSnapshot = process.argv[3];
@@ -47,10 +51,9 @@ try {
     plugins: [variantContent({ resolver })],
     onError: "throw",
   });
-  const paths = async (content) => (await content.list()).map((entry) => entry.path).sort();
-  const expected = await paths(baseline);
+  const expected = await listPaths(baseline);
   assert.ok(expected.length > 0);
-  assert.deepEqual(await paths(restored), expected);
+  assert.deepEqual(await listPaths(restored), expected);
   if (baselineSnapshot) {
     // Compare two Nitro builds. Node and Nitro can tokenize Shiki spans differently.
     const openBuild = async (name, file) =>
@@ -63,8 +66,8 @@ try {
       "currentCourse",
       join(course, "playground/.output/public/api/course-preview/snapshot.json"),
     );
-    assert.deepEqual(await paths(previousBuild), expected);
-    assert.deepEqual(await paths(currentBuild), expected);
+    assert.deepEqual(await listPaths(previousBuild), expected);
+    assert.deepEqual(await listPaths(currentBuild), expected);
   }
   for (const path of expected) {
     const before = await baseline.get(path);
@@ -82,8 +85,8 @@ try {
     assert.equal(restored.variantName(after), "course");
   }
   assert.deepEqual(
-    [...restored.resolveVariant("course").features].sort(),
-    [...resolver.names].sort(),
+    restored.resolveVariant("course").features.toSorted(),
+    resolver.names.toSorted(),
   );
   const override = {
     courseProgress: { config: { courseProgress: { storagePrefix: "course-pilot" } } },

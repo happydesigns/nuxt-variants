@@ -80,7 +80,7 @@ const changed = {
 
 for (const collection of ["article", "event"] as const) {
   const files = path.join(ui, "playground/content", collection + "s");
-  const keys = (await readdir(files)).filter((name) => name.endsWith(".md")).sort();
+  const keys = (await readdir(files)).filter((name) => name.endsWith(".md")).toSorted();
   assert.ok(keys.length > 0);
   const source = {
     schema: {
@@ -109,7 +109,7 @@ for (const collection of ["article", "event"] as const) {
       rows
         .filter((row) => row.data.published !== false)
         .map((row) => row.path)
-        .sort();
+        .toSorted();
     assert.deepEqual(published(graphRows), published(flatRows));
     assert.equal(graphRows.length, keys.length);
     assert.equal(flatRows.length, keys.length);
@@ -118,7 +118,7 @@ for (const collection of ["article", "event"] as const) {
     const expectedPaths = flatRows
       .filter((row) => row.data.category === category && row.data.published === true)
       .map((row) => row.path)
-      .sort();
+      .toSorted();
     assert.ok(expectedPaths.length);
     for (const content of [flat, graph]) {
       const rows = await content
